@@ -645,8 +645,8 @@ export class SmartSchedulingService {
   async suggestRescheduling(
     userId: string,
     options: {
-      start_date: string;
-      end_date: string;
+      start_date?: string;
+      end_date?: string;
       optimize_for?: 'energy' | 'productivity' | 'focus_time';
       max_suggestions?: number;
     } = {}

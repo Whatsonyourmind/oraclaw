@@ -678,7 +678,7 @@ export class JiraService {
       throw new Error(`OAuth token exchange failed: ${error}`);
     }
 
-    const data = await response.json();
+    const data: any = await response.json();
 
     const tokens: JiraOAuthTokens = {
       access_token: data.access_token,
@@ -728,7 +728,7 @@ export class JiraService {
       throw new Error(`Token refresh failed: ${error}`);
     }
 
-    const data = await response.json();
+    const data: any = await response.json();
 
     const tokens: JiraOAuthTokens = {
       access_token: data.access_token,
@@ -859,7 +859,7 @@ export class JiraService {
       throw new Error(`Failed to get accessible resources: ${error}`);
     }
 
-    return response.json();
+    return response.json() as Promise<JiraAccessibleResource[]>;
   }
 
   /**
@@ -1588,7 +1588,7 @@ export class JiraService {
       throw new Error(`Failed to add attachment: ${error}`);
     }
 
-    return response.json();
+    return response.json() as Promise<JiraAttachment[]>;
   }
 
   /**
@@ -1804,7 +1804,7 @@ export class JiraService {
     const priorityLower = priority.toLowerCase();
 
     for (const [urgency, priorities] of Object.entries(this.priorityMapping)) {
-      if (priorities.some((p) => p.toLowerCase() === priorityLower)) {
+      if (priorities.some((p: string) => p.toLowerCase() === priorityLower)) {
         return urgency as 'critical' | 'high' | 'medium' | 'low';
       }
     }

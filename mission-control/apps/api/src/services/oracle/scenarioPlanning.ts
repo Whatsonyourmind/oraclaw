@@ -22,7 +22,7 @@ import type {
   CompareScenarioParams,
   VariableValue,
 } from '@mission-control/shared-types';
-import { MonteCarloSimulator } from './monteCarlo';
+import { MonteCarloService, SimulationFactor } from './monteCarlo.js';
 
 // In-memory stores (would use Supabase in production)
 const scenarios = new Map<string, Scenario>();
@@ -539,15 +539,16 @@ class ScenarioPlanningService {
 
     // Update variable sensitivity scores
     for (const impact of variableImpacts) {
-      const variable = variables.find(v => v.id === impact.variable_id);
-      if (variable) {
+      const variableIndex = variables.findIndex(v => v.id === impact.variable_id);
+      if (variableIndex !== -1) {
+        const variable = variables[variableIndex]!;
         const normalizedSensitivity = Math.min(1, impact.swing / (variableImpacts[0]?.swing || 1));
-        variables.set(impact.variable_id, {
+        variables[variableIndex] = {
           ...variable,
           sensitivity_score: normalizedSensitivity,
           is_key_driver: normalizedSensitivity > 0.7,
           updated_at: new Date().toISOString(),
-        });
+        };
       }
     }
 
@@ -648,15 +649,11 @@ class ScenarioPlanningService {
     outcomes: ScenarioOutcome[],
     iterations: number = 1000
   ): Promise<SensitivityAnalysis> {
-    const simulator = new MonteCarloSimulator();
+    const simulator = new MonteCarloService();
     const primaryOutcome = outcomes.find(o => o.outcome_type === 'primary');
 
     // Build factors from variables
-    const factors: Array<{
-      name: string;
-      distribution: 'normal' | 'uniform' | 'triangular';
-      params: { mean?: number; std?: number; min?: number; max?: number; mode?: number };
-    }> = [];
+    const factors: SimulationFactor[] = [];
 
     for (const variable of variables) {
       if (variable.variable_type !== 'numeric') continue;
@@ -667,21 +664,19 @@ class ScenarioPlanningService {
 
       factors.push({
         name: variable.name,
-        distribution: 'triangular',
-        params: {
-          min: minVal,
-          max: maxVal,
-          mode: currentVal,
+        distribution: {
+          type: 'triangular',
+          params: [minVal, maxVal, currentVal],
         },
       });
     }
 
     // Run simulation
-    const result = simulator.run({
+    const result = await simulator.runSimulation(
       factors,
-      iterations,
-      aggregation: 'sum',
-    });
+      (samples) => Object.values(samples).reduce((a, b) => a + b, 0),
+      { iterations }
+    );
 
     // Calculate variable impacts based on correlation with output
     const variableImpacts = variables
@@ -691,9 +686,9 @@ class ScenarioPlanningService {
         return {
           variable_id: v.id,
           name: v.name,
-          low_impact: -result.std_deviation * sensitivity,
-          high_impact: result.std_deviation * sensitivity,
-          swing: result.std_deviation * sensitivity * 2,
+          low_impact: -result.stdDev * sensitivity,
+          high_impact: result.stdDev * sensitivity,
+          swing: result.stdDev * sensitivity * 2,
         };
       })
       .sort((a, b) => b.swing - a.swing);
@@ -707,7 +702,7 @@ class ScenarioPlanningService {
       least_sensitive_variable_id: variableImpacts[variableImpacts.length - 1]?.variable_id,
       key_insights: [
         `Mean outcome: ${result.mean.toFixed(2)}`,
-        `Standard deviation: ${result.std_deviation.toFixed(2)}`,
+        `Standard deviation: ${result.stdDev.toFixed(2)}`,
         `95% confidence interval: ${result.percentiles.p5.toFixed(2)} to ${result.percentiles.p95.toFixed(2)}`,
       ],
       recommendations: [],

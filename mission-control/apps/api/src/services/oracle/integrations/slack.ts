@@ -369,7 +369,7 @@ export class SlackService {
       }),
     });
 
-    const data = await response.json();
+    const data: any = await response.json();
 
     if (!data.ok) {
       throw new Error(`Slack OAuth error: ${data.error}`);
@@ -441,7 +441,7 @@ export class SlackService {
       body: JSON.stringify(message),
     });
 
-    const data = await response.json();
+    const data: any = await response.json();
 
     if (!data.ok) {
       throw new Error(`Slack API error: ${data.error}`);
@@ -479,7 +479,7 @@ export class SlackService {
       }),
     });
 
-    const data = await response.json();
+    const data: any = await response.json();
 
     if (!data.ok) {
       throw new Error(`Slack API error: ${data.error}`);
@@ -507,7 +507,7 @@ export class SlackService {
       body: JSON.stringify({ users: userId }),
     });
 
-    const imData = await imResponse.json();
+    const imData: any = await imResponse.json();
 
     if (!imData.ok) {
       throw new Error(`Failed to open DM: ${imData.error}`);

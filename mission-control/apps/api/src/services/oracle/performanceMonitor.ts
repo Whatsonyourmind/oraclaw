@@ -122,7 +122,7 @@ interface MetricsBuffer {
 // ============================================================================
 
 export class PerformanceMonitor {
-  private supabase: ReturnType<typeof createClient> | null = null;
+  private supabase: any = null;
   private userId: string | null = null;
   private thresholds: PerformanceThresholds = DEFAULT_THRESHOLDS;
   private buffer: MetricsBuffer = {
@@ -407,7 +407,8 @@ export class PerformanceMonitor {
     if (!metrics || metrics.length === 0) return [];
 
     // Group by metric type
-    const groupedMetrics = metrics.reduce((acc, metric) => {
+    const typedMetrics = metrics as PerformanceMetric[];
+    const groupedMetrics = typedMetrics.reduce((acc: Record<MetricType, PerformanceMetric[]>, metric: PerformanceMetric) => {
       if (!acc[metric.metric_type]) {
         acc[metric.metric_type] = [];
       }
@@ -416,13 +417,13 @@ export class PerformanceMonitor {
     }, {} as Record<MetricType, PerformanceMetric[]>);
 
     // Calculate summaries
-    return Object.entries(groupedMetrics).map(([metricType, typeMetrics]) => {
-      const durations = typeMetrics.map(m => m.duration_ms).sort((a, b) => a - b);
-      const successCount = typeMetrics.filter(m => m.success).length;
+    return Object.entries(groupedMetrics).map(([metricType, typeMetrics]: [string, PerformanceMetric[]]) => {
+      const durations = typeMetrics.map((m: PerformanceMetric) => m.duration_ms).sort((a: number, b: number) => a - b);
+      const successCount = typeMetrics.filter((m: PerformanceMetric) => m.success).length;
 
       return {
         metric_type: metricType as MetricType,
-        avg_duration_ms: durations.reduce((a, b) => a + b, 0) / durations.length,
+        avg_duration_ms: durations.reduce((a: number, b: number) => a + b, 0) / durations.length,
         min_duration_ms: durations[0],
         max_duration_ms: durations[durations.length - 1],
         p50_duration_ms: this.percentile(durations, 50),
@@ -473,7 +474,7 @@ export class PerformanceMonitor {
     const bucketMs = bucketMinutes * 60 * 1000;
     const buckets = new Map<string, { durations: number[]; type: MetricType; timestamp: Date }>();
 
-    metrics.forEach(metric => {
+    metrics.forEach((metric: PerformanceMetric) => {
       const bucketTime = new Date(
         Math.floor(new Date(metric.timestamp).getTime() / bucketMs) * bucketMs
       );

@@ -7,6 +7,7 @@
  * @module services/oracle/integrations/googleCalendar
  */
 
+// @ts-ignore - googleapis is an optional dependency
 import { google, calendar_v3 } from 'googleapis';
 
 // ============================================================================
@@ -268,7 +269,7 @@ export class GoogleCalendarService {
     const response = await this.calendar.calendarList.list();
     const calendars = response.data.items || [];
 
-    return calendars.map((cal) => ({
+    return calendars.map((cal: any) => ({
       id: cal.id!,
       summary: cal.summary!,
       description: cal.description || undefined,
@@ -379,7 +380,7 @@ export class GoogleCalendarService {
         dateTime: event.end?.dateTime || event.end?.date!,
         timeZone: event.end?.timeZone,
       },
-      attendees: event.attendees?.map((a) => ({
+      attendees: event.attendees?.map((a: any) => ({
         email: a.email!,
         displayName: a.displayName,
         responseStatus: a.responseStatus as any,
@@ -493,7 +494,7 @@ export class GoogleCalendarService {
 
     const events = response.data.items || [];
 
-    return events.map((event) => ({
+    return events.map((event: any) => ({
       id: event.id!,
       summary: event.summary!,
       description: event.description || undefined,
@@ -506,7 +507,7 @@ export class GoogleCalendarService {
         dateTime: event.end?.dateTime || event.end?.date!,
         timeZone: event.end?.timeZone,
       },
-      attendees: event.attendees?.map((a) => ({
+      attendees: event.attendees?.map((a: any) => ({
         email: a.email!,
         displayName: a.displayName,
         responseStatus: a.responseStatus as any,
@@ -543,13 +544,13 @@ export class GoogleCalendarService {
 
     const calendars = response.data.calendars || {};
 
-    return Object.entries(calendars).map(([id, data]) => ({
+    return Object.entries(calendars).map(([id, data]: [string, any]) => ({
       calendarId: id,
-      busy: (data.busy || []).map((b) => ({
+      busy: (data.busy || []).map((b: any) => ({
         start: b.start!,
         end: b.end!,
       })),
-      errors: data.errors?.map((e) => ({
+      errors: data.errors?.map((e: any) => ({
         domain: e.domain!,
         reason: e.reason!,
       })),
@@ -920,7 +921,7 @@ export class GoogleCalendarService {
     try {
       const response = await this.calendar.events.list(params);
 
-      const events = (response.data.items || []).map((event) => ({
+      const events = (response.data.items || []).map((event: any) => ({
         id: event.id!,
         summary: event.summary || '',
         description: event.description || undefined,

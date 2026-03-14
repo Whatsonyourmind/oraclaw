@@ -10,6 +10,7 @@
  * - Payment method management
  */
 
+// @ts-ignore - stripe is an optional dependency
 import Stripe from 'stripe';
 import type {
   Subscription,

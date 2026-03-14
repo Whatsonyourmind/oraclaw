@@ -4,7 +4,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import type { APIResponse, Scenario, ScenarioVariable, ScenarioOutcome, ScenarioComparison, SensitivityAnalysis, CreateScenarioParams, UpdateVariableParams, RunSensitivityParams, CompareScenarioParams, ScenarioType, ScenarioStatus, VariableCategory, VariableType, OutcomeType, SensitivityAnalysisType, VariableValue } from '@mission-control/shared-types';
+import type { APIResponse, Scenario, ScenarioVariable, ScenarioOutcome, ScenarioComparison, SensitivityAnalysis, CreateScenarioParams, UpdateVariableParams, RunSensitivityParams, CompareScenarioParams, ScenarioType, ScenarioStatus, VariableCategory, VariableType, ScenarioOutcomeType, SensitivityAnalysisType, VariableValue } from '@mission-control/shared-types';
 import { scenarioPlanningService } from '../../services/oracle/scenarioPlanning';
 
 // Mock user ID (would come from auth in production)
@@ -373,7 +373,7 @@ export async function scenarioRoutes(fastify: FastifyInstance) {
     request: FastifyRequest<{
       Params: { id: string };
       Body: {
-        outcome_type: OutcomeType;
+        outcome_type: ScenarioOutcomeType;
         name: string;
         description?: string;
         probability?: number;

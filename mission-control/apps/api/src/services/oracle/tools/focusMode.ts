@@ -167,7 +167,7 @@ const FOCUS_CACHE_TTL = {
 };
 
 // Break activity suggestions
-const BREAK_ACTIVITIES = {
+const BREAK_ACTIVITIES: Record<BreakType, string[]> = {
   micro: [
     'Stand up and stretch',
     'Take 5 deep breaths',
@@ -191,6 +191,11 @@ const BREAK_ACTIVITIES = {
     'Do some light exercise',
     'Read something enjoyable',
     'Take a power nap (15-20 min)',
+  ],
+  custom: [
+    'Take a break and do something you enjoy',
+    'Stretch and move around',
+    'Hydrate and rest your eyes',
   ],
 };
 
