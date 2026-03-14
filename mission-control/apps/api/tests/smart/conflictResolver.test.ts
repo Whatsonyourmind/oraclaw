@@ -3,13 +3,13 @@
  * Tests for AHP, priority scoring, trade-off analysis, and compromise generation
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock the cache service
-jest.mock('../../src/services/oracle/cache', () => ({
+vi.mock('../../src/services/oracle/cache', () => ({
   oracleCacheService: {
-    get: jest.fn(() => null),
-    set: jest.fn(),
+    get: vi.fn(() => null),
+    set: vi.fn(),
   },
   cacheKey: (...args: string[]) => args.join(':'),
   hashObject: (obj: any) => JSON.stringify(obj),
@@ -140,6 +140,10 @@ class MockPriorityConflictResolverService {
     const n = criteria.length;
     const matrix: number[][] = Array(n).fill(null).map(() => Array(n).fill(1));
 
+    // Accumulate weighted comparisons
+    const weightSums: number[][] = Array(n).fill(null).map(() => Array(n).fill(0));
+    const valueSums: number[][] = Array(n).fill(null).map(() => Array(n).fill(0));
+
     for (const comparison of comparisons) {
       const iA = criteria.findIndex(c => c.id === comparison.criterionA);
       const iB = criteria.findIndex(c => c.id === comparison.criterionB);
@@ -151,8 +155,18 @@ class MockPriorityConflictResolverService {
           weight = stakeholder?.influenceWeight || 1;
         }
 
-        matrix[iA][iB] = comparison.preference * weight;
-        matrix[iB][iA] = (1 / comparison.preference) * weight;
+        valueSums[iA][iB] += comparison.preference * weight;
+        weightSums[iA][iB] += weight;
+        valueSums[iB][iA] += (1 / comparison.preference) * weight;
+        weightSums[iB][iA] += weight;
+      }
+    }
+
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        if (weightSums[i][j] > 0) {
+          matrix[i][j] = valueSums[i][j] / weightSums[i][j];
+        }
       }
     }
 
@@ -594,7 +608,7 @@ describe('PriorityConflictResolverService', () => {
 
   beforeEach(() => {
     service = new MockPriorityConflictResolverService();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ============================================================================

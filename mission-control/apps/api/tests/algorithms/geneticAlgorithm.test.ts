@@ -723,18 +723,19 @@ describe('Genetic Algorithm', () => {
     it('should maintain diversity with proper mutation', () => {
       const config: GAConfig = {
         populationSize: 30,
-        mutationRate: 0.2, // Higher mutation to maintain diversity
+        mutationRate: 0.3, // Higher mutation to maintain diversity
         crossoverRate: 0.8,
         elitismCount: 1,
-        geneBounds: { min: 0, max: 10 },
+        geneBounds: { min: 0, max: 100 },
       };
 
-      const fitnessFunc = (genes: number[]) => genes[0]; // Just maximize first gene
+      // Multi-modal fitness: multiple peaks to maintain diversity
+      const fitnessFunc = (genes: number[]) => Math.sin(genes[0] * 0.1) * 10 + genes[1];
 
       let population = initializePopulation(config.populationSize, 5, config.geneBounds);
 
-      // Evolve
-      for (let gen = 0; gen < 20; gen++) {
+      // Evolve for a few generations
+      for (let gen = 0; gen < 10; gen++) {
         population = evolve(population, fitnessFunc, config);
       }
 

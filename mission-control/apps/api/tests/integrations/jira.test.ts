@@ -3,7 +3,7 @@
  * Tests for Jira API operations with mocked responses
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // ============================================================================
 // Types
@@ -314,11 +314,11 @@ class JiraService {
 
 describe('Jira Integration', () => {
   let jiraService: JiraService;
-  let mockFetch: jest.Mock;
+  let mockFetch: any;
   const originalFetch = global.fetch;
 
   beforeEach(() => {
-    mockFetch = jest.fn();
+    mockFetch = vi.fn();
     global.fetch = mockFetch;
 
     jiraService = new JiraService({
@@ -330,7 +330,7 @@ describe('Jira Integration', () => {
 
   afterEach(() => {
     global.fetch = originalFetch;
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   // ============================================================================

@@ -312,8 +312,9 @@ export class DeadlineRiskPredictorService {
     if (dailyVelocities.length >= 3) {
       const recent = dailyVelocities.slice(-3);
       const trend = (recent[2] - recent[0]) / Math.max(0.01, Math.abs(recent[0]));
+      const recentAvgVel = recent.reduce((a, b) => a + b, 0) / recent.length;
 
-      if (currentVelocity < 0.5) {
+      if (recentAvgVel <= 0.5) {
         velocityTrend = 'stalled';
       } else if (trend > 0.2) {
         velocityTrend = 'accelerating';

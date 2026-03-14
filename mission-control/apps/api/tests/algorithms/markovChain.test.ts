@@ -4,7 +4,7 @@
  * and OODA phase integration
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   MarkovChainPredictor,
   createMarkovChainPredictor,

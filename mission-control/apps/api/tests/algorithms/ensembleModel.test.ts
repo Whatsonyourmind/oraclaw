@@ -3,7 +3,7 @@
  * Tests for model combination, voting strategies, calibration, and uncertainty quantification
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   EnsembleModel,
   createEnsembleModel,
@@ -26,7 +26,7 @@ function createMockModel(
     type: 'heuristic',
     weight: 0.25,
     active: true,
-    predict: jest.fn((): ModelPrediction => ({
+    predict: vi.fn((): ModelPrediction => ({
       value: predictedValue,
       confidence,
     })),

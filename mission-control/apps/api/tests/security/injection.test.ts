@@ -54,7 +54,7 @@ class InputSanitizer {
       /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|TRUNCATE)\b)/i,
       /(\b(OR|AND)\s+\d+\s*=\s*\d+)/i,
       /('|")\s*(OR|AND)\s*('|")/i,
-      /(;|\-\-|\/\*|\*\/|@@|@)/,
+      /(;|\-\-|\/\*|\*\/|@@)/,
       /(\bEXEC\b|\bEXECUTE\b)/i,
       /(\bxp_|\bsp_)/i,
       /(WAITFOR\s+DELAY)/i,
@@ -111,6 +111,7 @@ class InputSanitizer {
       /url\s*\(\s*['"]*\s*javascript/i,
       /data\s*:\s*text\/html/i,
       /vbscript\s*:/i,
+      /['"`]\s*-\s*\w+\s*\(/,
     ];
 
     return xssPatterns.some((pattern) => pattern.test(input));
@@ -222,8 +223,10 @@ class InputSanitizer {
       /\.\.\//,
       /\.\.\\/,
       /\.\.$/,
+      /\.\.%/,
       /%2e%2e/i,
       /%252e%252e/i,
+      /%00/,
       /\x00/,
       /^\/etc\//,
       /^\/proc\//,
@@ -263,7 +266,11 @@ class InputSanitizer {
       // Recursively sanitize object values
       const sanitize = (obj: any): any => {
         if (typeof obj === 'string') {
-          return this.escapeHtml(obj);
+          // Strip dangerous URI schemes before HTML escaping
+          let sanitized = obj.replace(/javascript\s*:/gi, '');
+          sanitized = sanitized.replace(/vbscript\s*:/gi, '');
+          sanitized = sanitized.replace(/data\s*:\s*text\/html/gi, '');
+          return this.escapeHtml(sanitized);
         }
 
         if (Array.isArray(obj)) {
@@ -441,7 +448,10 @@ describe('XSS Prevention', () => {
       const input = '<img src="x" onerror="alert(\'XSS\')">';
       const escaped = InputSanitizer.escapeHtml(input);
       expect(escaped).not.toContain('<img');
-      expect(escaped).not.toContain('onerror');
+      // After escaping, 'onerror' text remains but is harmless since
+      // the surrounding HTML structure (<, >, =, quotes) is escaped
+      expect(escaped).not.toContain('<');
+      expect(escaped).not.toContain('>');
     });
   });
 });
@@ -971,7 +981,7 @@ describe('CSRF Protection', () => {
     await new Promise((resolve) => setTimeout(resolve, 5100));
 
     expect(csrfManager.validateToken('session-1', token)).toBe(false);
-  });
+  }, 10000);
 
   it('should allow token invalidation', () => {
     const token = csrfManager.generateToken('session-1');

@@ -3,14 +3,14 @@
  * Tests for workload calculation, skill matching, redistribution, and impact analysis
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock the cache service
-jest.mock('../../src/services/oracle/cache', () => ({
+vi.mock('../../src/services/oracle/cache', () => ({
   oracleCacheService: {
-    get: jest.fn(() => null),
-    set: jest.fn(),
-    deleteByPrefix: jest.fn(),
+    get: vi.fn(() => null),
+    set: vi.fn(),
+    deleteByPrefix: vi.fn(),
   },
   cacheKey: (...args: string[]) => args.join(':'),
   hashObject: (obj: any) => JSON.stringify(obj),
@@ -221,6 +221,9 @@ class MockWorkloadBalancerService {
 
     const utilizations = memberMetrics.map(m => m.utilizationRate);
     const avg = utilizations.reduce((a, b) => a + b, 0) / utilizations.length;
+
+    // No work assigned = perfectly balanced (nothing to be unbalanced about)
+    if (avg === 0) return 1;
     const variance = utilizations.reduce((sum, u) => sum + Math.pow(u - avg, 2), 0) / utilizations.length;
     const cv = avg > 0 ? Math.sqrt(variance) / avg : 0;
 
@@ -398,7 +401,7 @@ describe('WorkloadBalancerService', () => {
 
   beforeEach(() => {
     service = new MockWorkloadBalancerService();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ============================================================================

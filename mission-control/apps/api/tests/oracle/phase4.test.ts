@@ -9,7 +9,7 @@
  * - Watch connectivity tests (mocked)
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 
 // ============================================================================
 // MOCK SETUP
@@ -17,48 +17,48 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@je
 
 // Mock Supabase client
 const mockSupabaseClient = {
-  from: jest.fn(() => ({
-    select: jest.fn(() => ({
-      eq: jest.fn(() => ({
-        single: jest.fn(() => Promise.resolve({ data: { id: 'test-id' }, error: null })),
-        order: jest.fn(() => Promise.resolve({ data: [], error: null })),
+  from: vi.fn(() => ({
+    select: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        single: vi.fn(() => Promise.resolve({ data: { id: 'test-id' }, error: null })),
+        order: vi.fn(() => Promise.resolve({ data: [], error: null })),
       })),
-      order: jest.fn(() => Promise.resolve({ data: [], error: null })),
+      order: vi.fn(() => Promise.resolve({ data: [], error: null })),
     })),
-    insert: jest.fn(() => Promise.resolve({ data: { id: 'new-id' }, error: null })),
-    update: jest.fn(() => ({
-      eq: jest.fn(() => Promise.resolve({ data: { id: 'test-id' }, error: null })),
+    insert: vi.fn(() => Promise.resolve({ data: { id: 'new-id' }, error: null })),
+    update: vi.fn(() => ({
+      eq: vi.fn(() => Promise.resolve({ data: { id: 'test-id' }, error: null })),
     })),
-    delete: jest.fn(() => ({
-      eq: jest.fn(() => Promise.resolve({ error: null })),
+    delete: vi.fn(() => ({
+      eq: vi.fn(() => Promise.resolve({ error: null })),
     })),
   })),
-  channel: jest.fn(() => ({
-    on: jest.fn(() => ({ subscribe: jest.fn() })),
-    subscribe: jest.fn(),
-    unsubscribe: jest.fn(),
+  channel: vi.fn(() => ({
+    on: vi.fn(() => ({ subscribe: vi.fn() })),
+    subscribe: vi.fn(),
+    unsubscribe: vi.fn(),
   })),
   realtime: {
-    channel: jest.fn(() => ({
-      on: jest.fn(() => ({ subscribe: jest.fn() })),
-      subscribe: jest.fn(),
-      unsubscribe: jest.fn(),
+    channel: vi.fn(() => ({
+      on: vi.fn(() => ({ subscribe: vi.fn() })),
+      subscribe: vi.fn(),
+      unsubscribe: vi.fn(),
     })),
   },
-  rpc: jest.fn(() => Promise.resolve({ data: null, error: null })),
+  rpc: vi.fn(() => Promise.resolve({ data: null, error: null })),
 };
 
-jest.mock('@supabase/supabase-js', () => ({
-  createClient: jest.fn(() => mockSupabaseClient),
+vi.mock('@supabase/supabase-js', () => ({
+  createClient: vi.fn(() => mockSupabaseClient),
 }));
 
 // Mock fetch for OAuth tests
-global.fetch = jest.fn(() =>
+global.fetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
     json: () => Promise.resolve({ access_token: 'test-token' }),
   })
-) as jest.Mock;
+) as any;
 
 // ============================================================================
 // REALTIME SUBSCRIPTION TESTS
@@ -74,15 +74,15 @@ describe('Realtime Subscriptions', () => {
     });
 
     it('should handle INSERT events', async () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const channel = {
-        on: jest.fn((event, config, cb) => {
+        on: vi.fn((event, config, cb) => {
           if (event === 'postgres_changes' && config.event === 'INSERT') {
             cb({ new: { id: 'new-signal', title: 'Test Signal' } });
           }
           return channel;
         }),
-        subscribe: jest.fn(),
+        subscribe: vi.fn(),
       };
 
       channel.on('postgres_changes', { event: 'INSERT', table: 'oracle_signals' }, callback);
@@ -95,9 +95,9 @@ describe('Realtime Subscriptions', () => {
     });
 
     it('should handle UPDATE events', async () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const channel = {
-        on: jest.fn((event, config, cb) => {
+        on: vi.fn((event, config, cb) => {
           if (event === 'postgres_changes' && config.event === 'UPDATE') {
             cb({
               old: { id: 'signal-1', status: 'active' },
@@ -106,7 +106,7 @@ describe('Realtime Subscriptions', () => {
           }
           return channel;
         }),
-        subscribe: jest.fn(),
+        subscribe: vi.fn(),
       };
 
       channel.on('postgres_changes', { event: 'UPDATE', table: 'oracle_signals' }, callback);
@@ -120,15 +120,15 @@ describe('Realtime Subscriptions', () => {
     });
 
     it('should handle DELETE events', async () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const channel = {
-        on: jest.fn((event, config, cb) => {
+        on: vi.fn((event, config, cb) => {
           if (event === 'postgres_changes' && config.event === 'DELETE') {
             cb({ old: { id: 'deleted-signal' } });
           }
           return channel;
         }),
-        subscribe: jest.fn(),
+        subscribe: vi.fn(),
       };
 
       channel.on('postgres_changes', { event: 'DELETE', table: 'oracle_signals' }, callback);
@@ -170,15 +170,15 @@ describe('Realtime Subscriptions', () => {
 
   describe('Reconnection Handling', () => {
     it('should attempt reconnection on disconnect', async () => {
-      const reconnectCallback = jest.fn();
+      const reconnectCallback = vi.fn();
       const channel = {
-        on: jest.fn((event, cb) => {
+        on: vi.fn((event, cb) => {
           if (event === 'system' && typeof cb === 'function') {
             cb({ status: 'disconnected' });
           }
           return channel;
         }),
-        subscribe: jest.fn(),
+        subscribe: vi.fn(),
       };
 
       // Simulate disconnect event
@@ -215,7 +215,7 @@ describe('Integration OAuth Flows', () => {
     });
 
     it('should exchange authorization code for tokens', async () => {
-      const mockFetch = global.fetch as jest.Mock;
+      const mockFetch = global.fetch as any;
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () =>
@@ -242,7 +242,7 @@ describe('Integration OAuth Flows', () => {
     });
 
     it('should refresh expired tokens', async () => {
-      const mockFetch = global.fetch as jest.Mock;
+      const mockFetch = global.fetch as any;
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () =>
@@ -285,7 +285,7 @@ describe('Integration OAuth Flows', () => {
 
   describe('Todoist OAuth', () => {
     it('should handle OAuth token exchange', async () => {
-      const mockFetch = global.fetch as jest.Mock;
+      const mockFetch = global.fetch as any;
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () =>
@@ -372,9 +372,9 @@ describe('Offline Sync', () => {
   describe('Data Migration', () => {
     it('should run migrations in order', async () => {
       const migrations = [
-        { version: 1, up: jest.fn() },
-        { version: 2, up: jest.fn() },
-        { version: 3, up: jest.fn() },
+        { version: 1, up: vi.fn() },
+        { version: 2, up: vi.fn() },
+        { version: 3, up: vi.fn() },
       ];
 
       let currentVersion = 0;
@@ -434,11 +434,11 @@ describe('Offline Sync', () => {
 describe('Watch Connectivity', () => {
   // Mock watch connectivity
   const mockWatchConnectivity = {
-    getReachability: jest.fn(() => Promise.resolve(true)),
-    sendMessage: jest.fn(() => Promise.resolve({ success: true })),
-    subscribeToMessages: jest.fn(),
-    updateApplicationContext: jest.fn(() => Promise.resolve()),
-    getApplicationContext: jest.fn(() => Promise.resolve({})),
+    getReachability: vi.fn(() => Promise.resolve(true)),
+    sendMessage: vi.fn(() => Promise.resolve({ success: true })),
+    subscribeToMessages: vi.fn(),
+    updateApplicationContext: vi.fn(() => Promise.resolve()),
+    getApplicationContext: vi.fn(() => Promise.resolve({})),
   };
 
   describe('Apple Watch', () => {
@@ -481,9 +481,9 @@ describe('Watch Connectivity', () => {
 
   describe('Wear OS', () => {
     const mockWearOS = {
-      isAvailable: jest.fn(() => Promise.resolve(true)),
-      sendData: jest.fn(() => Promise.resolve()),
-      requestSync: jest.fn(() => Promise.resolve()),
+      isAvailable: vi.fn(() => Promise.resolve(true)),
+      sendData: vi.fn(() => Promise.resolve()),
+      requestSync: vi.fn(() => Promise.resolve()),
     };
 
     it('should check Wear OS availability', async () => {

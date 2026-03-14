@@ -3,22 +3,22 @@
  * Tests for velocity tracking, risk probability, alerts, and mitigation suggestions
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock the cache service
-jest.mock('../../src/services/oracle/cache', () => ({
+vi.mock('../../src/services/oracle/cache', () => ({
   oracleCacheService: {
-    get: jest.fn(() => null),
-    set: jest.fn(),
+    get: vi.fn(() => null),
+    set: vi.fn(),
   },
   cacheKey: (...args: string[]) => args.join(':'),
   hashObject: (obj: any) => JSON.stringify(obj),
 }));
 
 // Mock the Monte Carlo service
-jest.mock('../../src/services/oracle/monteCarlo', () => ({
+vi.mock('../../src/services/oracle/monteCarlo', () => ({
   monteCarloService: {
-    runSimulation: jest.fn(async (factors, calcFn, options) => {
+    runSimulation: vi.fn(async (factors, calcFn, options) => {
       // Run simplified simulation
       const samples: number[] = [];
       for (let i = 0; i < 100; i++) {
@@ -181,7 +181,9 @@ class MockDeadlineRiskPredictorService {
       const recent = dailyVelocities.slice(-3);
       const trend = (recent[2] - recent[0]) / Math.max(0.01, Math.abs(recent[0]));
 
-      if (currentVelocity < 0.5) {
+      const recentSlice = dailyVelocities.slice(-3);
+      const recentAvgVel = recentSlice.reduce((a, b) => a + b, 0) / recentSlice.length;
+      if (currentVelocity < 0.5 || recentAvgVel <= 0.5) {
         velocityTrend = 'stalled';
       } else if (trend > 0.2) {
         velocityTrend = 'accelerating';
@@ -227,6 +229,33 @@ class MockDeadlineRiskPredictorService {
     this.externalFactors.set(task.id, externalFactors);
 
     const velocity = this.calculateVelocity(task);
+
+    // If task is complete, no risk
+    if (task.completedPercentage >= 100 || task.status === 'completed') {
+      const risk = {
+        taskId: task.id,
+        taskTitle: task.title,
+        originalDeadline: task.deadline,
+        currentDeadline: task.deadline,
+        probabilityOfMiss: 0,
+        riskLevel: 'none' as const,
+        confidenceInterval: {
+          optimistic: new Date(),
+          mostLikely: new Date(),
+          pessimistic: new Date(),
+        },
+        contributingFactors: [],
+        velocityMetrics: velocity,
+        externalFactors,
+        lastUpdated: new Date(),
+      };
+
+      return {
+        risk,
+        mitigations: [],
+        alerts: [],
+      };
+    }
 
     // Simplified risk calculation based on velocity and deadline
     const deadlineDays = Math.max(0,
@@ -289,6 +318,9 @@ class MockDeadlineRiskPredictorService {
 
     // Generate alerts
     const alerts = this.generateAlerts(risk);
+    if (alerts.length > 0) {
+      this.alerts.set(task.id, alerts);
+    }
 
     // Generate mitigation suggestions
     const mitigations = this.generateMitigations(risk, task, velocity);
@@ -619,7 +651,7 @@ describe('DeadlineRiskPredictorService', () => {
 
   beforeEach(() => {
     service = new MockDeadlineRiskPredictorService();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ============================================================================
@@ -687,11 +719,11 @@ describe('DeadlineRiskPredictorService', () => {
         completedPercentage: 60,
         progressHistory: [
           { timestamp: new Date(startDate.getTime()), completedPercentage: 0, hoursWorked: 0, hoursRemaining: 80, blockerCount: 0 },
-          { timestamp: new Date(startDate.getTime() + 1 * 24 * 60 * 60 * 1000), completedPercentage: 5, hoursWorked: 4, hoursRemaining: 76, blockerCount: 0 },
-          { timestamp: new Date(startDate.getTime() + 2 * 24 * 60 * 60 * 1000), completedPercentage: 15, hoursWorked: 12, hoursRemaining: 68, blockerCount: 0 },
-          { timestamp: new Date(startDate.getTime() + 3 * 24 * 60 * 60 * 1000), completedPercentage: 30, hoursWorked: 24, hoursRemaining: 56, blockerCount: 0 },
-          { timestamp: new Date(startDate.getTime() + 4 * 24 * 60 * 60 * 1000), completedPercentage: 45, hoursWorked: 36, hoursRemaining: 44, blockerCount: 0 },
-          { timestamp: new Date(startDate.getTime() + 5 * 24 * 60 * 60 * 1000), completedPercentage: 60, hoursWorked: 48, hoursRemaining: 32, blockerCount: 0 },
+          { timestamp: new Date(startDate.getTime() + 1 * 24 * 60 * 60 * 1000), completedPercentage: 2, hoursWorked: 2, hoursRemaining: 78, blockerCount: 0 },
+          { timestamp: new Date(startDate.getTime() + 2 * 24 * 60 * 60 * 1000), completedPercentage: 5, hoursWorked: 5, hoursRemaining: 75, blockerCount: 0 },
+          { timestamp: new Date(startDate.getTime() + 3 * 24 * 60 * 60 * 1000), completedPercentage: 10, hoursWorked: 10, hoursRemaining: 70, blockerCount: 0 },
+          { timestamp: new Date(startDate.getTime() + 4 * 24 * 60 * 60 * 1000), completedPercentage: 20, hoursWorked: 20, hoursRemaining: 60, blockerCount: 0 },
+          { timestamp: new Date(startDate.getTime() + 5 * 24 * 60 * 60 * 1000), completedPercentage: 40, hoursWorked: 36, hoursRemaining: 40, blockerCount: 0 },
         ],
       });
 
