@@ -97,9 +97,10 @@ export interface ChartOptions {
   indexAxis?: 'x' | 'y';
   nodeWidth?: number;
   nodePadding?: number;
-  colorScale?: string[];
+  colorScale?: string[] | { min: string; max: string; steps?: number };
   align?: string;
   arcWidth?: number;
+  showValue?: boolean;
 }
 
 export interface LayoutOptions {

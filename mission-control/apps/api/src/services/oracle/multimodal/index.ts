@@ -1015,10 +1015,11 @@ export class MultimodalService {
 
     // Meeting/event context detection
     const meetingPattern = /\b(meeting|call|sync|appointment|interview|presentation|demo|webinar|conference)\s+(?:on|at|scheduled for)?\s+([^.!?\n]+)/gi;
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = meetingPattern.exec(text)) !== null) {
+      const currentMatch = match;
       const contextDates = dates.filter(d =>
-        match[2].toLowerCase().includes(d.text.toLowerCase())
+        currentMatch[2].toLowerCase().includes(d.text.toLowerCase())
       );
       for (const d of contextDates) {
         d.type = 'meeting';
@@ -1028,8 +1029,9 @@ export class MultimodalService {
     // Deadline context detection
     const deadlinePattern = /\b(deadline|due|due date|submit(?:ted)? by|deliver(?:ed)? by|complete(?:d)? by)\s*:?\s*([^.!?\n]+)/gi;
     while ((match = deadlinePattern.exec(text)) !== null) {
+      const currentMatch = match;
       const contextDates = dates.filter(d =>
-        match[2].toLowerCase().includes(d.text.toLowerCase())
+        currentMatch[2].toLowerCase().includes(d.text.toLowerCase())
       );
       for (const d of contextDates) {
         d.type = 'deadline';

@@ -158,7 +158,7 @@ export class OracleWebhookService {
   /**
    * Trigger webhook for an event
    */
-  async triggerWebhook<T = Record<string, any>>(params: {
+  async triggerWebhook<T extends Record<string, any> = Record<string, any>>(params: {
     user_id: string;
     event_type: WebhookEventType;
     event_id?: string;
@@ -193,7 +193,7 @@ export class OracleWebhookService {
   /**
    * Create a delivery record
    */
-  private async createDelivery<T>(
+  private async createDelivery<T extends Record<string, any>>(
     webhook: Webhook,
     params: {
       event_type: WebhookEventType;
@@ -202,7 +202,7 @@ export class OracleWebhookService {
       metadata?: Record<string, any>;
     }
   ): Promise<WebhookDelivery> {
-    const payload: WebhookPayload<T> = {
+    const payload: WebhookPayload<Record<string, any>> = {
       id: crypto.randomUUID(),
       event_type: params.event_type,
       timestamp: new Date().toISOString(),

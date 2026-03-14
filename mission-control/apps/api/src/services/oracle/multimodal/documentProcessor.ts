@@ -826,7 +826,7 @@ export class DocumentProcessor {
       if (input.data instanceof ArrayBuffer) {
         return new TextDecoder().decode(new Uint8Array(input.data));
       }
-      return input.data.toString('utf-8');
+      return (input.data as Buffer).toString('utf-8');
     }
 
     if (input.base64) {
@@ -1039,7 +1039,7 @@ export class DocumentProcessor {
       if (section.type === 'paragraph' || section.type === 'heading') {
         const sectionSents = section.content.match(/[^.!?]+[.!?]+/g) || [];
         if (sectionSents.length > 0) {
-          sectionSentences.push(sectionSents[0].trim());
+          sectionSentences.push(sectionSents[0]!.trim());
         }
       }
     }

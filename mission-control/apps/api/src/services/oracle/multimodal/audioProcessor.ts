@@ -934,7 +934,7 @@ export class AudioProcessor {
     }
 
     // Get first sentence
-    const summary = [sentences[0].trim()];
+    const summary = [sentences[0]!.trim()];
 
     // Add sentences containing key moments
     for (const moment of keyMoments.slice(0, 3)) {

@@ -664,7 +664,7 @@ class DeadLetterQueue extends EventEmitter {
 // ============================================================================
 
 export class QueueManager extends EventEmitter {
-  private queues = new Map<QueueName, JobQueue>();
+  private queues = new Map<QueueName, JobQueue<any>>();
   private deadLetterQueue: DeadLetterQueue;
   private isShutdown = false;
 
