@@ -1,0 +1,74 @@
+# ORACLE Docker Ignore
+# Exclude files from Docker build context
+
+# Dependencies
+node_modules
+*/node_modules
+
+# Build outputs
+dist
+build
+.next
+.expo
+web-build
+
+# Development files
+.git
+.gitignore
+*.md
+README*
+CHANGELOG*
+LICENSE*
+
+# IDE and editor
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Environment files (use docker-compose env instead)
+.env
+.env.local
+.env.*.local
+*.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test files
+coverage
+.nyc_output
+__tests__
+*.test.ts
+*.spec.ts
+jest.config.*
+vitest.config.*
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Documentation
+docs
+*.md
+
+# Temporary files
+tmp
+temp
+.tmp
+.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (avoid recursive)
+Dockerfile*
+docker-compose*.yml
+.dockerignore

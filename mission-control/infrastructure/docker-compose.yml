@@ -1,0 +1,226 @@
+# ORACLE Docker Compose Configuration
+# Story inf-4: Local development environment
+#
+# Services:
+# - api: Fastify backend API
+# - postgres: PostgreSQL database
+# - redis: Redis cache and pub/sub
+# - adminer: Database management UI
+# - redis-commander: Redis management UI
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # API Service
+  # ==========================================================================
+  api:
+    build:
+      context: ..
+      dockerfile: infrastructure/Dockerfile
+    container_name: oracle-api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-3001}:3001"
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3001
+
+      # Database
+      DATABASE_URL: postgres://${POSTGRES_USER:-oracle}:${POSTGRES_PASSWORD:-oracle_secret}@postgres:5432/${POSTGRES_DB:-oracle}
+
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_DB: 0
+      REDIS_KEY_PREFIX: oracle:
+
+      # WebSocket
+      WS_PORT: 3001
+      WS_CORS_ORIGIN: ${WS_CORS_ORIGIN:-*}
+
+      # API Keys (mount from .env)
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-}
+      HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY:-}
+
+      # Feature Flags
+      ENABLE_SEMANTIC_SEARCH: ${ENABLE_SEMANTIC_SEARCH:-true}
+      ENABLE_VAULT_ENCRYPTION: ${ENABLE_VAULT_ENCRYPTION:-true}
+    volumes:
+      - ../apps/api/uploads:/app/uploads
+      - api-logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - oracle-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ==========================================================================
+  # PostgreSQL Database
+  # ==========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: oracle-postgres
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-oracle}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-oracle_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-oracle}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../apps/api/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks:
+      - oracle-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-oracle} -d ${POSTGRES_DB:-oracle}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ==========================================================================
+  # Redis Cache
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: oracle-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      ${REDIS_PASSWORD:+--requirepass $REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    networks:
+      - oracle-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================================================
+  # Adminer (Database Management)
+  # ==========================================================================
+  adminer:
+    image: adminer:latest
+    container_name: oracle-adminer
+    restart: unless-stopped
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: pepa-linha-dark
+    depends_on:
+      - postgres
+    networks:
+      - oracle-network
+    profiles:
+      - tools
+
+  # ==========================================================================
+  # Redis Commander (Redis Management)
+  # ==========================================================================
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: oracle-redis-commander
+    restart: unless-stopped
+    ports:
+      - "${REDIS_COMMANDER_PORT:-8081}:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379${REDIS_PASSWORD:+:$REDIS_PASSWORD}
+    depends_on:
+      - redis
+    networks:
+      - oracle-network
+    profiles:
+      - tools
+
+  # ==========================================================================
+  # Prometheus (Metrics)
+  # ==========================================================================
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: oracle-prometheus
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - api
+    networks:
+      - oracle-network
+    profiles:
+      - monitoring
+
+  # ==========================================================================
+  # Grafana (Visualization)
+  # ==========================================================================
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: oracle-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-oracle_admin}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3000}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - oracle-network
+    profiles:
+      - monitoring
+
+# ==========================================================================
+# Networks
+# ==========================================================================
+networks:
+  oracle-network:
+    driver: bridge
+    name: oracle-network
+
+# ==========================================================================
+# Volumes
+# ==========================================================================
+volumes:
+  postgres-data:
+    name: oracle-postgres-data
+  redis-data:
+    name: oracle-redis-data
+  api-logs:
+    name: oracle-api-logs
+  prometheus-data:
+    name: oracle-prometheus-data
+  grafana-data:
+    name: oracle-grafana-data
