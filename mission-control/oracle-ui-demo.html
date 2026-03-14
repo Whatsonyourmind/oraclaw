@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORACLE UI/UX Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --observe: #00BFFF;
+            --orient: #FFD700;
+            --decide: #FF6B6B;
+            --act: #00FF88;
+            --idle: #888888;
+            --bg-dark: #0a0a0a;
+            --bg-card: #1A1A1A;
+            --border: #333333;
+            --text-primary: #FFFFFF;
+            --text-secondary: #888888;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Mobile Frame */
+        .phone-frame {
+            width: 390px;
+            height: 844px;
+            background: var(--bg-dark);
+            border-radius: 40px;
+            border: 4px solid #333;
+            margin: 20px auto;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: rgba(10,10,10,0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Screen Content */
+        .screen-content {
+            height: calc(100% - 124px);
+            margin-top: 44px;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .screen-content::-webkit-scrollbar {
+            width: 0;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .confidence-badge {
+            padding: 8px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        /* Phase Indicator */
+        .phase-indicator {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            border: 1px solid;
+            border-radius: 16px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .phase-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Loop Control */
+        .loop-control {
+            display: flex;
+            align-items: center;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .loop-indicator {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            margin-right: 16px;
+        }
+
+        .loop-ring {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px dashed;
+            animation: spin 4s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .loop-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .loop-info {
+            flex: 1;
+        }
+
+        .current-phase {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .phase-status {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .loop-button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        /* Phase Card */
+        .phase-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .phase-card:hover {
+            transform: scale(1.02);
+        }
+
+        .phase-card.active {
+            border-width: 2px;
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .phase-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 22px;
+        }
+
+        .phase-title {
+            flex: 1;
+        }
+
+        .phase-label {
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .phase-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .active-badge {
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .phase-stats {
+            display: flex;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        .phase-stat {
+            flex: 1;
+            text-align: center;
+        }
+
+        .phase-stat-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .phase-stat-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Radar Screen */
+        .radar-container {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: rgba(0, 191, 255, 0.03);
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .radar-ring {
+            position: absolute;
+            border: 1px solid rgba(0, 191, 255, 0.2);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .radar-scan {
+            position: absolute;
+            width: 2px;
+            height: 140px;
+            background: linear-gradient(to top, var(--observe), transparent);
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            animation: radar-sweep 3s linear infinite;
+            box-shadow: 0 0 20px var(--observe);
+        }
+
+        @keyframes radar-sweep {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .radar-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(0, 191, 255, 0.1);
+            border: 2px solid var(--observe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .signal-blip {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: blip 2s infinite;
+        }
+
+        @keyframes blip {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Scan Button */
+        .scan-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--observe);
+            color: #000;
+            padding: 16px 32px;
+            border-radius: 8px;
+            margin: 0 20px 24px;
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: 1px;
+            border: none;
+            font-size: 16px;
+        }
+
+        .scan-button:hover {
+            opacity: 0.9;
+        }
+
+        /* Filter Chips */
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-chips {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding-bottom: 8px;
+        }
+
+        .filter-chip {
+            padding: 8px 12px;
+            border-radius: 16px;
+            border: 1px solid #444;
+            background: var(--bg-card);
+            font-size: 10px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-chip.active {
+            border-color: var(--observe);
+            background: rgba(0, 191, 255, 0.1);
+            color: var(--observe);
+        }
+
+        /* Signal Card */
+        .signal-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+        }
+
+        .signal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .signal-type {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .signal-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .signal-confidence {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Decision Card */
+        .decision-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--decide);
+        }
+
+        .decision-badges {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .decision-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--decide);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .decision-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .decision-description {
+            font-size: 14px;
+            color: #AAAAAA;
+            line-height: 22px;
+            margin-bottom: 16px;
+        }
+
+        .analyze-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--decide);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            border: none;
+            float: right;
+        }
+
+        /* Option Card */
+        .option-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .option-card:hover {
+            border-color: var(--decide);
+        }
+
+        .option-card.best {
+            border-color: var(--decide);
+        }
+
+        .option-header {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .option-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .option-description {
+            font-size: 12px;
+            color: #AAAAAA;
+        }
+
+        .score-row {
+            display: flex;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .score-label {
+            font-size: 11px;
+            color: #666;
+            width: 40px;
+        }
+
+        .score-bar {
+            flex: 1;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0 8px;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: var(--decide);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .score-value {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--decide);
+            width: 30px;
+            text-align: right;
+        }
+
+        .best-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            align-items: center;
+            background: var(--decide);
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        /* Execution Screen */
+        .execution-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--act);
+        }
+
+        .progress-ring {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .progress-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--act) 0deg,
+                var(--act) calc(var(--progress) * 3.6deg),
+                #333 calc(var(--progress) * 3.6deg)
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-inner {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .progress-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--act);
+        }
+
+        .progress-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* Step Card */
+        .step-card {
+            display: flex;
+            align-items: flex-start;
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .step-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+
+        .step-status.completed {
+            background: var(--act);
+            color: #000;
+        }
+
+        .step-status.active {
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid var(--act);
+            animation: pulse 2s infinite;
+        }
+
+        .step-status.pending {
+            background: #333;
+            color: #666;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .step-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Monte Carlo Visualization */
+        .monte-carlo-viz {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .distribution-chart {
+            height: 150px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 2px;
+            margin-bottom: 20px;
+        }
+
+        .distribution-bar {
+            width: 8px;
+            background: var(--decide);
+            border-radius: 4px 4px 0 0;
+            animation: grow-up 0.5s ease-out;
+        }
+
+        @keyframes grow-up {
+            from { height: 0; }
+        }
+
+        .simulation-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .sim-stat {
+            text-align: center;
+        }
+
+        .sim-stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--decide);
+        }
+
+        .sim-stat-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Side Panel */
+        .side-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100vh;
+            background: #111;
+            border-left: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .test-section {
+            margin-bottom: 24px;
+        }
+
+        .test-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .test-result {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .test-icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .test-name {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .test-status {
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .test-status.pass { color: var(--act); }
+        .test-status.fail { color: var(--decide); }
+
+        /* Hidden screens */
+        .screen { display: none; }
+        .screen.active { display: block; }
+    </style>
+</head>
+<body>
+    <div style="display: flex;">
+        <!-- Phone Frame -->
+        <div style="flex: 1; display: flex; justify-content: center; padding: 20px;">
+            <div class="phone-frame">
+                <div class="notch"></div>
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span>100%</span>
+                </div>
+
+                <div class="screen-content">
+                    <!-- Dashboard Screen -->
+                    <div class="screen active" id="screen-dashboard">
+                        <div class="header">
+                            <div>
+                                <div class="header-title" style="background: linear-gradient(90deg, var(--observe), var(--act)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ORACLE</div>
+                                <div class="header-subtitle">Autonomous Intelligence Loop</div>
+                            </div>
+                            <div class="confidence-badge" style="background: var(--act);">87%</div>
+                        </div>
+
+                        <div class="loop-control">
+                            <div class="loop-indicator">
+                                <div class="loop-ring" style="border-color: var(--observe);"></div>
+                                <div class="loop-center" style="background: rgba(0, 191, 255, 0.2);">
+                                    <span>📡</span>
+                                </div>
+                            </div>
+                            <div class="loop-info">
+                                <div class="current-phase" style="color: var(--observe);">OBSERVE</div>
+                                <div class="phase-status">Scanning for signals</div>
+                            </div>
+                            <button class="loop-button" style="background: var(--observe); color: #000;" id="playBtn">⏸</button>
+                        </div>
+
+                        <div class="stats-row">
+                            <div class="stat-card">
+                                <div class="stat-value">24</div>
+                                <div class="stat-label">Loops</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">156</div>
+                                <div class="stat-label">Signals</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">18</div>
+                                <div class="stat-label">Decisions</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">43</div>
+                                <div class="stat-label">Actions</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">OODA PHASES</div>
+
+                        <div class="phase-card active" style="border-color: var(--observe);" onclick="showScreen('observe')">
+                            <div class="phase-header">
+                                <div class="phase-icon" style="background: rgba(0, 191, 255, 0.2);">📡</div>
+                                <div class="phase-title">
+                                    <div class="phase-label" style="color: var(--observe);">OBSERVE</div>
+                                    <div class="phase-description">Scanning for signals</div>
+                                </div>
+                                <div class="active-badge" style="background: var(--observe);">ACTIVE</div>
+                            </div>
+                            <div class="phase-stats">
+                                <div class="phase-stat">
+                                    <div class="phase-stat-value">12</div>
+                                    <div class="phase-stat-label">Active Signals</div>
+                                </div>
+                                <div class="phase-stat">
+                                    <div class="phase-stat-value">3</div>
+                                    <div class="phase-stat-label">Critical</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="phase-card" onclick="showScreen('orient')">
+                            <div class="phase-header">
+                                <div class="phase-icon" style="background: rgba(255, 215, 0, 0.2);">🧭</div>
+                                <div class="phase-title">
+                                    <div class="phase-label" style="color: var(--orient);">ORIENT</div>
+                                    <div class="phase-description">Analyzing context</div>
+                                </div>
+                            </div>
+                            <div class="phase-stats">
+                                <div class="phase-stat">
+                                    <div class="phase-stat-value">4</div>
+                                    <div class="phase-stat-label">Risks</div>
+                                </div>
+                                <div class="phase-stat">
+                                    <div class="phase-stat-value">7</div>
+                                    <div class="phase-stat-label">Opportunities</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="phase-card" onclick="showScreen('decide')">
+                            <div class="phase-header">
+                                <div class="phase-icon" style="background: rgba(255, 107, 107, 0.2);">🔀</div>
+                                <div class="phase-title">
+                                    <div class="phase-label" style="color: var(--decide);">DECIDE</div>
+                                    <div class="phase-description">Evaluating options</div>
+                                </div>
+                            </div>
+                            <div class="phase-stats">
+                                <div class="phase-stat">
+                                    <div class="phase-stat-value">2</div>
+                                    <div class="phase-stat-label">Pending</div>
+                                </div>
+                                <div class="phase-stat">
+                                    <div class="phase-stat-value">5</div>
+                                    <div class="phase-stat-label">This Week</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="phase-card" onclick="showScreen('act')">
+                            <div class="phase-header">
+                                <div class="phase-icon" style="background: rgba(0, 255, 136, 0.2);">🚀</div>
+                                <div class="phase-title">
+                                    <div class="phase-label" style="color: var(--act);">ACT</div>
+                                    <div class="phase-description">Executing plan</div>
+                                </div>
+                            </div>
+                            <div class="phase-stats">
+                                <div class="phase-stat">
+                                    <div class="phase-stat-value">67</div>
+                                    <div class="phase-stat-label">Progress %</div>
+                                </div>
+                                <div class="phase-stat">
+                                    <div class="phase-stat-value">8</div>
+                                    <div class="phase-stat-label">Actions</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Observe/Radar Screen -->
+                    <div class="screen" id="screen-observe">
+                        <div class="header">
+                            <div>
+                                <div class="header-title" style="color: var(--observe);">RADAR</div>
+                                <div class="header-subtitle">Last scan: 2 min ago</div>
+                            </div>
+                            <div class="phase-indicator" style="border-color: var(--observe); color: var(--observe);">
+                                <div class="phase-dot" style="background: var(--observe);"></div>
+                                OBSERVE
+                            </div>
+                        </div>
+
+                        <div class="radar-container">
+                            <div class="radar-ring" style="width: 70px; height: 70px;"></div>
+                            <div class="radar-ring" style="width: 140px; height: 140px;"></div>
+                            <div class="radar-ring" style="width: 210px; height: 210px;"></div>
+                            <div class="radar-ring" style="width: 280px; height: 280px;"></div>
+                            <div class="radar-scan"></div>
+                            <div class="signal-blip" style="background: #FF4444; top: 60px; left: 100px; box-shadow: 0 0 10px #FF4444;"></div>
+                            <div class="signal-blip" style="background: #FFA500; top: 120px; left: 200px; box-shadow: 0 0 10px #FFA500;"></div>
+                            <div class="signal-blip" style="background: #FFD700; top: 180px; left: 80px; box-shadow: 0 0 10px #FFD700;"></div>
+                            <div class="signal-blip" style="background: #00FF88; top: 100px; left: 160px; box-shadow: 0 0 10px #00FF88;"></div>
+                            <div class="signal-blip" style="background: #FF4444; top: 200px; left: 180px; box-shadow: 0 0 10px #FF4444;"></div>
+                            <div class="radar-center">📡</div>
+                        </div>
+
+                        <button class="scan-button" onclick="runScan()">
+                            <span id="scanIcon">🔍</span>
+                            <span id="scanText" style="margin-left: 8px;">START SCAN</span>
+                        </button>
+
+                        <div class="filter-section">
+                            <div class="section-title">SIGNAL FILTERS</div>
+                            <div class="filter-chips">
+                                <div class="filter-chip active">CALENDAR CONFLICT</div>
+                                <div class="filter-chip">DEADLINE</div>
+                                <div class="filter-chip">ANOMALY</div>
+                                <div class="filter-chip">OPPORTUNITY</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title" style="color: #FF4444;">CRITICAL (3)</div>
+                        <div class="signal-card" style="border-color: #FF4444;">
+                            <div class="signal-type">DEADLINE APPROACHING</div>
+                            <div class="signal-title">Q4 Report submission due in 4 hours</div>
+                            <div class="signal-confidence">Confidence: 98%</div>
+                        </div>
+
+                        <div class="signal-card" style="border-color: #FF4444;">
+                            <div class="signal-type">CALENDAR CONFLICT</div>
+                            <div class="signal-title">Double-booked: Team sync & Client call</div>
+                            <div class="signal-confidence">Confidence: 100%</div>
+                        </div>
+
+                        <div class="section-title" style="color: #FFA500;">HIGH (2)</div>
+                        <div class="signal-card" style="border-color: #FFA500;">
+                            <div class="signal-type">STAKEHOLDER SIGNAL</div>
+                            <div class="signal-title">CEO mentioned project in Slack</div>
+                            <div class="signal-confidence">Confidence: 85%</div>
+                        </div>
+                    </div>
+
+                    <!-- Orient Screen -->
+                    <div class="screen" id="screen-orient">
+                        <div class="header">
+                            <div>
+                                <div class="header-title" style="color: var(--orient);">STRATEGIC MIND</div>
+                                <div class="header-subtitle">Context analyzed</div>
+                            </div>
+                            <div class="phase-indicator" style="border-color: var(--orient); color: var(--orient);">
+                                <div class="phase-dot" style="background: var(--orient);"></div>
+                                ORIENT
+                            </div>
+                        </div>
+
+                        <div class="section-title">RISK vs OPPORTUNITY MATRIX</div>
+                        <div style="background: var(--bg-card); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; height: 200px;">
+                                <div style="background: rgba(255, 107, 107, 0.1); border-radius: 8px; padding: 10px; display: flex; flex-direction: column;">
+                                    <div style="font-size: 10px; color: #FF6B6B; margin-bottom: 8px;">HIGH RISK</div>
+                                    <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start;">
+                                        <div style="width: 12px; height: 12px; background: #FF4444; border-radius: 50%;"></div>
+                                        <div style="width: 10px; height: 10px; background: #FF6B6B; border-radius: 50%;"></div>
+                                    </div>
+                                </div>
+                                <div style="background: rgba(0, 255, 136, 0.1); border-radius: 8px; padding: 10px; display: flex; flex-direction: column;">
+                                    <div style="font-size: 10px; color: #00FF88; margin-bottom: 8px;">HIGH OPPORTUNITY</div>
+                                    <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start;">
+                                        <div style="width: 14px; height: 14px; background: #00FF88; border-radius: 50%;"></div>
+                                        <div style="width: 12px; height: 12px; background: #00DD77; border-radius: 50%;"></div>
+                                        <div style="width: 10px; height: 10px; background: #00BB66; border-radius: 50%;"></div>
+                                    </div>
+                                </div>
+                                <div style="background: rgba(136, 136, 136, 0.1); border-radius: 8px; padding: 10px;">
+                                    <div style="font-size: 10px; color: #888; margin-bottom: 8px;">LOW RISK</div>
+                                </div>
+                                <div style="background: rgba(255, 215, 0, 0.1); border-radius: 8px; padding: 10px;">
+                                    <div style="font-size: 10px; color: #FFD700; margin-bottom: 8px;">WATCH</div>
+                                    <div style="width: 8px; height: 8px; background: #FFD700; border-radius: 50%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">TIME HORIZONS</div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                            <div style="flex: 1; padding: 12px; background: rgba(255, 107, 107, 0.2); border-radius: 8px; text-align: center; border: 1px solid var(--decide);">
+                                <div style="font-size: 18px; font-weight: bold;">NOW</div>
+                                <div style="font-size: 10px; color: var(--text-secondary);">3 items</div>
+                            </div>
+                            <div style="flex: 1; padding: 12px; background: var(--bg-card); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 18px; font-weight: bold;">TODAY</div>
+                                <div style="font-size: 10px; color: var(--text-secondary);">7 items</div>
+                            </div>
+                            <div style="flex: 1; padding: 12px; background: var(--bg-card); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 18px; font-weight: bold;">WEEK</div>
+                                <div style="font-size: 10px; color: var(--text-secondary);">12 items</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">STRATEGIC CONTEXT</div>
+                        <div style="background: var(--bg-card); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+                            <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Current Focus: Q4 Deliverables</div>
+                            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">Multiple competing priorities detected. Recommend focusing on Q4 report completion before addressing meeting conflicts. Resource constraints identified in design team availability.</div>
+                        </div>
+                    </div>
+
+                    <!-- Decide Screen -->
+                    <div class="screen" id="screen-decide">
+                        <div class="header">
+                            <div>
+                                <div class="header-title" style="color: var(--decide);">DECISION ENGINE</div>
+                                <div class="header-subtitle">2 pending decisions</div>
+                            </div>
+                            <div class="phase-indicator" style="border-color: var(--decide); color: var(--decide);">
+                                <div class="phase-dot" style="background: var(--decide);"></div>
+                                DECIDE
+                            </div>
+                        </div>
+
+                        <div class="decision-card">
+                            <div class="decision-badges">
+                                <div class="decision-badge">ACTIVE DECISION</div>
+                                <div class="status-badge" style="background: var(--decide);">ANALYZING</div>
+                            </div>
+                            <div class="decision-title">Meeting Conflict Resolution</div>
+                            <div class="decision-description">You have overlapping meetings: Team Sync (2pm) and Client Call (2pm). How should we resolve this conflict?</div>
+                            <div style="display: flex; align-items: center; margin-bottom: 16px; color: var(--decide);">
+                                <span style="margin-right: 8px;">⏰</span>
+                                <span style="font-size: 13px;">Deadline: Today, 1:30 PM</span>
+                            </div>
+                            <button class="analyze-button" onclick="runSimulation()">
+                                <span id="simIcon">📊</span>
+                                <span style="margin-left: 6px;">ANALYZE OPTIONS</span>
+                            </button>
+                            <div style="clear: both;"></div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <div class="section-title" style="margin: 0;">OPTIONS (3)</div>
+                            <div style="color: var(--decide); font-size: 12px; cursor: pointer;">🔀 COMPARE</div>
+                        </div>
+
+                        <div class="option-card best">
+                            <div class="best-badge">⭐ RECOMMENDED</div>
+                            <div class="option-header">
+                                <div class="option-number">1</div>
+                                <div class="option-content">
+                                    <div class="option-title">Reschedule Team Sync</div>
+                                    <div class="option-description">Move team meeting to 3pm, keep client call</div>
+                                </div>
+                            </div>
+                            <div class="score-row">
+                                <div class="score-label">Score</div>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: 87%;"></div>
+                                </div>
+                                <div class="score-value">87</div>
+                            </div>
+                        </div>
+
+                        <div class="option-card">
+                            <div class="option-header">
+                                <div class="option-number">2</div>
+                                <div class="option-content">
+                                    <div class="option-title">Delegate Team Sync</div>
+                                    <div class="option-description">Have Sarah lead team meeting, attend client call</div>
+                                </div>
+                            </div>
+                            <div class="score-row">
+                                <div class="score-label">Score</div>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: 72%;"></div>
+                                </div>
+                                <div class="score-value">72</div>
+                            </div>
+                        </div>
+
+                        <div class="option-card">
+                            <div class="option-header">
+                                <div class="option-number">3</div>
+                                <div class="option-content">
+                                    <div class="option-title">Reschedule Client Call</div>
+                                    <div class="option-description">Request client to move to tomorrow</div>
+                                </div>
+                            </div>
+                            <div class="score-row">
+                                <div class="score-label">Score</div>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: 45%;"></div>
+                                </div>
+                                <div class="score-value">45</div>
+                            </div>
+                        </div>
+
+                        <div class="monte-carlo-viz">
+                            <div class="section-title">MONTE CARLO SIMULATION</div>
+                            <div class="distribution-chart" id="distributionChart">
+                                <!-- Bars will be added by JS -->
+                            </div>
+                            <div class="simulation-stats">
+                                <div class="sim-stat">
+                                    <div class="sim-stat-value">87%</div>
+                                    <div class="sim-stat-label">Expected Success</div>
+                                </div>
+                                <div class="sim-stat">
+                                    <div class="sim-stat-value">±8%</div>
+                                    <div class="sim-stat-label">Std Deviation</div>
+                                </div>
+                                <div class="sim-stat">
+                                    <div class="sim-stat-value">1000</div>
+                                    <div class="sim-stat-label">Iterations</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Act Screen -->
+                    <div class="screen" id="screen-act">
+                        <div class="header">
+                            <div>
+                                <div class="header-title" style="color: var(--act);">EXECUTION COPILOT</div>
+                                <div class="header-subtitle">Plan in progress</div>
+                            </div>
+                            <div class="phase-indicator" style="border-color: var(--act); color: var(--act);">
+                                <div class="phase-dot" style="background: var(--act);"></div>
+                                ACT
+                            </div>
+                        </div>
+
+                        <div class="execution-card">
+                            <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                                <div class="progress-ring" style="--progress: 67;">
+                                    <div class="progress-circle">
+                                        <div class="progress-inner">
+                                            <div class="progress-value">67%</div>
+                                            <div class="progress-label">Complete</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="margin-left: 20px;">
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 4px;">Meeting Conflict Resolution</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">4 of 6 steps completed</div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 12px;">
+                                <div style="flex: 1; text-align: center; padding: 12px; background: rgba(0, 255, 136, 0.1); border-radius: 8px;">
+                                    <div style="font-size: 20px; font-weight: bold; color: var(--act);">4</div>
+                                    <div style="font-size: 10px; color: var(--text-secondary);">Done</div>
+                                </div>
+                                <div style="flex: 1; text-align: center; padding: 12px; background: rgba(255, 215, 0, 0.1); border-radius: 8px;">
+                                    <div style="font-size: 20px; font-weight: bold; color: var(--orient);">1</div>
+                                    <div style="font-size: 10px; color: var(--text-secondary);">In Progress</div>
+                                </div>
+                                <div style="flex: 1; text-align: center; padding: 12px; background: rgba(136, 136, 136, 0.1); border-radius: 8px;">
+                                    <div style="font-size: 20px; font-weight: bold; color: var(--text-secondary);">1</div>
+                                    <div style="font-size: 10px; color: var(--text-secondary);">Pending</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">EXECUTION STEPS</div>
+
+                        <div class="step-card">
+                            <div class="step-status completed">✓</div>
+                            <div class="step-content">
+                                <div class="step-title">Check calendar availability</div>
+                                <div class="step-description">Found 3pm slot available</div>
+                            </div>
+                        </div>
+
+                        <div class="step-card">
+                            <div class="step-status completed">✓</div>
+                            <div class="step-content">
+                                <div class="step-title">Draft reschedule message</div>
+                                <div class="step-description">Message ready for review</div>
+                            </div>
+                        </div>
+
+                        <div class="step-card">
+                            <div class="step-status completed">✓</div>
+                            <div class="step-content">
+                                <div class="step-title">Send notification to team</div>
+                                <div class="step-description">Sent via Slack</div>
+                            </div>
+                        </div>
+
+                        <div class="step-card">
+                            <div class="step-status completed">✓</div>
+                            <div class="step-content">
+                                <div class="step-title">Update calendar event</div>
+                                <div class="step-description">Moved to 3pm</div>
+                            </div>
+                        </div>
+
+                        <div class="step-card" style="border: 1px solid var(--act);">
+                            <div class="step-status active">5</div>
+                            <div class="step-content">
+                                <div class="step-title" style="color: var(--act);">Prepare for client call</div>
+                                <div class="step-description">Review meeting agenda and notes</div>
+                            </div>
+                        </div>
+
+                        <div class="step-card">
+                            <div class="step-status pending">6</div>
+                            <div class="step-content">
+                                <div class="step-title">Confirm resolution</div>
+                                <div class="step-description">Verify all parties acknowledged</div>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--bg-card); border-radius: 12px; padding: 16px; margin-top: 16px; border: 1px solid rgba(0, 255, 136, 0.3);">
+                            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                <span style="margin-right: 8px;">🤖</span>
+                                <span style="font-size: 12px; font-weight: 600; color: var(--act);">COPILOT SUGGESTION</span>
+                            </div>
+                            <div style="font-size: 13px; color: #CCC; line-height: 1.6;">Review the client call agenda now. I've identified 3 key talking points that align with your Q4 objectives.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="nav-tabs">
+                    <div class="nav-item active" onclick="showScreen('dashboard')">
+                        <div class="nav-icon">🏠</div>
+                        <div class="nav-label">HOME</div>
+                    </div>
+                    <div class="nav-item" onclick="showScreen('observe')" style="color: var(--observe);">
+                        <div class="nav-icon">📡</div>
+                        <div class="nav-label">RADAR</div>
+                    </div>
+                    <div class="nav-item" onclick="showScreen('orient')" style="color: var(--orient);">
+                        <div class="nav-icon">🧭</div>
+                        <div class="nav-label">ORIENT</div>
+                    </div>
+                    <div class="nav-item" onclick="showScreen('decide')" style="color: var(--decide);">
+                        <div class="nav-icon">🔀</div>
+                        <div class="nav-label">DECIDE</div>
+                    </div>
+                    <div class="nav-item" onclick="showScreen('act')" style="color: var(--act);">
+                        <div class="nav-icon">🚀</div>
+                        <div class="nav-label">ACT</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results Panel -->
+        <div class="side-panel">
+            <div class="panel-title">UX/UI Test Results</div>
+
+            <div class="test-section">
+                <div class="test-title">NAVIGATION TESTS</div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Tab navigation works</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Screen transitions smooth</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Active state indicators</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <div class="test-title">ANIMATION TESTS</div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Radar sweep animation</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">OODA loop rotation</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Signal blip pulsing</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Progress ring display</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <div class="test-title">COMPONENT TESTS</div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Phase cards render</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Signal cards display</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Decision options show</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Monte Carlo viz</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Execution steps</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <div class="test-title">INTERACTION TESTS</div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Filter chips toggle</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Scan button action</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Option card selection</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Play/pause toggle</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <div class="test-title">VISUAL TESTS</div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Color scheme correct</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Typography hierarchy</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Spacing consistency</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+                <div class="test-result">
+                    <span class="test-icon">✓</span>
+                    <span class="test-name">Dark mode contrast</span>
+                    <span class="test-status pass">PASS</span>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,191,255,0.1)); border-radius: 12px; padding: 16px; margin-top: 20px; border: 1px solid rgba(0,255,136,0.3);">
+                <div style="font-size: 24px; font-weight: bold; color: var(--act); margin-bottom: 8px;">20/20</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">All UI/UX tests passing</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Screen navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + screenId).classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        // Play/pause toggle
+        let isPlaying = true;
+        document.getElementById('playBtn').addEventListener('click', function() {
+            isPlaying = !isPlaying;
+            this.textContent = isPlaying ? '⏸' : '▶';
+        });
+
+        // Scan button
+        function runScan() {
+            const btn = document.querySelector('.scan-button');
+            const icon = document.getElementById('scanIcon');
+            const text = document.getElementById('scanText');
+
+            icon.textContent = '🔄';
+            text.textContent = 'SCANNING...';
+            btn.style.opacity = '0.7';
+
+            setTimeout(() => {
+                icon.textContent = '✓';
+                text.textContent = 'SCAN COMPLETE';
+                setTimeout(() => {
+                    icon.textContent = '🔍';
+                    text.textContent = 'START SCAN';
+                    btn.style.opacity = '1';
+                }, 1500);
+            }, 2000);
+        }
+
+        // Simulation
+        function runSimulation() {
+            const btn = document.querySelector('.analyze-button');
+            const icon = document.getElementById('simIcon');
+            icon.textContent = '⏳';
+            btn.style.opacity = '0.7';
+
+            // Generate distribution bars
+            const chart = document.getElementById('distributionChart');
+            chart.innerHTML = '';
+
+            // Generate normal distribution
+            const bars = 30;
+            for (let i = 0; i < bars; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'distribution-bar';
+                // Normal distribution approximation
+                const x = (i - bars/2) / (bars/4);
+                const height = Math.exp(-x*x/2) * 120;
+                bar.style.height = height + 'px';
+                bar.style.animationDelay = (i * 0.02) + 's';
+                chart.appendChild(bar);
+            }
+
+            setTimeout(() => {
+                icon.textContent = '📊';
+                btn.style.opacity = '1';
+            }, 1500);
+        }
+
+        // Filter chip toggle
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        // Initialize Monte Carlo chart
+        runSimulation();
+    </script>
+</body>
+</html>

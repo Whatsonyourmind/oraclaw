@@ -1,0 +1,76 @@
+{
+  "expo": {
+    "name": "MISSION CONTROL",
+    "slug": "mission-control",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.missioncontrol.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "ORACLE uses your location to provide contextual intelligence and detect environmental signals.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "ORACLE needs background location access to maintain continuous environment awareness and detect signals even when the app is not active.",
+        "NSLocationAlwaysUsageDescription": "ORACLE needs background location for continuous environment awareness.",
+        "NSCalendarsUsageDescription": "ORACLE needs calendar access to detect scheduling conflicts, upcoming deadlines, and plan execution timing.",
+        "NSRemindersUsageDescription": "ORACLE uses reminders to create ghost actions and scheduled tasks.",
+        "UIBackgroundModes": [
+          "fetch",
+          "processing",
+          "location",
+          "remote-notification"
+        ]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "com.missioncontrol.app",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "READ_CALENDAR",
+        "WRITE_CALENDAR",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "SCHEDULE_EXACT_ALARM",
+        "POST_NOTIFICATIONS",
+        "ACCESS_NETWORK_STATE",
+        "BATTERY_STATS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "webpack"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "scheme": "mission-control",
+    "platforms": ["ios", "android", "web"],
+    "notification": {
+      "androidMode": "default",
+      "iosDisplayInForeground": true
+    },
+    "extra": {
+      "oracle": {
+        "backgroundSyncInterval": 900,
+        "signalRetentionDays": 7,
+        "maxGhostActionsQueued": 10,
+        "defaultConfidenceThreshold": 0.7
+      }
+    }
+  }
+}

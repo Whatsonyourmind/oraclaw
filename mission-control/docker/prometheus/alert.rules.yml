@@ -1,0 +1,198 @@
+# =============================================================================
+# ORACLE v2.0 Prometheus Alert Rules
+# =============================================================================
+
+groups:
+  # ---------------------------------------------------------------------------
+  # API Health Alerts
+  # ---------------------------------------------------------------------------
+  - name: oracle-api-health
+    rules:
+      - alert: APIDown
+        expr: up{job="oracle-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ORACLE API is down"
+          description: "ORACLE API has been unreachable for more than 1 minute"
+
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(oracle_api_latency_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API latency detected"
+          description: "95th percentile API latency is {{ $value }}s (threshold: 1s)"
+
+      - alert: CriticalAPILatency
+        expr: histogram_quantile(0.95, rate(oracle_api_latency_seconds_bucket[5m])) > 5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical API latency"
+          description: "95th percentile API latency is {{ $value }}s (threshold: 5s)"
+
+  # ---------------------------------------------------------------------------
+  # Error Rate Alerts
+  # ---------------------------------------------------------------------------
+  - name: oracle-error-rates
+    rules:
+      - alert: HighErrorRate
+        expr: rate(oracle_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanize }} errors/second"
+
+      - alert: CriticalErrorRate
+        expr: rate(oracle_errors_total[5m]) > 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical error rate"
+          description: "Error rate is {{ $value | humanize }} errors/second"
+
+      - alert: HTTP5xxErrors
+        expr: rate(oracle_http_requests_total{status_code=~"5.."}[5m]) / rate(oracle_http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP 5xx error rate"
+          description: "5xx error rate is {{ $value | humanizePercentage }}"
+
+  # ---------------------------------------------------------------------------
+  # Prediction & Decision Alerts
+  # ---------------------------------------------------------------------------
+  - name: oracle-predictions
+    rules:
+      - alert: LowPredictionSuccessRate
+        expr: |
+          sum(rate(oracle_predictions_total{status="success"}[10m]))
+          / sum(rate(oracle_predictions_total[10m])) < 0.9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low prediction success rate"
+          description: "Prediction success rate is {{ $value | humanizePercentage }} (threshold: 90%)"
+
+      - alert: PredictionFailureSpike
+        expr: rate(oracle_predictions_total{status="failure"}[5m]) > 0.5
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prediction failure spike detected"
+          description: "{{ $value | humanize }} prediction failures per second"
+
+      - alert: SimulationTimeout
+        expr: histogram_quantile(0.99, rate(oracle_simulation_duration_seconds_bucket[5m])) > 120
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Simulations taking too long"
+          description: "99th percentile simulation duration is {{ $value }}s"
+
+  # ---------------------------------------------------------------------------
+  # Queue & Processing Alerts
+  # ---------------------------------------------------------------------------
+  - name: oracle-queues
+    rules:
+      - alert: HighQueueSize
+        expr: oracle_queue_size{status="waiting"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High queue size"
+          description: "Queue {{ $labels.queue_name }} has {{ $value }} waiting jobs"
+
+      - alert: CriticalQueueSize
+        expr: oracle_queue_size{status="waiting"} > 5000
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical queue size"
+          description: "Queue {{ $labels.queue_name }} has {{ $value }} waiting jobs"
+
+      - alert: QueueProcessingStalled
+        expr: rate(oracle_queue_size{status="completed"}[10m]) == 0 and oracle_queue_size{status="waiting"} > 100
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Queue processing appears stalled"
+          description: "Queue {{ $labels.queue_name }} has not processed jobs in 10 minutes"
+
+  # ---------------------------------------------------------------------------
+  # Cache Alerts
+  # ---------------------------------------------------------------------------
+  - name: oracle-cache
+    rules:
+      - alert: LowCacheHitRatio
+        expr: oracle_cache_hit_ratio < 0.5
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low cache hit ratio"
+          description: "Cache {{ $labels.cache_name }} hit ratio is {{ $value | humanizePercentage }}"
+
+      - alert: CacheDown
+        expr: oracle_cache_hit_ratio == 0 and up{job="oracle-api"} == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Cache appears down"
+          description: "Cache {{ $labels.cache_name }} has 0% hit ratio - may be unavailable"
+
+  # ---------------------------------------------------------------------------
+  # Infrastructure Alerts
+  # ---------------------------------------------------------------------------
+  - name: oracle-infrastructure
+    rules:
+      - alert: HighMemoryUsage
+        expr: oracle_process_memory_bytes{type="heapUsed"} / oracle_process_memory_bytes{type="heapTotal"} > 0.85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Heap memory usage is {{ $value | humanizePercentage }}"
+
+      - alert: CriticalMemoryUsage
+        expr: oracle_process_memory_bytes{type="heapUsed"} / oracle_process_memory_bytes{type="heapTotal"} > 0.95
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical memory usage"
+          description: "Heap memory usage is {{ $value | humanizePercentage }} - risk of OOM"
+
+      - alert: TooManyWebSocketConnections
+        expr: sum(oracle_websocket_connections) > 10000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High WebSocket connection count"
+          description: "{{ $value }} active WebSocket connections"
+
+      - alert: DatabaseQuerySlow
+        expr: histogram_quantile(0.95, rate(oracle_database_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow database queries"
+          description: "95th percentile query duration is {{ $value }}s"

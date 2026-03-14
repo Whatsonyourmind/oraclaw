@@ -1,0 +1,44 @@
+# =============================================================================
+# ORACLE v2.0 API Dockerfile - Development
+# Hot reload enabled with full source mounting
+# =============================================================================
+
+FROM node:20-alpine
+
+# Install development dependencies
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++ \
+    git \
+    curl
+
+WORKDIR /app
+
+# Copy package files
+COPY apps/api/package*.json ./apps/api/
+COPY packages/shared-types/package*.json ./packages/shared-types/
+COPY package*.json ./
+COPY turbo.json ./
+
+# Install all dependencies (including devDependencies)
+RUN npm ci
+
+# Copy source code (will be overwritten by volume mount in dev)
+COPY . .
+
+# Environment configuration
+ENV NODE_ENV=development
+ENV PORT=3001
+ENV LOG_LEVEL=debug
+
+# Expose ports
+EXPOSE 3001
+# Node.js inspector port for debugging
+EXPOSE 9229
+
+WORKDIR /app/apps/api
+
+# Development command with hot reload
+CMD ["npm", "run", "dev"]

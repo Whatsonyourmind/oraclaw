@@ -1,0 +1,155 @@
+# =============================================================================
+# ORACLE v2.0 Docker Compose - Development Configuration
+# =============================================================================
+# Features: Hot reload, debug ports, local volume mounts
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+# =============================================================================
+
+version: '3.9'
+
+services:
+  # ---------------------------------------------------------------------------
+  # ORACLE API Service - Development Mode
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: oracle-api-dev
+    ports:
+      - "${API_PORT:-3001}:3001"
+      - "9229:9229"  # Node.js debugger port
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://oracle:oracle_dev@postgres:5432/oracle_db
+      - REDIS_URL=redis://redis:6379
+      - LOG_LEVEL=debug
+      - ENABLE_SWAGGER=true
+      - ENABLE_DEBUG=true
+    volumes:
+      # Source code with hot reload
+      - ../apps/api/src:/app/src:delegated
+      - ../packages/shared-types/src:/app/packages/shared-types/src:delegated
+      # Exclude node_modules (use container's version)
+      - /app/node_modules
+      - /app/apps/api/node_modules
+      # Persist uploads and logs locally
+      - ../apps/api/uploads:/app/uploads
+      - ../apps/api/logs:/app/logs
+    command: npm run dev
+    stdin_open: true
+    tty: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - oracle-network
+
+  # ---------------------------------------------------------------------------
+  # Redis Cache - Development Mode
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: oracle-redis-dev
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --loglevel verbose
+    volumes:
+      - redis-dev-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - oracle-network
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database - Development Mode
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: oracle-postgres-dev
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_USER=oracle
+      - POSTGRES_PASSWORD=oracle_dev
+      - POSTGRES_DB=oracle_db
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+      - ../apps/api/database:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oracle -d oracle_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - oracle-network
+
+  # ---------------------------------------------------------------------------
+  # Redis Commander - Database GUI
+  # ---------------------------------------------------------------------------
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: oracle-redis-commander
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - oracle-network
+
+  # ---------------------------------------------------------------------------
+  # pgAdmin - PostgreSQL GUI
+  # ---------------------------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: oracle-pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@oracle.local
+      - PGADMIN_DEFAULT_PASSWORD=oracle_admin
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - oracle-network
+
+  # ---------------------------------------------------------------------------
+  # MailHog - Email Testing
+  # ---------------------------------------------------------------------------
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: oracle-mailhog
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - oracle-network
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  oracle-network:
+    driver: bridge
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  redis-dev-data:
+    driver: local
+  postgres-dev-data:
+    driver: local
+  pgadmin-data:
+    driver: local

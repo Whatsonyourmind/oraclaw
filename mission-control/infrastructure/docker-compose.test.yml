@@ -1,0 +1,48 @@
+# ORACLE Docker Compose for Testing
+# Story inf-4: Isolated test environment
+#
+# Use: docker-compose -f docker-compose.test.yml up -d
+
+version: '3.8'
+
+services:
+  # Test PostgreSQL
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: oracle-postgres-test
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: oracle_test
+      POSTGRES_PASSWORD: test_secret
+      POSTGRES_DB: oracle_test
+    tmpfs:
+      - /var/lib/postgresql/data
+    networks:
+      - oracle-test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oracle_test -d oracle_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Test Redis
+  redis-test:
+    image: redis:7-alpine
+    container_name: oracle-redis-test
+    ports:
+      - "6380:6379"
+    tmpfs:
+      - /data
+    networks:
+      - oracle-test-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  oracle-test-network:
+    driver: bridge
+    name: oracle-test-network
