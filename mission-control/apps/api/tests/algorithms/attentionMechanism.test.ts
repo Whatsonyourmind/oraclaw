@@ -4,7 +4,7 @@
  * and priority focusing for ORACLE decision support
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // ============================================================================
 // Types

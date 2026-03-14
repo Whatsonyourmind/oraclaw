@@ -3,7 +3,7 @@
  * Tests for optimization convergence, cooling schedules, constraints, and energy functions
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   SimulatedAnnealingScheduler,
   createSimulatedAnnealing,
@@ -455,11 +455,24 @@ describe('SimulatedAnnealingScheduler', () => {
         const durations = [10, 20, 15];
         const dependencies = new Map<number, number[]>();
 
-        scheduler.setEnergyFunction(
+        // Use swap strategy to preserve valid permutation indices
+        const permScheduler = createSimulatedAnnealing<number[]>(
+          {
+            initialTemperature: 100,
+            finalTemperature: 0.1,
+            coolingRate: 0.95,
+            maxIterations: 1000,
+            iterationsPerTemperature: 10,
+            neighborStrategy: 'swap',
+          },
+          12345
+        );
+
+        permScheduler.setEnergyFunction(
           SimulatedAnnealingScheduler.createSchedulingEnergy(durations, dependencies)
         );
 
-        const result = scheduler.optimize([0, 1, 2]);
+        const result = permScheduler.optimize([0, 1, 2]);
         expect(result.bestSolution.energy).toBeGreaterThan(0);
       });
     });
@@ -486,11 +499,24 @@ describe('SimulatedAnnealingScheduler', () => {
           [10, 10, 1, 0],
         ];
 
-        scheduler.setEnergyFunction(
+        // Use swap strategy to preserve valid permutation indices
+        const tspScheduler = createSimulatedAnnealing<number[]>(
+          {
+            initialTemperature: 100,
+            finalTemperature: 0.1,
+            coolingRate: 0.95,
+            maxIterations: 1000,
+            iterationsPerTemperature: 10,
+            neighborStrategy: 'swap',
+          },
+          12345
+        );
+
+        tspScheduler.setEnergyFunction(
           SimulatedAnnealingScheduler.createTSPEnergy(distances)
         );
 
-        const result = scheduler.optimize([0, 1, 2, 3]);
+        const result = tspScheduler.optimize([0, 1, 2, 3]);
         // Optimal tour should be around 22 (0-1-2-3-0 or similar)
         expect(result.bestSolution.energy).toBeLessThan(40);
       });
@@ -649,7 +675,7 @@ describe('SimulatedAnnealingScheduler', () => {
 
   describe('Custom Functions', () => {
     it('should use custom energy function', () => {
-      const customEnergy = jest.fn((solution: number[]) =>
+      const customEnergy = vi.fn((solution: number[]) =>
         solution.reduce((sum, x) => sum + x, 0)
       );
 
@@ -660,7 +686,7 @@ describe('SimulatedAnnealingScheduler', () => {
     });
 
     it('should use custom neighbor function', () => {
-      const customNeighbor = jest.fn((solution: number[], temp: number) => {
+      const customNeighbor = vi.fn((solution: number[], temp: number) => {
         const neighbor = [...solution];
         neighbor[0] += 0.1;
         return neighbor;

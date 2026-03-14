@@ -26,32 +26,34 @@ import {
 
 // Mock the googleapis module
 vi.mock('googleapis', () => {
-  const mockOAuth2 = vi.fn().mockImplementation(() => ({
-    generateAuthUrl: vi.fn().mockReturnValue('https://accounts.google.com/oauth/authorize?mock=true'),
-    getToken: vi.fn().mockResolvedValue({
-      tokens: {
-        access_token: 'mock_access_token',
-        refresh_token: 'mock_refresh_token',
-        expiry_date: Date.now() + 3600000,
-        token_type: 'Bearer',
-        scope: 'https://www.googleapis.com/auth/calendar',
-      },
-    }),
-    setCredentials: vi.fn(),
-    refreshAccessToken: vi.fn().mockResolvedValue({
+  function MockOAuth2() {
+    return {
+      generateAuthUrl: vi.fn().mockReturnValue('https://accounts.google.com/oauth/authorize?mock=true'),
+      getToken: vi.fn().mockResolvedValue({
+        tokens: {
+          access_token: 'mock_access_token',
+          refresh_token: 'mock_refresh_token',
+          expiry_date: Date.now() + 3600000,
+          token_type: 'Bearer',
+          scope: 'https://www.googleapis.com/auth/calendar',
+        },
+      }),
+      setCredentials: vi.fn(),
+      refreshAccessToken: vi.fn().mockResolvedValue({
+        credentials: {
+          access_token: 'new_mock_access_token',
+          refresh_token: 'mock_refresh_token',
+          expiry_date: Date.now() + 3600000,
+          token_type: 'Bearer',
+          scope: 'https://www.googleapis.com/auth/calendar',
+        },
+      }),
       credentials: {
-        access_token: 'new_mock_access_token',
-        refresh_token: 'mock_refresh_token',
         expiry_date: Date.now() + 3600000,
-        token_type: 'Bearer',
-        scope: 'https://www.googleapis.com/auth/calendar',
+        refresh_token: 'mock_refresh_token',
       },
-    }),
-    credentials: {
-      expiry_date: Date.now() + 3600000,
-      refresh_token: 'mock_refresh_token',
-    },
-  }));
+    };
+  }
 
   const mockCalendar = {
     calendarList: {
@@ -150,7 +152,7 @@ vi.mock('googleapis', () => {
   return {
     google: {
       auth: {
-        OAuth2: mockOAuth2,
+        OAuth2: MockOAuth2,
       },
       calendar: vi.fn().mockReturnValue(mockCalendar),
     },
@@ -173,10 +175,6 @@ describe('GoogleCalendarService', () => {
       'http://localhost:3001/oauth/callback',
       'user-123'
     );
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   // ==========================================================================

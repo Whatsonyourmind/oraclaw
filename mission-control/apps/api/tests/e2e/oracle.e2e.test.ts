@@ -4,15 +4,15 @@
  * Includes multi-user scenarios and full workflow integration
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 
 // Mock external dependencies
-jest.mock('../../src/services/oracle/cache', () => ({
+vi.mock('../../src/services/oracle/cache', () => ({
   oracleCacheService: {
-    get: jest.fn(() => null),
-    set: jest.fn(),
-    delete: jest.fn(),
-    deleteByPrefix: jest.fn(),
+    get: vi.fn(() => null),
+    set: vi.fn(),
+    delete: vi.fn(),
+    deleteByPrefix: vi.fn(),
   },
   cacheKey: (...args: string[]) => args.join(':'),
   hashObject: (obj: any) => JSON.stringify(obj),
@@ -510,7 +510,7 @@ describe('ORACLE v2.0 E2E Tests', () => {
     decideService = new MockDecideService();
     actService = new MockActService();
     ooda = new OODALoop(observeService, orientService, decideService, actService);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ============================================================================

@@ -3,7 +3,7 @@
  * Tests for email parsing, intent detection, entity extraction, and priority classification
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // ============================================================================
 // Types
@@ -120,50 +120,50 @@ class EmailNLPService {
    * Detect the primary intent of the email
    */
   private detectIntent(text: string, email: Email): EmailIntent {
-    const intents: Array<{ type: EmailIntent['type']; score: number }> = [];
+    const intents: Array<{ type: EmailIntent['type']; confidence: number }> = [];
 
     // Check for urgent intent
     const urgentScore = this.urgentKeywords.filter(kw => text.includes(kw)).length;
     if (urgentScore > 0) {
-      intents.push({ type: 'urgent', score: Math.min(urgentScore * 0.3, 1) });
+      intents.push({ type: 'urgent', confidence: Math.min(urgentScore * 0.3, 1) });
     }
 
     // Check for request intent
     const requestScore = this.requestKeywords.filter(kw => text.includes(kw)).length;
     if (requestScore > 0) {
-      intents.push({ type: 'request', score: Math.min(requestScore * 0.25, 1) });
+      intents.push({ type: 'request', confidence: Math.min(requestScore * 0.25, 1) });
     }
 
     // Check for question intent
     if (text.includes('?')) {
       const questionCount = (text.match(/\?/g) || []).length;
-      intents.push({ type: 'question', score: Math.min(questionCount * 0.3, 1) });
+      intents.push({ type: 'question', confidence: Math.min(questionCount * 0.3, 1) });
     }
 
     // Check for meeting intent
     const meetingScore = this.meetingKeywords.filter(kw => text.includes(kw)).length;
     if (meetingScore > 0) {
-      intents.push({ type: 'meeting', score: Math.min(meetingScore * 0.25, 1) });
+      intents.push({ type: 'meeting', confidence: Math.min(meetingScore * 0.25, 1) });
     }
 
     // Check for deadline intent
     const hasDeadline = this.deadlinePatterns.some(p => p.test(text));
     if (hasDeadline) {
-      intents.push({ type: 'deadline', score: 0.8 });
+      intents.push({ type: 'deadline', confidence: 0.8 });
     }
 
     // Check for follow-up intent
     if (text.includes('follow up') || text.includes('following up') || text.includes('status update')) {
-      intents.push({ type: 'followup', score: 0.7 });
+      intents.push({ type: 'followup', confidence: 0.7 });
     }
 
     // Check for approval intent
     if (text.includes('approve') || text.includes('approval') || text.includes('sign off')) {
-      intents.push({ type: 'approval', score: 0.75 });
+      intents.push({ type: 'approval', confidence: 0.75 });
     }
 
-    // Sort by score and return top intent
-    intents.sort((a, b) => b.score - a.score);
+    // Sort by confidence and return top intent
+    intents.sort((a, b) => b.confidence - a.confidence);
 
     return intents[0] || { type: 'information', confidence: 0.5 };
   }
@@ -299,14 +299,14 @@ class EmailNLPService {
     const lines = body.split('\n');
 
     const actionPatterns = [
+      /action item:\s*(.+)/i,
+      /todo:\s*(.+)/i,
+      /task:\s*(.+)/i,
       /^[-*]\s*(.+)/,
       /^\d+\.\s*(.+)/,
       /please\s+(.+?)(?:\.|$)/i,
       /could you\s+(.+?)(?:\.|$)/i,
       /need you to\s+(.+?)(?:\.|$)/i,
-      /action item:\s*(.+)/i,
-      /todo:\s*(.+)/i,
-      /task:\s*(.+)/i,
     ];
 
     for (const line of lines) {
@@ -443,6 +443,9 @@ class EmailNLPService {
     for (const email of sorted) {
       participants.add(email.from);
       email.to.forEach(to => participants.add(to));
+      if (email.cc) {
+        email.cc.forEach(cc => participants.add(cc));
+      }
 
       // Add to timeline
       timeline.push({

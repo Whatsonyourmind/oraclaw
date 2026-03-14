@@ -684,7 +684,12 @@ export class EnsembleModel {
 
     if (totalWeight > 0) {
       for (const model of this.models.values()) {
-        if (model.active) model.weight /= totalWeight;
+        if (model.active) {
+          model.weight /= totalWeight;
+          // Re-clamp after normalization
+          model.weight = Math.max(this.config.minWeight,
+                                  Math.min(this.config.maxWeight, model.weight));
+        }
       }
     }
   }
