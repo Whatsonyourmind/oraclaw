@@ -8,6 +8,9 @@ import { supabaseService } from './services/supabase-mock';
 import { authRoutes } from './routes/auth';
 import { authMiddleware } from './services/auth/authMiddleware';
 
+// Database
+import { db } from './services/database/client';
+
 // ORACLE Routes (Story 8.3)
 import { observeRoutes } from './routes/oracle/observe';
 import { orientRoutes } from './routes/oracle/orient';
@@ -92,7 +95,12 @@ server.addHook('preHandler', async (request, reply) => {
 
 // Health check (always free)
 server.get('/health', async () => {
-  return { status: 'operational', timestamp: new Date().toISOString() };
+  const dbHealth = await db.healthCheck();
+  return {
+    status: 'operational',
+    timestamp: new Date().toISOString(),
+    database: dbHealth,
+  };
 });
 
 // ORACLE Subsystem Health Check (Story post-5)
@@ -396,14 +404,20 @@ server.setErrorHandler((error, request, reply) => {
 // Start server
 const start = async () => {
   try {
+    // Initialize database (with graceful fallback to in-memory)
+    await db.initialize({
+      connectionString: process.env.DATABASE_URL,
+    });
+
     const port = parseInt(process.env.PORT || '3001');
-    await server.listen({ 
-      port, 
+    await server.listen({
+      port,
       host: '0.0.0.0' // Allow connections from mobile devices
     });
-    
-    server.log.info(`🚀 Mission Control API ready on port ${port}`);
-    server.log.info(`📊 Free tier limits: 100 req/min, 50MB files`);
+
+    server.log.info(`Mission Control API ready on port ${port}`);
+    server.log.info(`Database: ${db.isConnected() ? 'PostgreSQL connected' : 'in-memory fallback'}`);
+    server.log.info(`Free tier limits: 100 req/min, 50MB files`);
   } catch (err) {
     server.log.error(err);
     process.exit(1);
