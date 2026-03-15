@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   StrategicContext,
   StrategicHorizon,
@@ -47,14 +48,11 @@ interface AssessmentCreateBody {
   metadata?: Record<string, any>;
 }
 
-// Mock user ID for now
-const getMockUserId = () => 'mock-user-id';
-
 export async function orientRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/orient/generate - Generate strategic context
   fastify.post('/api/oracle/orient/generate', async (request: FastifyRequest<{ Body: ContextGenerateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       // In production:
@@ -93,7 +91,7 @@ export async function orientRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/orient/contexts - List contexts
   fastify.get('/api/oracle/orient/contexts', async (request: FastifyRequest<{ Querystring: { active_only?: boolean; limit?: number } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { active_only = true, limit = 10 } = request.query;
 
       // In production, get from supabase with filters
@@ -116,7 +114,7 @@ export async function orientRoutes(fastify: FastifyInstance) {
   fastify.get('/api/oracle/orient/contexts/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get from supabase
       const context: StrategicContext | null = null;
@@ -142,7 +140,7 @@ export async function orientRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/orient/horizons - Get multi-horizon plans
   fastify.get('/api/oracle/orient/horizons', async (request: FastifyRequest<{ Querystring: { context_id?: string; horizon_type?: HorizonType } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { context_id, horizon_type } = request.query;
 
       // In production, get from supabase with filters
@@ -164,7 +162,7 @@ export async function orientRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/orient/horizons - Generate horizon plan
   fastify.post('/api/oracle/orient/horizons', async (request: FastifyRequest<{ Body: HorizonGenerateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       // In production:
@@ -205,7 +203,7 @@ export async function orientRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/orient/horizons/all - Generate all horizons for context
   fastify.post('/api/oracle/orient/horizons/all', async (request: FastifyRequest<{ Body: { context_id: string } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { context_id } = request.body;
 
       // In production:
@@ -296,7 +294,7 @@ export async function orientRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/orient/correlations - Discover correlations
   fastify.post('/api/oracle/orient/correlations', async (request: FastifyRequest<{ Body: CorrelationDiscoverBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       // In production:
@@ -322,7 +320,7 @@ export async function orientRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/orient/correlations - List correlations
   fastify.get('/api/oracle/orient/correlations', async (request: FastifyRequest<{ Querystring: { entity_type?: string; entity_id?: string; min_strength?: number } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { entity_type, entity_id, min_strength } = request.query;
 
       // In production, get from supabase with filters
@@ -344,7 +342,7 @@ export async function orientRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/orient/assessments - Get risk/opportunity assessments
   fastify.get('/api/oracle/orient/assessments', async (request: FastifyRequest<{ Querystring: { context_id?: string; assessment_type?: AssessmentType; status?: string } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { context_id, assessment_type, status } = request.query;
 
       // In production, get from supabase with filters
@@ -366,7 +364,7 @@ export async function orientRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/orient/assessments - Create assessment
   fastify.post('/api/oracle/orient/assessments', async (request: FastifyRequest<{ Body: AssessmentCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const assessment: RiskOpportunityAssessment = {
@@ -408,7 +406,7 @@ export async function orientRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, update in supabase
 

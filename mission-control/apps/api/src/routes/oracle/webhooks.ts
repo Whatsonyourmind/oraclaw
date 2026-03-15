@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   Webhook,
   WebhookDelivery,
@@ -40,14 +41,13 @@ interface DeliveryQuery {
   offset?: number;
 }
 
-// Mock user ID for now (would come from auth in production)
-const getMockUserId = () => 'mock-user-id';
+
 
 export async function webhookRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/webhooks - Register a new webhook
   fastify.post('/api/oracle/webhooks', async (request: FastifyRequest<{ Body: WebhookCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       // Validate URL
@@ -94,7 +94,7 @@ export async function webhookRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/webhooks - List all webhooks
   fastify.get('/api/oracle/webhooks', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       const webhooks = await oracleWebhookService.getUserWebhooks(userId);
 
@@ -120,7 +120,7 @@ export async function webhookRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/webhooks/:id - Get single webhook
   fastify.get('/api/oracle/webhooks/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
 
       const webhook = await oracleWebhookService.getWebhook(id, userId);
@@ -152,7 +152,7 @@ export async function webhookRoutes(fastify: FastifyInstance) {
   // PATCH /api/oracle/webhooks/:id - Update webhook
   fastify.patch('/api/oracle/webhooks/:id', async (request: FastifyRequest<{ Params: { id: string }; Body: WebhookUpdateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
       const body = request.body;
 
@@ -189,7 +189,7 @@ export async function webhookRoutes(fastify: FastifyInstance) {
   // DELETE /api/oracle/webhooks/:id - Delete webhook
   fastify.delete('/api/oracle/webhooks/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
 
       const deleted = await oracleWebhookService.deleteWebhook(id, userId);
@@ -210,7 +210,7 @@ export async function webhookRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/webhooks/:id/regenerate-secret - Regenerate webhook secret
   fastify.post('/api/oracle/webhooks/:id/regenerate-secret', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
 
       const newSecret = await oracleWebhookService.regenerateSecret(id, userId);
@@ -236,7 +236,7 @@ export async function webhookRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/webhooks/:id/deliveries - Get delivery history
   fastify.get('/api/oracle/webhooks/:id/deliveries', async (request: FastifyRequest<{ Params: { id: string }; Querystring: DeliveryQuery }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
       const { limit = 50 } = request.query;
 
@@ -258,7 +258,7 @@ export async function webhookRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/webhooks/:id/stats - Get webhook statistics
   fastify.get('/api/oracle/webhooks/:id/stats', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
 
       const stats = await oracleWebhookService.getWebhookStats(id, userId);
@@ -284,7 +284,7 @@ export async function webhookRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/webhooks/:id/test - Test webhook
   fastify.post('/api/oracle/webhooks/:id/test', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
 
       const result = await oracleWebhookService.testWebhook(id, userId);
@@ -305,7 +305,7 @@ export async function webhookRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/webhooks/retry-failed - Retry all failed deliveries
   fastify.post('/api/oracle/webhooks/retry-failed', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       const count = await oracleWebhookService.retryFailedDeliveries(userId);
 

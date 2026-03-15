@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   OracleState,
   OODALoopRecord,
@@ -28,9 +29,6 @@ import { githubIntegrationRoutes } from './integrations/github';
 
 // In-memory state for demo (would be persisted in production)
 const oracleStateStore = new Map<string, OracleState>();
-
-// Mock user ID
-const getMockUserId = () => 'mock-user-id';
 
 // Helper to get or create oracle state
 function getOracleState(userId: string): OracleState {
@@ -83,7 +81,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/status - Get current OODA phase and state
   fastify.get('/api/oracle/status', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const state = getOracleState(userId);
 
       const response: APIResponse<OracleState> = {
@@ -102,7 +100,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/loop/start - Start autonomous loop
   fastify.post('/api/oracle/loop/start', async (request: FastifyRequest<{ Body: { config?: Partial<OracleConfig> } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { config } = request.body;
       const state = getOracleState(userId);
 
@@ -140,7 +138,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/loop/pause - Pause loop
   fastify.post('/api/oracle/loop/pause', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const state = getOracleState(userId);
 
       if (!state.loop_running) {
@@ -171,7 +169,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/loop/resume - Resume paused loop
   fastify.post('/api/oracle/loop/resume', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const state = getOracleState(userId);
 
       if (!state.loop_running) {
@@ -207,7 +205,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/loop/stop - Stop loop completely
   fastify.post('/api/oracle/loop/stop', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const state = getOracleState(userId);
 
       state.loop_running = false;
@@ -236,7 +234,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/phase/transition - Manually transition to specific phase
   fastify.post('/api/oracle/phase/transition', async (request: FastifyRequest<{ Body: { target_phase: OODAPhase } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { target_phase } = request.body;
       const state = getOracleState(userId);
 
@@ -268,7 +266,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/dashboard - Get unified dashboard data
   fastify.get('/api/oracle/dashboard', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const state = getOracleState(userId);
 
       // In production, aggregate data from all modules
@@ -317,7 +315,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/history - Get OODA loop history
   fastify.get('/api/oracle/history', async (request: FastifyRequest<{ Querystring: { limit?: number; since?: string } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { limit = 20, since } = request.query;
 
       // In production, get from database
@@ -339,7 +337,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/config - Get current configuration
   fastify.get('/api/oracle/config', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get from user settings
       const config: OracleConfig = {
@@ -382,7 +380,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   // PATCH /api/oracle/config - Update configuration
   fastify.patch('/api/oracle/config', async (request: FastifyRequest<{ Body: Partial<OracleConfig> }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const updates = request.body;
 
       // In production, update user settings
@@ -404,7 +402,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   fastify.post('/api/oracle/trigger/:phase', async (request: FastifyRequest<{ Params: { phase: OODAPhase } }>, reply: FastifyReply) => {
     try {
       const { phase } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const state = getOracleState(userId);
 
       // Validate phase

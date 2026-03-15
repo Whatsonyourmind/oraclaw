@@ -8,6 +8,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../../services/auth/authMiddleware.js';
 import {
   GoogleCalendarService,
   createGoogleCalendarService,
@@ -82,9 +83,9 @@ interface WebhookHeaders {
 const tokenStore = new Map<string, GoogleOAuthTokens>();
 const webhookStore = new Map<string, { channelId: string; resourceId: string; syncToken?: string }>();
 
-// Helper to get mock user ID
-const getMockUserId = (request: FastifyRequest): string => {
-  return (request.query as any).user_id || 'mock-user-id';
+// Helper to get authenticated user ID (falls back to query param for backwards compat)
+const getAuthUserId = (request: FastifyRequest): string => {
+  return getUserId(request) || (request.query as any).user_id || 'mock-user-id';
 };
 
 // Helper to get service with stored credentials
@@ -122,7 +123,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
    */
   fastify.get('/oauth/google/connect', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId(request);
+      const userId = getAuthUserId(request);
       const service = createGoogleCalendarService(userId);
 
       const authUrl = service.generateAuthUrl(userId);
@@ -222,7 +223,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = request.body.user_id || getMockUserId(request);
+      const userId = request.body.user_id || getAuthUserId(request);
 
       // Clean up webhook if exists
       const webhook = webhookStore.get(userId);
@@ -266,7 +267,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId(request);
+      const userId = getAuthUserId(request);
       const service = await getAuthenticatedService(userId);
 
       if (!service) {
@@ -315,7 +316,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId(request);
+      const userId = getAuthUserId(request);
       const { calendar_id, start, end, max_results } = request.query;
 
       const service = await getAuthenticatedService(userId);
@@ -358,7 +359,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId(request);
+      const userId = getAuthUserId(request);
       const {
         calendar_id,
         summary,
@@ -447,7 +448,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId(request);
+      const userId = getAuthUserId(request);
       const { event_id } = request.params;
       const {
         calendar_id,
@@ -511,7 +512,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId(request);
+      const userId = getAuthUserId(request);
       const { event_id } = request.params;
       const { calendar_id, send_updates } = request.query;
 
@@ -562,7 +563,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId(request);
+      const userId = getAuthUserId(request);
       const { calendar_ids, start, end } = request.query;
 
       const service = await getAuthenticatedService(userId);
@@ -602,7 +603,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId(request);
+      const userId = getAuthUserId(request);
       const {
         calendar_ids,
         start,
@@ -669,7 +670,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId(request);
+      const userId = getAuthUserId(request);
       const { calendar_id, summary, start, end } = request.body;
 
       const service = await getAuthenticatedService(userId);
@@ -811,7 +812,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId(request);
+      const userId = getAuthUserId(request);
       const { calendar_id, ttl_hours } = request.body;
 
       const service = await getAuthenticatedService(userId);
@@ -872,7 +873,7 @@ export async function googleIntegrationRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId(request);
+      const userId = getAuthUserId(request);
 
       const webhook = webhookStore.get(userId);
       if (!webhook) {

@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   Organization,
   Team,
@@ -52,8 +53,6 @@ interface MemberFilters {
   offset?: number;
 }
 
-// Mock user ID for now (would come from auth in production)
-const getMockUserId = () => 'mock-user-id';
 const getMockUserEmail = () => 'mock@example.com';
 
 // In-memory stores for demo (would be database in production)
@@ -88,7 +87,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       if (!body.name || body.name.trim().length === 0) {
@@ -209,7 +208,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { limit = 50, offset = 0 } = request.query;
 
       // Find orgs where user is owner or member
@@ -296,7 +295,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id: orgId } = request.params;
       const body = request.body;
 
@@ -389,7 +388,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { org_id, limit = 50, offset = 0 } = request.query;
 
       const userTeams: Team[] = [];
@@ -428,7 +427,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id: teamId } = request.params;
       const body = request.body;
 
@@ -522,7 +521,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const userEmail = getMockUserEmail();
       const { token } = request.body;
 
@@ -617,7 +616,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id: teamId } = request.params;
       const { role, limit = 50, offset = 0 } = request.query;
 
@@ -669,7 +668,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const currentUserId = getMockUserId();
+      const currentUserId = getUserId(request);
       const { id: teamId, userId: targetUserId } = request.params;
       const body = request.body;
 
@@ -760,7 +759,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const currentUserId = getMockUserId();
+      const currentUserId = getUserId(request);
       const { id: teamId, userId: targetUserId } = request.params;
 
       const team = teamsStore.get(teamId);

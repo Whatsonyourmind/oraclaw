@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   Prediction,
   CalibrationState,
@@ -42,14 +43,11 @@ interface PatternCreateBody {
   metadata?: Record<string, any>;
 }
 
-// Mock user ID
-const getMockUserId = () => 'mock-user-id';
-
 export async function probabilityRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/probability/predict - Generate prediction
   fastify.post('/api/oracle/probability/predict', async (request: FastifyRequest<{ Body: PredictionCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       // In production:
@@ -95,7 +93,7 @@ export async function probabilityRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/probability/predictions - List predictions
   fastify.get('/api/oracle/probability/predictions', async (request: FastifyRequest<{ Querystring: { prediction_type?: PredictionType; resolved?: boolean; limit?: number } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { prediction_type, resolved, limit = 50 } = request.query;
 
       // In production, get from supabase with filters
@@ -118,7 +116,7 @@ export async function probabilityRoutes(fastify: FastifyInstance) {
   fastify.get('/api/oracle/probability/predictions/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get from supabase
       const prediction: Prediction | null = null;
@@ -146,7 +144,7 @@ export async function probabilityRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Get prediction
@@ -189,7 +187,7 @@ export async function probabilityRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/probability/calibration - Get calibration state
   fastify.get('/api/oracle/probability/calibration', async (request: FastifyRequest<{ Querystring: { calibration_type?: string; domain?: string } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { calibration_type = 'global', domain } = request.query;
 
       // In production, get or create calibration state
@@ -237,7 +235,7 @@ export async function probabilityRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/probability/calibration/history - Get calibration history
   fastify.get('/api/oracle/probability/calibration/history', async (request: FastifyRequest<{ Querystring: { days?: number } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { days = 30 } = request.query;
 
       // In production, get historical calibration snapshots
@@ -259,7 +257,7 @@ export async function probabilityRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/probability/patterns - Get user patterns
   fastify.get('/api/oracle/probability/patterns', async (request: FastifyRequest<{ Querystring: { pattern_type?: UserPatternType; active_only?: boolean } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { pattern_type, active_only = true } = request.query;
 
       // In production, get from supabase with filters
@@ -281,7 +279,7 @@ export async function probabilityRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/probability/patterns - Create/update pattern
   fastify.post('/api/oracle/probability/patterns', async (request: FastifyRequest<{ Body: PatternCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const pattern: UserPattern = {
@@ -317,7 +315,7 @@ export async function probabilityRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/probability/patterns/analyze - Analyze patterns from history
   fastify.post('/api/oracle/probability/patterns/analyze', async (request: FastifyRequest<{ Body: { days?: number; types?: UserPatternType[] } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { days = 30, types } = request.body;
 
       // In production:
@@ -344,7 +342,7 @@ export async function probabilityRoutes(fastify: FastifyInstance) {
   fastify.get('/api/oracle/probability/factors/:subjectType/:subjectId', async (request: FastifyRequest<{ Params: { subjectType: string; subjectId: string } }>, reply: FastifyReply) => {
     try {
       const { subjectType, subjectId } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, calculate factor scores for the subject
       const factors = {

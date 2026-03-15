@@ -4,11 +4,9 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type { APIResponse } from '@mission-control/shared-types';
 import { dataExportService, ExportFormat, ExportType, ExportResult } from '../../services/oracle/dataExport';
-
-// Mock user ID (would come from auth in production)
-const getMockUserId = () => 'mock-user-id';
 
 export async function exportRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/export/types - Get available export types
@@ -67,7 +65,7 @@ export async function exportRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { type, format, date_range } = request.body;
 
       const estimate = await dataExportService.estimateExportSize({
@@ -106,7 +104,7 @@ export async function exportRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { type } = request.params;
       const { format = 'json', start_date, end_date, anonymize, include_metadata } = request.query;
 
@@ -169,7 +167,7 @@ export async function exportRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { type, format, date_range, anonymize, include_metadata } = request.body;
 
       const result = await dataExportService.exportData({
@@ -225,7 +223,7 @@ export async function exportRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { type } = request.params;
       const { format = 'json', start_date, end_date, anonymize } = request.query;
 

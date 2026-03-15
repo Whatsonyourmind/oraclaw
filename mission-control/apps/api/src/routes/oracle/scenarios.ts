@@ -6,9 +6,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import type { APIResponse, Scenario, ScenarioVariable, ScenarioOutcome, ScenarioComparison, SensitivityAnalysis, CreateScenarioParams, UpdateVariableParams, RunSensitivityParams, CompareScenarioParams, ScenarioType, ScenarioStatus, VariableCategory, VariableType, ScenarioOutcomeType, SensitivityAnalysisType, VariableValue } from '@mission-control/shared-types';
 import { scenarioPlanningService } from '../../services/oracle/scenarioPlanning';
-
-// Mock user ID (would come from auth in production)
-const getMockUserId = () => 'mock-user-id';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 
 export async function scenarioRoutes(fastify: FastifyInstance) {
   // ==================== SCENARIO CRUD ====================
@@ -19,7 +17,7 @@ export async function scenarioRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const scenario = await scenarioPlanningService.createScenario(userId, request.body);
 
       const response: APIResponse<Scenario> = {
@@ -48,7 +46,7 @@ export async function scenarioRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decision_id, scenario_type, status } = request.query;
 
       const scenarios = await scenarioPlanningService.listScenarios(userId, {
@@ -497,7 +495,7 @@ export async function scenarioRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const comparison = await scenarioPlanningService.compareScenarios(userId, request.body);
 
       const response: APIResponse<ScenarioComparison> = {
@@ -520,7 +518,7 @@ export async function scenarioRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const comparisons = await scenarioPlanningService.listComparisons(userId);
 
       const response: APIResponse<ScenarioComparison[]> = {
