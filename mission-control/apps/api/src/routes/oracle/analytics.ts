@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   AnalyticsEvent,
   AnalyticsEventType,
@@ -53,8 +54,6 @@ interface SystemHealthQuery {
   limit?: number;
 }
 
-// Mock user ID for now (would come from auth in production)
-const getMockUserId = () => 'mock-user-id';
 
 // Mock device info (would come from request headers in production)
 const getDeviceInfo = (request: FastifyRequest) => ({
@@ -67,7 +66,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/analytics/event - Track analytics event
   fastify.post('/api/oracle/analytics/event', async (request: FastifyRequest<{ Body: TrackEventBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
       const deviceInfo = getDeviceInfo(request);
 
@@ -107,7 +106,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/analytics/dashboard - Get aggregated metrics
   fastify.get('/api/oracle/analytics/dashboard', async (request: FastifyRequest<{ Querystring: DashboardQuery }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { start_date, end_date, granularity = 'day' } = request.query;
 
       // Default to last 30 days if no dates provided
@@ -160,7 +159,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/analytics/predictions - Get prediction accuracy over time
   fastify.get('/api/oracle/analytics/predictions', async (request: FastifyRequest<{ Querystring: PredictionAccuracyQuery }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { category, start_date, end_date, limit = 100, offset = 0 } = request.query;
 
       // In production, query oracle_prediction_accuracy table
@@ -199,7 +198,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/analytics/engagement - Get user engagement stats
   fastify.get('/api/oracle/analytics/engagement', async (request: FastifyRequest<{ Querystring: EngagementQuery }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { start_date, end_date, platform, limit = 50, offset = 0 } = request.query;
 
       // In production, query oracle_user_engagement table
@@ -299,7 +298,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/analytics/event/batch - Track multiple events at once
   fastify.post('/api/oracle/analytics/event/batch', async (request: FastifyRequest<{ Body: { events: TrackEventBody[] } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { events } = request.body;
       const deviceInfo = getDeviceInfo(request);
 
@@ -342,7 +341,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/analytics/events - Query analytics events
   fastify.get('/api/oracle/analytics/events', async (request: FastifyRequest<{ Querystring: AnalyticsQueryParams }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const {
         start_date,
         end_date,
@@ -381,7 +380,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/analytics/session/start - Start engagement session
   fastify.post('/api/oracle/analytics/session/start', async (request: FastifyRequest<{ Body: { platform?: string; app_version?: string } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { platform, app_version } = request.body;
       const deviceInfo = getDeviceInfo(request);
 
@@ -442,7 +441,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
     try {
       const { sessionId } = request.params;
       const updates = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       const sessionEnd = new Date().toISOString();
 
@@ -477,7 +476,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
     try {
       const { sessionId } = request.params;
       const updates = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, update oracle_user_engagement
       // await supabase

@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   ExecutionPlan,
   ExecutionStep,
@@ -54,14 +55,11 @@ interface OutcomeRecordBody {
   metadata?: Record<string, any>;
 }
 
-// Mock user ID
-const getMockUserId = () => 'mock-user-id';
-
 export async function actRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/act/plans - Generate execution plan
   fastify.post('/api/oracle/act/plans', async (request: FastifyRequest<{ Body: PlanCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       // In production:
@@ -102,7 +100,7 @@ export async function actRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/act/plans - List plans
   fastify.get('/api/oracle/act/plans', async (request: FastifyRequest<{ Querystring: { status?: PlanStatus; limit?: number } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { status, limit = 50 } = request.query;
 
       // In production, get from supabase with filters
@@ -125,7 +123,7 @@ export async function actRoutes(fastify: FastifyInstance) {
   fastify.get('/api/oracle/act/plans/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get plan with steps from supabase
       const plan: ExecutionPlan | null = null;
@@ -153,7 +151,7 @@ export async function actRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const { status } = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, update in supabase
       // If status changes to 'active', set started_at
@@ -175,7 +173,7 @@ export async function actRoutes(fastify: FastifyInstance) {
   fastify.get('/api/oracle/act/plans/:id/steps', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get steps from supabase
       const steps: ExecutionStep[] = [];
@@ -239,7 +237,7 @@ export async function actRoutes(fastify: FastifyInstance) {
     try {
       const { id, stepId } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Update step in supabase
@@ -266,7 +264,7 @@ export async function actRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const { current_step_id } = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Get plan and steps
@@ -314,7 +312,7 @@ export async function actRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Update step with blocker
@@ -341,7 +339,7 @@ export async function actRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Validate adjustment
@@ -370,7 +368,7 @@ export async function actRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const { limit = 50 } = request.query;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get progress updates from supabase
       const updates: ProgressUpdate[] = [];
@@ -393,7 +391,7 @@ export async function actRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Create outcome record
@@ -434,7 +432,7 @@ export async function actRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/act/outcomes - Get outcomes
   fastify.get('/api/oracle/act/outcomes', async (request: FastifyRequest<{ Querystring: { plan_id?: string; outcome_type?: OutcomeType; limit?: number } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { plan_id, outcome_type, limit = 50 } = request.query;
 
       // In production, get from supabase with filters
@@ -456,7 +454,7 @@ export async function actRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/act/learnings - Get captured learnings
   fastify.get('/api/oracle/act/learnings', async (request: FastifyRequest<{ Querystring: { learning_type?: LearningType; context_tag?: string; limit?: number } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { learning_type, context_tag, limit = 50 } = request.query;
 
       // In production, get from supabase with filters
@@ -478,7 +476,7 @@ export async function actRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/act/learnings - Manually add learning
   fastify.post('/api/oracle/act/learnings', async (request: FastifyRequest<{ Body: Partial<Lesson> }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const lesson: Lesson = {

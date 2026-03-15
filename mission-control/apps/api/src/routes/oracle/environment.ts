@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   EnvironmentState,
   ContextNode,
@@ -82,14 +83,13 @@ interface GhostActionCreateBody {
   metadata?: Record<string, any>;
 }
 
-// Mock user ID
-const getMockUserId = () => 'mock-user-id';
+
 
 export async function environmentRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/environment/snapshot - Capture environment state
   fastify.post('/api/oracle/environment/snapshot', async (request: FastifyRequest<{ Body: SnapshotCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const now = new Date();
@@ -131,7 +131,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/environment/snapshot/latest - Get latest snapshot
   fastify.get('/api/oracle/environment/snapshot/latest', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get latest from supabase
       const snapshot: EnvironmentState | null = null;
@@ -152,7 +152,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/environment/snapshots - Get snapshot history
   fastify.get('/api/oracle/environment/snapshots', async (request: FastifyRequest<{ Querystring: { limit?: number; since?: string } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { limit = 50, since } = request.query;
 
       // In production, get from supabase with filters
@@ -174,7 +174,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/environment/graph - Get context graph
   fastify.get('/api/oracle/environment/graph', async (request: FastifyRequest<{ Querystring: { focal_node_id?: string; depth?: number } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { focal_node_id, depth = 2 } = request.query;
 
       // In production:
@@ -206,7 +206,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/environment/graph/nodes - List nodes
   fastify.get('/api/oracle/environment/graph/nodes', async (request: FastifyRequest<{ Querystring: { node_type?: ContextNodeType; active_only?: boolean } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { node_type, active_only = true } = request.query;
 
       // In production, get from supabase with filters
@@ -228,7 +228,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/environment/graph/nodes - Add context node
   fastify.post('/api/oracle/environment/graph/nodes', async (request: FastifyRequest<{ Body: NodeCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const node: ContextNode = {
@@ -268,7 +268,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, update in supabase
 
@@ -289,7 +289,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
   fastify.post('/api/oracle/environment/graph/nodes/:id/access', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Update last_accessed_at
@@ -312,7 +312,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/environment/graph/edges - Add context edge
   fastify.post('/api/oracle/environment/graph/edges', async (request: FastifyRequest<{ Body: EdgeCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const edge: ContextEdge = {
@@ -351,7 +351,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const { strength_delta = 0.1 } = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Update strength (capped at 1.0)
@@ -374,7 +374,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/environment/ghost-actions - List ghost actions
   fastify.get('/api/oracle/environment/ghost-actions', async (request: FastifyRequest<{ Querystring: { status?: GhostActionStatus; action_type?: GhostActionType } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { status, action_type } = request.query;
 
       // In production, get from supabase with filters
@@ -396,7 +396,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/environment/ghost-actions - Create ghost action
   fastify.post('/api/oracle/environment/ghost-actions', async (request: FastifyRequest<{ Body: GhostActionCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const ghostAction: GhostAction = {
@@ -438,7 +438,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
   fastify.get('/api/oracle/environment/ghost-actions/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get from supabase
       const ghostAction: GhostAction | null = null;
@@ -466,7 +466,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const { action } = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       let newStatus: GhostActionStatus;
       let timestamp: string = new Date().toISOString();
@@ -507,7 +507,7 @@ export async function environmentRoutes(fastify: FastifyInstance) {
   fastify.post('/api/oracle/environment/ghost-actions/:id/execute', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Verify ghost action is approved

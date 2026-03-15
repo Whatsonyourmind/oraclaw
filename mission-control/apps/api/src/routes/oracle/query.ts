@@ -4,6 +4,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type { APIResponse } from '@mission-control/shared-types';
 import { naturalLanguageService, QueryResult, ConversationContext } from '../../services/oracle/naturalLanguage';
 
@@ -13,9 +14,6 @@ interface QueryBody {
   conversation_id?: string;
 }
 
-// Mock user ID (would come from auth in production)
-const getMockUserId = () => 'mock-user-id';
-
 export async function queryRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/query - Process natural language query
   fastify.post('/api/oracle/query', async (
@@ -23,7 +21,7 @@ export async function queryRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { query, conversation_id } = request.body;
 
       if (!query || !query.trim()) {
@@ -63,7 +61,7 @@ export async function queryRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const conversations = naturalLanguageService.getUserConversations(userId);
 
       const response: APIResponse<ConversationContext[]> = {

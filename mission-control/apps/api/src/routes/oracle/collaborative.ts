@@ -4,6 +4,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   DecisionCollaborator,
   DecisionVote,
@@ -66,8 +67,7 @@ interface CreateShareBody {
   expires_at?: string;
 }
 
-// Mock user ID (would come from auth in production)
-const getMockUserId = () => 'mock-user-id';
+
 
 export async function collaborativeRoutes(fastify: FastifyInstance) {
   // =====================================================
@@ -80,7 +80,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId } = request.params;
 
       const owner = await collaborativeDecisionsService.initializeCollaboration(
@@ -108,7 +108,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId } = request.params;
       const body = request.body;
 
@@ -139,7 +139,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId } = request.params;
       const { invite_email } = request.body;
 
@@ -203,7 +203,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId, collaboratorId } = request.params;
       const { role } = request.body;
 
@@ -242,7 +242,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId, collaboratorId } = request.params;
 
       const removed = await collaborativeDecisionsService.removeCollaborator(
@@ -283,7 +283,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId } = request.params;
       const body = request.body;
 
@@ -340,7 +340,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId } = request.params;
 
       const votes = await collaborativeDecisionsService.getUserVotes(decisionId, userId);
@@ -365,7 +365,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId, optionId } = request.params;
 
       const retracted = await collaborativeDecisionsService.retractVote(
@@ -429,7 +429,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId } = request.params;
       const body = request.body;
 
@@ -496,7 +496,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { commentId } = request.params;
       const { content } = request.body;
 
@@ -534,7 +534,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { commentId } = request.params;
 
       const deleted = await collaborativeDecisionsService.deleteComment(
@@ -570,7 +570,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { commentId } = request.params;
       const { emoji } = request.body;
 
@@ -608,7 +608,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { commentId, emoji } = request.params;
 
       const removed = await collaborativeDecisionsService.removeReaction(
@@ -641,7 +641,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId } = request.params;
       const body = request.body;
 
@@ -674,7 +674,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId } = request.params;
 
       const shares = await collaborativeDecisionsService.getShareLinks(
@@ -734,7 +734,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { shareId } = request.params;
 
       const deactivated = await collaborativeDecisionsService.deactivateShareLink(
@@ -774,7 +774,7 @@ export async function collaborativeRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId } = request.params;
 
       const state = await collaborativeDecisionsService.getCollaborativeState(

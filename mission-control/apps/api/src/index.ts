@@ -4,6 +4,10 @@ import multipart from '@fastify/multipart';
 import { geminiService } from './services/gemini-mock';
 import { supabaseService } from './services/supabase-mock';
 
+// Auth
+import { authRoutes } from './routes/auth';
+import { authMiddleware } from './services/auth/authMiddleware';
+
 // ORACLE Routes (Story 8.3)
 import { observeRoutes } from './routes/oracle/observe';
 import { orientRoutes } from './routes/oracle/orient';
@@ -75,6 +79,16 @@ server.addHook('preHandler', (request, reply, done) => {
 });
 
 // API Routes
+
+// Auth Routes (public)
+server.register(authRoutes, { prefix: '/api/auth' });
+
+// Apply auth middleware to all /api/oracle/* routes
+server.addHook('preHandler', async (request, reply) => {
+  if (request.url.startsWith('/api/oracle/')) {
+    await authMiddleware(request, reply);
+  }
+});
 
 // Health check (always free)
 server.get('/health', async () => {

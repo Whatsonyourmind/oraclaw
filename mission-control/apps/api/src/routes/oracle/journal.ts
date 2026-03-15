@@ -4,6 +4,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   DecisionJournalEntry,
   JournalAttachment,
@@ -115,9 +116,6 @@ interface ExportQuery {
   format?: 'json' | 'csv' | 'markdown' | 'pdf';
 }
 
-// Mock user ID (would come from auth in production)
-const getMockUserId = () => 'mock-user-id';
-
 export async function journalRoutes(fastify: FastifyInstance) {
   // =====================================================
   // JOURNAL ENTRY CRUD
@@ -129,7 +127,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const entry = await decisionJournalService.createEntry({
@@ -157,7 +155,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const query = request.query;
 
       const entries = await decisionJournalService.listEntries({
@@ -188,7 +186,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
 
       const entry = await decisionJournalService.getEntry(id, userId);
@@ -221,7 +219,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
       const body = request.body;
 
@@ -255,7 +253,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
 
       const deleted = await decisionJournalService.deleteEntry(id, userId);
@@ -292,7 +290,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const query = request.query;
 
       const filters: JournalSearchFilters = {
@@ -330,7 +328,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const tags = await decisionJournalService.getUserTags(userId);
 
       const response: APIResponse<string[]> = {
@@ -357,7 +355,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
       const body = request.body;
 
@@ -391,7 +389,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
       const body = request.body;
 
@@ -429,7 +427,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
 
       const isFavorite = await decisionJournalService.toggleFavorite(id, userId);
@@ -458,7 +456,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
       const body = request.body;
 
@@ -484,7 +482,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
 
       const attachments = await decisionJournalService.getAttachments(id, userId);
@@ -509,7 +507,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { attachmentId } = request.params;
 
       const deleted = await decisionJournalService.deleteAttachment(attachmentId, userId);
@@ -546,7 +544,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { id } = request.params;
       const body = request.body;
 
@@ -576,7 +574,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const followups = await decisionJournalService.getPendingFollowups(userId);
 
       const response: APIResponse<JournalFollowup[]> = {
@@ -599,7 +597,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const days = request.query.days ? parseInt(request.query.days, 10) : 7;
 
       const followups = await decisionJournalService.getUpcomingFollowups(userId, days);
@@ -624,7 +622,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { followupId } = request.params;
       const { notes } = request.body || {};
 
@@ -658,7 +656,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { followupId } = request.params;
 
       const dismissed = await decisionJournalService.dismissFollowup(followupId, userId);
@@ -695,7 +693,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const stats = await decisionJournalService.getStats(userId);
 
       const response: APIResponse<JournalStats> = {
@@ -718,7 +716,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const timeline = await decisionJournalService.getTimeline(userId);
 
       const response: APIResponse<Record<string, DecisionJournalEntry[]>> = {
@@ -741,7 +739,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { format = 'json', ...filterQuery } = request.query;
 
       const filters: JournalSearchFilters | undefined = filterQuery.query
@@ -801,7 +799,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const entry = await decisionJournalService.createFromDecision(userId, body.decision_id, {
@@ -832,7 +830,7 @@ export async function journalRoutes(fastify: FastifyInstance) {
     reply: FastifyReply
   ) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { decisionId } = request.params;
 
       const entries = await decisionJournalService.getEntriesForDecision(userId, decisionId);

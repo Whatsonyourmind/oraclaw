@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   Signal,
   SignalCluster,
@@ -62,14 +63,11 @@ interface DataSourceCreateBody {
   metadata?: Record<string, any>;
 }
 
-// Mock user ID for now (would come from auth in production)
-const getMockUserId = () => 'mock-user-id';
-
 export async function observeRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/observe/scan - Trigger radar scan
   fastify.post('/api/oracle/observe/scan', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, this would:
       // 1. Get active data sources for user
@@ -105,7 +103,7 @@ export async function observeRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/observe/signals - List signals with filters
   fastify.get('/api/oracle/observe/signals', async (request: FastifyRequest<{ Querystring: SignalFilters }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { status, signal_type, urgency, limit = 50, offset = 0 } = request.query;
 
       // In production, query supabase with filters
@@ -127,7 +125,7 @@ export async function observeRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/observe/signals - Create signal
   fastify.post('/api/oracle/observe/signals', async (request: FastifyRequest<{ Body: SignalCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const signal: Signal = {
@@ -169,7 +167,7 @@ export async function observeRoutes(fastify: FastifyInstance) {
   fastify.get('/api/oracle/observe/signals/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get from supabase
       const signal: Signal | null = null;
@@ -197,7 +195,7 @@ export async function observeRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, update in supabase
       const updatedSignal: Signal = {
@@ -232,7 +230,7 @@ export async function observeRoutes(fastify: FastifyInstance) {
   fastify.delete('/api/oracle/observe/signals/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, delete from supabase
 
@@ -247,7 +245,7 @@ export async function observeRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/observe/clusters - Get signal clusters
   fastify.get('/api/oracle/observe/clusters', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get clusters from supabase with their signals
       const clusters: SignalCluster[] = [];
@@ -268,7 +266,7 @@ export async function observeRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/observe/clusters/generate - Generate clusters from signals
   fastify.post('/api/oracle/observe/clusters/generate', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Get active signals
@@ -293,7 +291,7 @@ export async function observeRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/observe/anomalies - Get anomaly patterns
   fastify.get('/api/oracle/observe/anomalies', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get from supabase
       const patterns: AnomalyPattern[] = [];
@@ -314,7 +312,7 @@ export async function observeRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/observe/anomalies - Create anomaly pattern
   fastify.post('/api/oracle/observe/anomalies', async (request: FastifyRequest<{ Body: AnomalyPatternCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const pattern: AnomalyPattern = {
@@ -352,7 +350,7 @@ export async function observeRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/observe/data-sources - Get data sources
   fastify.get('/api/oracle/observe/data-sources', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get from supabase
       const sources: DataSource[] = [];
@@ -373,7 +371,7 @@ export async function observeRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/observe/data-sources - Create data source
   fastify.post('/api/oracle/observe/data-sources', async (request: FastifyRequest<{ Body: DataSourceCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const source: DataSource = {

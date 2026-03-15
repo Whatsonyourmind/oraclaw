@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { getUserId } from '../../services/auth/authMiddleware.js';
 import type {
   Decision,
   DecisionOption,
@@ -51,14 +52,11 @@ interface SelectOptionBody {
   rationale?: string;
 }
 
-// Mock user ID
-const getMockUserId = () => 'mock-user-id';
-
 export async function decideRoutes(fastify: FastifyInstance) {
   // POST /api/oracle/decide/decisions - Create decision
   fastify.post('/api/oracle/decide/decisions', async (request: FastifyRequest<{ Body: DecisionCreateBody }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const body = request.body;
 
       const decision: Decision = {
@@ -97,7 +95,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
   // GET /api/oracle/decide/decisions - List decisions
   fastify.get('/api/oracle/decide/decisions', async (request: FastifyRequest<{ Querystring: { status?: DecisionStatus; limit?: number } }>, reply: FastifyReply) => {
     try {
-      const userId = getMockUserId();
+      const userId = getUserId(request);
       const { status, limit = 50 } = request.query;
 
       // In production, get from supabase with filters
@@ -120,7 +118,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
   fastify.get('/api/oracle/decide/decisions/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get decision with options from supabase
       const decision: Decision | null = null;
@@ -148,7 +146,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, update in supabase
 
@@ -170,7 +168,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Get decision
@@ -218,7 +216,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
   fastify.get('/api/oracle/decide/decisions/:id/options', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get from supabase
       const options: DecisionOption[] = [];
@@ -241,7 +239,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
     try {
       const { id, optionId } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       const iterations = Math.min(body.iterations || 1000, 2000); // Cap at 2000
       const startTime = Date.now();
@@ -292,7 +290,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
   fastify.get('/api/oracle/decide/decisions/:id/simulations', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get simulations for all options of this decision
       const simulations: SimulationResult[] = [];
@@ -315,7 +313,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const { option_id } = request.query;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get or generate critical path
       const criticalPath: CriticalPath | null = null;
@@ -343,7 +341,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const { option_id } = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Get decision and option
@@ -386,7 +384,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const body = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       const input: StakeholderInput = {
         id: crypto.randomUUID(),
@@ -422,7 +420,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
   fastify.get('/api/oracle/decide/decisions/:id/stakeholders', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { id } = request.params;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get from supabase
       const inputs: StakeholderInput[] = [];
@@ -445,7 +443,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const { option_id, rationale } = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production:
       // 1. Verify option belongs to decision
@@ -474,7 +472,7 @@ export async function decideRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params;
       const { option_ids } = request.body;
-      const userId = getMockUserId();
+      const userId = getUserId(request);
 
       // In production, get options and their simulations for comparison
 
