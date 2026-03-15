@@ -1,6 +1,9 @@
-# MISSION CONTROL - Setup & Development Guide
+# ORACLE Decision Intelligence Platform
 
-## 🚀 ZERO-BUDGET STACK
+[![CI Pipeline](https://github.com/Whatsonyourmind/oracle/actions/workflows/ci.yml/badge.svg)](https://github.com/Whatsonyourmind/oracle/actions/workflows/ci.yml)
+[![Deploy Pipeline](https://github.com/Whatsonyourmind/oracle/actions/workflows/deploy.yml/badge.svg)](https://github.com/Whatsonyourmind/oracle/actions/workflows/deploy.yml)
+
+## ZERO-BUDGET STACK
 
 ### FREE API SERVICES (Already Configured)
 - **Google Gemini API**: 15 requests/minute free tier
