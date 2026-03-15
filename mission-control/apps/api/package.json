@@ -16,6 +16,8 @@
   "dependencies": {
     "@fastify/cors": "^8.5.0",
     "@fastify/multipart": "^7.6.0",
+    "@fastify/swagger": "^8.15.0",
+    "@fastify/swagger-ui": "^1.10.2",
     "@fastify/websocket": "^8.3.1",
     "@google/generative-ai": "^0.2.1",
     "@supabase/supabase-js": "^2.38.5",
