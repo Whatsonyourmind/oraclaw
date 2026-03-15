@@ -11,6 +11,9 @@ import { authMiddleware } from './services/auth/authMiddleware';
 // Database
 import { db } from './services/database/client';
 
+// Plugins
+import { registerSwagger } from './plugins/swagger';
+
 // ORACLE Routes (Story 8.3)
 import { observeRoutes } from './routes/oracle/observe';
 import { orientRoutes } from './routes/oracle/orient';
@@ -52,6 +55,9 @@ server.register(multipart, {
     fileSize: 50 * 1024 * 1024, // 50MB free tier friendly
   },
 });
+
+// Register Swagger/OpenAPI documentation
+registerSwagger(server);
 
 // FREE TIER RATE LIMITING
 const rateLimitStore = new Map();
