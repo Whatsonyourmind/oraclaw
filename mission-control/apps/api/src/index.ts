@@ -33,6 +33,8 @@ import { queryRoutes } from './routes/oracle/query';
 import { scenarioRoutes } from './routes/oracle/scenarios';
 // ORACLE Data Export Routes (Phase 3 - adv-28)
 import { exportRoutes } from './routes/oracle/export';
+// WebSocket Routes
+import { wsRoutes } from './routes/ws';
 
 const server = Fastify({
   logger: true,
@@ -382,6 +384,8 @@ server.register(queryRoutes, { prefix: '/api/oracle/query' });
 server.register(scenarioRoutes, { prefix: '/api/oracle/scenarios' });
 // Phase 3 - Data Export Routes (adv-28)
 server.register(exportRoutes, { prefix: '/api/oracle/export' });
+// WebSocket routes
+server.register(wsRoutes);
 
 // FREE TIER FRIENDLY ERROR HANDLING
 server.setErrorHandler((error, request, reply) => {
