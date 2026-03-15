@@ -1569,7 +1569,13 @@ export class JiraService {
     }
 
     const formData = new FormData();
-    formData.append('file', file instanceof Buffer ? new Blob([file]) : file, filename);
+    let blob: Blob;
+    if (Buffer.isBuffer(file)) {
+      blob = new Blob([new Uint8Array(file)]);
+    } else {
+      blob = file;
+    }
+    formData.append('file', blob, filename);
 
     const response = await fetch(
       `${this.baseUrl}/ex/jira/${this.cloudId}/rest/api/3/issue/${issueKeyOrId}/attachments`,

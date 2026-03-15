@@ -4,7 +4,7 @@
  * Wires into the OODA loop orchestrator for phase transition events
  */
 
-import { FastifyInstance, FastifyRequest } from 'fastify';
+import { FastifyInstance } from 'fastify';
 import { verifyAccessToken } from '../services/auth/jwt.js';
 import {
   getWebSocketServer,
@@ -12,7 +12,6 @@ import {
   OracleWebSocketServer,
   OracleEventEmitter,
 } from '../services/oracle/infrastructure/websocket.js';
-import type { JWTPayload } from '../services/auth/jwt.js';
 
 // OODA phase transition event types
 export interface PhaseTransitionEvent {

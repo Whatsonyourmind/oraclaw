@@ -59,6 +59,7 @@ class PostgresClient implements DBClient {
   async connect(): Promise<void> {
     try {
       // Dynamic import of pg to avoid hard dependency
+      // @ts-ignore - pg may not be installed, handled by try/catch
       const { Pool } = await import('pg');
       this.pool = new Pool({
         connectionString: this.config.connectionString,
