@@ -1,0 +1,132 @@
+# =============================================================================
+# ORACLE v2.0 Docker Compose - Production Configuration
+# =============================================================================
+# Optimized for production: no debug ports, proper secrets, resource limits
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# =============================================================================
+
+version: '3.9'
+
+services:
+  # ---------------------------------------------------------------------------
+  # ORACLE API Service - Production Mode
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: oracle-api-prod
+    restart: always
+    ports:
+      - "${API_PORT:-3001}:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=postgresql://oracle:${POSTGRES_PASSWORD}@postgres:5432/oracle_db
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - LOG_LEVEL=info
+    volumes:
+      - api-uploads:/app/uploads
+      - api-logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - oracle-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # ---------------------------------------------------------------------------
+  # Redis Cache - Production Mode
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: oracle-redis-prod
+    restart: always
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - oracle-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database - Production Mode
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: oracle-postgres-prod
+    restart: always
+    environment:
+      - POSTGRES_USER=oracle
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=oracle_db
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../apps/api/database:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oracle -d oracle_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - oracle-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  oracle-network:
+    driver: bridge
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  api-uploads:
+    driver: local
+  api-logs:
+    driver: local
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local

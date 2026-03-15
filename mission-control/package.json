@@ -10,7 +10,12 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "test": "vitest run",
+    "docker:dev": "docker compose -f docker/docker-compose.dev.yml up --build",
+    "docker:prod": "docker compose -f docker/docker-compose.yml up --build -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml down",
+    "db:init": "bash scripts/init-db.sh"
   },
   "devDependencies": {
     "@vitest/ui": "^4.0.18",
