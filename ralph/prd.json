@@ -15,7 +15,7 @@
         "Automatic algorithm selection based on problem type",
         "Regret calculation for performance monitoring"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "alg-2",
@@ -28,7 +28,7 @@
         "Mutation with adaptive rate",
         "Pareto frontier for multi-objective optimization"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "alg-3",
@@ -41,7 +41,7 @@
         "Temporal difference learning",
         "Policy extraction for recommendations"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "alg-4",
@@ -54,7 +54,7 @@
         "Path visualization in UI",
         "Alternative path suggestions"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "alg-5",
@@ -119,7 +119,7 @@
         "Cache warming strategies",
         "Cache hit/miss metrics"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "inf-2",
@@ -132,7 +132,7 @@
         "Dead letter queue for failed jobs",
         "Job progress tracking"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "inf-3",
@@ -145,7 +145,7 @@
         "Reconnection handling",
         "Horizontal scaling support"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "inf-4",
@@ -197,7 +197,7 @@
         "Conflict detection",
         "Webhook for real-time updates"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "int-2",
@@ -210,7 +210,7 @@
         "DM notifications for urgent signals",
         "Channel integration for team"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "int-3",
@@ -262,7 +262,7 @@
         "Problem severity classification",
         "Explanation generation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "smart-2",
@@ -275,7 +275,7 @@
         "Fix suggestion generation",
         "Verification of fixes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "smart-3",
@@ -340,7 +340,7 @@
         "Swipe down = dismiss",
         "Haptic feedback"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "ux-2",
@@ -353,7 +353,7 @@
         "Voice feedback",
         "Offline basic commands"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "ux-3",
@@ -405,7 +405,7 @@
         "A* pathfinding tests",
         "Edge case coverage"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "test-2",
