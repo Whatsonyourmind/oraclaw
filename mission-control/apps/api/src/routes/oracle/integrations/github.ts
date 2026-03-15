@@ -118,7 +118,7 @@ export async function githubIntegrationRoutes(fastify: FastifyInstance) {
   fastify.post('/api/integrations/github/webhook', {
     config: {
       rawBody: true, // Need raw body for signature verification
-    },
+    } as any,
   }, async (
     request: FastifyRequest<{ Body: WebhookBody }>,
     reply: FastifyReply

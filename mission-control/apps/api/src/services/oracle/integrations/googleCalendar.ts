@@ -374,11 +374,11 @@ export class GoogleCalendarService {
       location: event.location || undefined,
       start: {
         dateTime: event.start?.dateTime || event.start?.date!,
-        timeZone: event.start?.timeZone,
+        timeZone: event.start?.timeZone ?? undefined,
       },
       end: {
         dateTime: event.end?.dateTime || event.end?.date!,
-        timeZone: event.end?.timeZone,
+        timeZone: event.end?.timeZone ?? undefined,
       },
       attendees: event.attendees?.map((a: any) => ({
         email: a.email!,
@@ -436,11 +436,11 @@ export class GoogleCalendarService {
       location: response.data.location || undefined,
       start: {
         dateTime: response.data.start?.dateTime || response.data.start?.date!,
-        timeZone: response.data.start?.timeZone,
+        timeZone: response.data.start?.timeZone ?? undefined,
       },
       end: {
         dateTime: response.data.end?.dateTime || response.data.end?.date!,
-        timeZone: response.data.end?.timeZone,
+        timeZone: response.data.end?.timeZone ?? undefined,
       },
     };
   }
