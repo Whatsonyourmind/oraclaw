@@ -14,3 +14,8 @@ keystore.json
 Thumbs.db
 coverage/
 *.tsbuildinfo
+
+# Proprietary algorithm source (private repo: oraclaw-core)
+mission-control/apps/api/src/services/oracle/algorithms/*.ts
+mission-control/apps/api/src/routes/oracle/api-public.ts
+mission-control/packages/mcp-server/src/index.ts
