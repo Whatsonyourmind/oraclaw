@@ -1,0 +1,13 @@
+{
+  "name": "@oraclaw/pathfind",
+  "version": "1.0.0",
+  "description": "A* pathfinding for workflow navigation. Optimal task sequencing with cost/time/risk breakdown.",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "keywords": ["pathfinding", "routing", "workflow", "astar", "critical-path", "task-sequencing"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "homepage": "https://oraclaw.dev/pathfind",
+  "dependencies": {}
+}

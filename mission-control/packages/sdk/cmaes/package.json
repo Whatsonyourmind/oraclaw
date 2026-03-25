@@ -1,0 +1,13 @@
+{
+  "name": "@oraclaw/cmaes",
+  "version": "1.0.0",
+  "description": "SOTA continuous optimization. CMA-ES derivative-free optimizer. 10-100x more efficient than genetic algorithms on smooth problems.",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "keywords": ["cma-es", "optimization", "continuous", "hyperparameter", "derivative-free", "evolution-strategy"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "homepage": "https://oraclaw.dev/cmaes",
+  "dependencies": {}
+}

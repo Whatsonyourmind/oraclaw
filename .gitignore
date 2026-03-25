@@ -1,8 +1,13 @@
 node_modules/
 dist/
 .env
+.env.*
 .env.local
+.env.wallet
 *.log
+*.key
+keystore.json
+.keystore-password
 .expo/
 .playwright-mcp/
 .DS_Store

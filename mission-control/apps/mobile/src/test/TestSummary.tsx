@@ -76,7 +76,7 @@ export const TestSummary: React.FC<TestSummaryProps> = ({
         <View style={styles.statCard}>
           <Ionicons name="time-outline" size={24} color="#00FF88" />
           <Text style={styles.statNumber}>{averageTime}ms</Text>
-          <Text style={styles.statLabel">AVG TIME</Text>
+          <Text style={styles.statLabel}>AVG TIME</Text>
         </View>
       </View>
 
@@ -107,7 +107,7 @@ export const TestSummary: React.FC<TestSummaryProps> = ({
         <View style={styles.breakdownItem}>
           <View style={styles.breakdownHeader}>
             <Text style={styles.breakdownCategory}>Performance</Text>
-            <Text style={styles.breakdownScore">{averageTime < 500 ? '100%' : '80%'}</Text>
+            <Text style={styles.breakdownScore}>{averageTime < 500 ? '100%' : '80%'}</Text>
           </View>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: averageTime < 500 ? '100%' : '80%', backgroundColor: '#00FF88' }]} />

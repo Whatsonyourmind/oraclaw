@@ -1,7 +1,14 @@
 /**
  * Probability Engine Service
  * Story 5.2 - ORACLE Bayesian Prediction Engine
+ *
+ * Enhanced with proper conjugate posteriors via jstat.
+ * Supports Beta-Bernoulli (binary outcomes), credible intervals,
+ * and likelihood-based evidence incorporation.
  */
+
+// @ts-expect-error — jstat has no type declarations
+import jStat from "jstat";
 
 export interface PredictionFactor {
   name: string;
@@ -249,6 +256,102 @@ export class ProbabilityEngineService {
 
     // Ratio of actual to expected
     return bucket.accuracy / expected;
+  }
+
+  /**
+   * Proper Bayesian update with likelihood evidence (jstat-powered).
+   * Uses Beta conjugate prior: Beta(α, β) + n successes, m failures → Beta(α+n, β+m)
+   * Returns full posterior distribution info.
+   */
+  bayesianUpdateWithEvidence(
+    prior: BayesianPrior,
+    successes: number,
+    failures: number,
+  ): {
+    posterior: BayesianPrior;
+    mean: number;
+    variance: number;
+    credibleInterval: { lower: number; upper: number };
+    mode: number;
+    entropy: number;
+  } {
+    const posterior: BayesianPrior = {
+      alpha: prior.alpha + successes,
+      beta: prior.beta + failures,
+    };
+
+    const a = posterior.alpha;
+    const b = posterior.beta;
+    const mean = a / (a + b);
+    const variance = (a * b) / ((a + b) * (a + b) * (a + b + 1));
+
+    // 95% credible interval via Beta quantile function (jstat)
+    const lower = jStat.beta.inv(0.025, a, b);
+    const upper = jStat.beta.inv(0.975, a, b);
+
+    // Mode of Beta distribution (most likely value)
+    const mode = a > 1 && b > 1 ? (a - 1) / (a + b - 2) : mean;
+
+    // Differential entropy of Beta distribution
+    const lnBeta = jStat.betaln(a, b);
+    const entropy = lnBeta - (a - 1) * jStat.digamma(a) - (b - 1) * jStat.digamma(b) + (a + b - 2) * jStat.digamma(a + b);
+
+    return { posterior, mean, variance, credibleInterval: { lower, upper }, mode, entropy };
+  }
+
+  /**
+   * Likelihood ratio update: P(H|E) ∝ P(E|H) × P(H)
+   * For continuous evidence, uses likelihood ratio against alternative hypothesis.
+   *
+   * @param prior - Current belief (0-1)
+   * @param likelihoodIfTrue - P(evidence | hypothesis true)
+   * @param likelihoodIfFalse - P(evidence | hypothesis false)
+   * @returns Updated posterior probability
+   */
+  likelihoodRatioUpdate(
+    prior: number,
+    likelihoodIfTrue: number,
+    likelihoodIfFalse: number,
+  ): { posterior: number; likelihoodRatio: number; logOdds: number } {
+    const priorOdds = prior / (1 - prior);
+    const lr = likelihoodIfTrue / Math.max(likelihoodIfFalse, 1e-12);
+    const posteriorOdds = priorOdds * lr;
+    const posterior = Math.max(0.001, Math.min(0.999, posteriorOdds / (1 + posteriorOdds)));
+
+    return {
+      posterior,
+      likelihoodRatio: lr,
+      logOdds: Math.log(posteriorOdds),
+    };
+  }
+
+  /**
+   * Compute posterior predictive probability.
+   * "Given what I've seen so far, what's the probability the next outcome is positive?"
+   * For Beta-Bernoulli: P(x=1 | data) = α / (α + β) — which is the posterior mean.
+   * But also returns the full predictive uncertainty.
+   */
+  posteriorPredictive(prior: BayesianPrior): {
+    probability: number;
+    uncertainty: number;
+    credibleInterval: { lower: number; upper: number };
+    sampleSize: number;
+  } {
+    const a = prior.alpha;
+    const b = prior.beta;
+    const probability = a / (a + b);
+    const sampleSize = a + b - 2; // Subtract initial prior (1,1)
+    const uncertainty = Math.sqrt((a * b) / ((a + b) * (a + b) * (a + b + 1)));
+
+    return {
+      probability,
+      uncertainty,
+      credibleInterval: {
+        lower: jStat.beta.inv(0.025, a, b),
+        upper: jStat.beta.inv(0.975, a, b),
+      },
+      sampleSize: Math.max(0, sampleSize),
+    };
   }
 }
 

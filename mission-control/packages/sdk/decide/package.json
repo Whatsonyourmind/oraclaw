@@ -1,0 +1,13 @@
+{
+  "name": "@oraclaw/decide",
+  "version": "1.0.0",
+  "description": "Make $1M decisions with $0 consultants. AI-powered decision intelligence for executives, PMs, and founders.",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "keywords": ["decision-intelligence", "decision-making", "executive", "strategy", "monte-carlo", "bayesian", "scenario-planning", "ooda", "management"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "homepage": "https://oraclaw.dev/decide",
+  "dependencies": {}
+}

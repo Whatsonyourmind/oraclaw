@@ -26,6 +26,7 @@ import { webhookRoutes } from './webhooks';
 import { batchRoutes } from './batch';
 import { googleIntegrationRoutes } from './integrations/google';
 import { githubIntegrationRoutes } from './integrations/github';
+import publicApiRoutes from './api-public.js';
 
 // In-memory state for demo (would be persisted in production)
 const oracleStateStore = new Map<string, OracleState>();
@@ -73,6 +74,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   await batchRoutes(fastify);
   await googleIntegrationRoutes(fastify);
   await githubIntegrationRoutes(fastify);
+  await publicApiRoutes(fastify);
 
   // ==========================================
   // ORACLE ORCHESTRATION ROUTES

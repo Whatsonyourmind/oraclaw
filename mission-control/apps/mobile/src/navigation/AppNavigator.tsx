@@ -35,6 +35,7 @@ const linking: LinkingOptions<any> = {
 const MainTabs: React.FC = () => {
   return (
     <Tab.Navigator
+      id="MainTabs"
       screenOptions={{
         tabBarStyle: {
           backgroundColor: '#000000',
@@ -56,7 +57,7 @@ const MainTabs: React.FC = () => {
       />
       <Tab.Screen
         name="Intel"
-        component={CameraCapture}
+        component={CameraCapture as any}
         options={{
           tabBarLabel: 'INTEL',
           tabBarIcon: ({ color, size }) => (
@@ -92,17 +93,15 @@ export const AppNavigator: React.FC = () => {
   return (
     <NavigationContainer linking={linking}>
       <Stack.Navigator
+        id="RootStack"
         initialRouteName="MainTabs"
         screenOptions={{
           headerStyle: {
             backgroundColor: '#000000',
-            borderBottomWidth: 1,
-            borderBottomColor: '#333333',
           },
           headerTintColor: '#00FF88',
           headerTitleStyle: {
             fontWeight: 'bold',
-            letterSpacing: 1,
           },
           contentStyle: {
             backgroundColor: '#000000',
@@ -121,12 +120,12 @@ export const AppNavigator: React.FC = () => {
         />
         <Stack.Screen
           name="CameraCapture"
-          component={CameraCapture}
+          component={CameraCapture as any}
           options={{ title: 'INTEL CAPTURE', headerShown: false }}
         />
         <Stack.Screen
           name="IntelOverlay"
-          component={IntelOverlay}
+          component={IntelOverlay as any}
           options={{ title: 'INTELLIGENCE ANALYSIS', headerShown: false }}
         />
         <Stack.Screen
@@ -136,7 +135,7 @@ export const AppNavigator: React.FC = () => {
         />
         <Stack.Screen
           name="MeetingDebrief"
-          component={MeetingDebrief}
+          component={MeetingDebrief as any}
           options={{ title: 'DEBRIEF', headerShown: false }}
         />
       </Stack.Navigator>

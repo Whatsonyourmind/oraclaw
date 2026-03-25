@@ -173,7 +173,7 @@ export const StepByStepView: React.FC<StepByStepViewProps> = ({
                 {step.dependencies.map((dep, i) => (
                   <View key={i} style={styles.dependencyItem}>
                     <Ionicons name="git-branch-outline" size={14} color="#888888" />
-                    <Text style={styles.dependencyText}>{dep}</Text>
+                    <Text style={styles.dependencyText}>{typeof dep === 'string' ? dep : JSON.stringify(dep)}</Text>
                   </View>
                 ))}
               </View>

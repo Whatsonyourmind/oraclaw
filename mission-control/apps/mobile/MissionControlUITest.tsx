@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, Dimensions, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
@@ -288,7 +288,7 @@ export const MissionControlUITest: React.FC = () => {
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
@@ -525,4 +525,4 @@ const styles = {
     fontSize: 10,
     marginTop: 2,
   },
-};
+});

@@ -1,0 +1,13 @@
+{
+  "name": "@oraclaw/simulate",
+  "version": "1.0.0",
+  "description": "Monte Carlo simulation as a service. Run 10,000 probabilistic scenarios in milliseconds.",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "keywords": ["monte-carlo", "simulation", "risk", "forecasting", "probability"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "homepage": "https://oraclaw.dev/simulate",
+  "dependencies": {}
+}

@@ -135,7 +135,7 @@ export const OptionComparisonView: React.FC<OptionComparisonViewProps> = ({
           {option.pros && option.pros.length > 0 ? (
             option.pros.slice(0, 3).map((pro, i) => (
               <Text key={i} style={styles.proItem} numberOfLines={2}>
-                {pro}
+                {typeof pro === 'string' ? pro : pro.point}
               </Text>
             ))
           ) : (
@@ -152,7 +152,7 @@ export const OptionComparisonView: React.FC<OptionComparisonViewProps> = ({
           {option.cons && option.cons.length > 0 ? (
             option.cons.slice(0, 3).map((con, i) => (
               <Text key={i} style={styles.conItem} numberOfLines={2}>
-                {con}
+                {typeof con === 'string' ? con : con.point}
               </Text>
             ))
           ) : (
