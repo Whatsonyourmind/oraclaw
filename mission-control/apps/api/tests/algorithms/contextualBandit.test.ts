@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import {
   ContextualBanditService,
   createContextualBandit,
-} from "../../src/services/oracle/algorithms/contextualBandit.js";
+} from "../../src/services/oracle/algorithms/contextualBandit";
 
 describe("ContextualBandit (LinUCB)", () => {
   let bandit: ContextualBanditService;

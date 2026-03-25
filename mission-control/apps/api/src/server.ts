@@ -5,7 +5,7 @@
 
 import Fastify from "fastify";
 import cors from "@fastify/cors";
-import publicApiRoutes from "./routes/oracle/api-public.js";
+import publicApiRoutes from "./routes/oracle/api-public";
 
 async function main() {
   const app = Fastify({ logger: true });
