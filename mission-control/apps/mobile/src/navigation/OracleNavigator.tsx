@@ -38,7 +38,6 @@ const defaultScreenOptions = {
   headerTintColor: '#FFFFFF',
   headerTitleStyle: {
     fontWeight: 'bold' as const,
-    letterSpacing: 1,
   },
   contentStyle: {
     backgroundColor: '#000000',
@@ -72,6 +71,7 @@ const PhaseHeaderRight: React.FC<PhaseHeaderRightProps> = ({ phase, onPress }) =
 export const OracleNavigator: React.FC = () => {
   return (
     <Stack.Navigator
+      id="OracleStack"
       initialRouteName="OracleDashboard"
       screenOptions={defaultScreenOptions}
     >

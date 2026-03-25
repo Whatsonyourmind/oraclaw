@@ -283,7 +283,7 @@ export const RiskOpportunityMatrix: React.FC<RiskOpportunityMatrixProps> = ({
                       {selectedItem.mitigations.map((mitigation, index) => (
                         <View key={index} style={styles.mitigationItem}>
                           <Ionicons name="shield-checkmark" size={14} color={ORACLE_COLORS.orient} />
-                          <Text style={styles.mitigationText}>{mitigation}</Text>
+                          <Text style={styles.mitigationText}>{typeof mitigation === 'string' ? mitigation : mitigation.action}</Text>
                         </View>
                       ))}
                     </View>

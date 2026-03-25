@@ -1,0 +1,13 @@
+{
+  "name": "@oraclaw/ensemble",
+  "version": "1.0.0",
+  "description": "Multi-model consensus. Combine predictions from multiple AI models into an optimal aggregate.",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "keywords": ["ensemble", "consensus", "multi-model", "aggregation", "multi-agent"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "homepage": "https://oraclaw.dev/ensemble",
+  "dependencies": {}
+}

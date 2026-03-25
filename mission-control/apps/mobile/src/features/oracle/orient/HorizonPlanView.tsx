@@ -124,7 +124,7 @@ export const HorizonPlanView: React.FC<HorizonPlanViewProps> = ({
               <View style={[styles.goalNumber, { backgroundColor: config.color }]}>
                 <Text style={styles.goalNumberText}>{index + 1}</Text>
               </View>
-              <Text style={styles.goalText}>{goal}</Text>
+              <Text style={styles.goalText}>{typeof goal === 'string' ? goal : goal.description}</Text>
             </View>
           ))}
         </View>
@@ -160,7 +160,7 @@ export const HorizonPlanView: React.FC<HorizonPlanViewProps> = ({
                 {index < horizon.dependencies!.length - 1 && (
                   <View style={styles.dependencyLine} />
                 )}
-                <Text style={styles.dependencyText}>{dep}</Text>
+                <Text style={styles.dependencyText}>{typeof dep === 'string' ? dep : dep.description}</Text>
               </View>
             ))}
           </View>
@@ -174,7 +174,7 @@ export const HorizonPlanView: React.FC<HorizonPlanViewProps> = ({
           {horizon.risks.map((risk, index) => (
             <View key={index} style={styles.riskItem}>
               <Ionicons name="warning-outline" size={16} color="#FF6B6B" />
-              <Text style={styles.riskText}>{risk}</Text>
+              <Text style={styles.riskText}>{typeof risk === 'string' ? risk : risk.description}</Text>
             </View>
           ))}
         </View>
@@ -187,7 +187,7 @@ export const HorizonPlanView: React.FC<HorizonPlanViewProps> = ({
           {horizon.opportunities.map((opp, index) => (
             <View key={index} style={styles.opportunityItem}>
               <Ionicons name="sunny-outline" size={16} color="#00FF88" />
-              <Text style={styles.opportunityText}>{opp}</Text>
+              <Text style={styles.opportunityText}>{typeof opp === 'string' ? opp : opp.description}</Text>
             </View>
           ))}
         </View>

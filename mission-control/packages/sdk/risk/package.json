@@ -1,0 +1,13 @@
+{
+  "name": "@oraclaw/risk",
+  "version": "1.0.0",
+  "description": "Risk assessment engine. VaR, CVaR, stress testing, and multi-factor risk scoring.",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "keywords": ["risk", "var", "cvar", "finance", "trading", "portfolio", "stress-testing"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "homepage": "https://oraclaw.dev/risk",
+  "dependencies": {}
+}

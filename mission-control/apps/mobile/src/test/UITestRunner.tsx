@@ -356,7 +356,7 @@ export const UITestRunner: React.FC = () => {
         </View>
         
         <View style={styles.category}>
-          <Text style={styles.categoryTitle">PERFORMANCE</Text>
+          <Text style={styles.categoryTitle}>PERFORMANCE</Text>
           <Text style={styles.categoryDescription}>API connectivity, state management, UI responsiveness</Text>
         </View>
       </View>

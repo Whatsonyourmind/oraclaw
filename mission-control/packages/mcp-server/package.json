@@ -1,0 +1,21 @@
+{
+  "name": "@oraclaw/mcp-server",
+  "version": "1.0.0",
+  "description": "OraClaw Decision Intelligence — MCP server exposing 14 ML algorithms for AI agents",
+  "type": "module",
+  "main": "src/index.ts",
+  "bin": {
+    "oracle-mcp": "src/index.ts"
+  },
+  "scripts": {
+    "start": "npx tsx src/index.ts",
+    "dev": "npx tsx --watch src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "x402-mcp": "^0.1.1"
+  },
+  "peerDependencies": {
+    "tsx": "^4.0.0"
+  }
+}

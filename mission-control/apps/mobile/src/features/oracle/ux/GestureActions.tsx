@@ -300,7 +300,7 @@ export const GestureActions: React.FC<GestureActionsProps> = ({
               key={action.direction}
               style={[
                 styles.hint,
-                styles[`hint${action.direction.charAt(0).toUpperCase() + action.direction.slice(1)}` as keyof typeof styles],
+                (styles as any)[`hint${action.direction.charAt(0).toUpperCase() + action.direction.slice(1)}`],
               ]}
             >
               <Ionicons name={action.icon as any} size={16} color={action.color} />

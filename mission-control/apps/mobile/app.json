@@ -11,18 +11,16 @@
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.missioncontrol.app",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "ORACLE uses your location to provide contextual intelligence and detect environmental signals.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "ORACLE needs background location access to maintain continuous environment awareness and detect signals even when the app is not active.",
-        "NSLocationAlwaysUsageDescription": "ORACLE needs background location for continuous environment awareness.",
-        "NSCalendarsUsageDescription": "ORACLE needs calendar access to detect scheduling conflicts, upcoming deadlines, and plan execution timing.",
-        "NSRemindersUsageDescription": "ORACLE uses reminders to create ghost actions and scheduled tasks.",
+        "NSLocationWhenInUseUsageDescription": "OraClaw uses your location to provide contextual intelligence and detect environmental signals.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "OraClaw needs background location access to maintain continuous environment awareness and detect signals even when the app is not active.",
+        "NSLocationAlwaysUsageDescription": "OraClaw needs background location for continuous environment awareness.",
+        "NSCalendarsUsageDescription": "OraClaw needs calendar access to detect scheduling conflicts, upcoming deadlines, and plan execution timing.",
+        "NSRemindersUsageDescription": "OraClaw uses reminders to create ghost actions and scheduled tasks.",
         "UIBackgroundModes": [
           "fetch",
           "processing",
@@ -53,13 +51,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "bundler": "webpack"
+      "bundler": "metro"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "@react-native-community/datetimepicker"
     ],
     "scheme": "mission-control",
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "notification": {
       "androidMode": "default",
       "iosDisplayInForeground": true

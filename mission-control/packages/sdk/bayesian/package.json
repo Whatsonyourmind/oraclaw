@@ -1,0 +1,13 @@
+{
+  "name": "@oraclaw/bayesian",
+  "version": "1.0.0",
+  "description": "Bayesian inference engine. Update beliefs with new evidence. Prior + data = posterior.",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "keywords": ["bayesian", "inference", "prediction", "probability", "belief-updating"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "homepage": "https://oraclaw.dev/bayesian",
+  "dependencies": {}
+}

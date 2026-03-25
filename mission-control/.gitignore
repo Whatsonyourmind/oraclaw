@@ -1,0 +1,6 @@
+
+.env.wallet
+keystore.json
+.keystore-password
+*.key
+.env.local

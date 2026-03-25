@@ -9,7 +9,7 @@
  * - Graceful degradation on limit
  */
 
-import { Request, Response, NextFunction } from 'express';
+import { FastifyRequest, FastifyReply } from 'fastify';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // ============================================================================
@@ -347,30 +347,30 @@ export class RateLimiter {
   }
 
   // --------------------------------------------------------------------------
-  // Express Middleware
+  // Fastify Middleware (preHandler hook)
   // --------------------------------------------------------------------------
 
   middleware(requestType: 'standard' | 'ai' | 'batch' = 'standard') {
-    return async (req: Request, res: Response, next: NextFunction) => {
+    return async (req: FastifyRequest, reply: FastifyReply) => {
       const userId = (req as any).userId || req.ip || 'anonymous';
 
       // For batch requests, get operation count
       let batchOperationCount = 1;
-      if (requestType === 'batch' && req.body?.operations) {
-        batchOperationCount = req.body.operations.length;
+      if (requestType === 'batch' && (req.body as any)?.operations) {
+        batchOperationCount = (req.body as any).operations.length;
       }
 
       const { allowed, info } = await this.checkLimit(userId, requestType, batchOperationCount);
 
       // Set rate limit headers
-      res.setHeader('X-RateLimit-Limit', info.limit.toString());
-      res.setHeader('X-RateLimit-Remaining', info.remaining.toString());
-      res.setHeader('X-RateLimit-Reset', info.reset.toString());
+      reply.header('X-RateLimit-Limit', info.limit.toString());
+      reply.header('X-RateLimit-Remaining', info.remaining.toString());
+      reply.header('X-RateLimit-Reset', info.reset.toString());
 
       if (!allowed) {
-        res.setHeader('Retry-After', info.retryAfter?.toString() || '60');
+        reply.header('Retry-After', info.retryAfter?.toString() || '60');
 
-        return res.status(429).json({
+        reply.code(429).send({
           error: {
             code: 'RATE_LIMITED',
             message: 'Too many requests. Please try again later.',
@@ -379,9 +379,8 @@ export class RateLimiter {
             reset: info.reset,
           },
         });
+        return;
       }
-
-      return next();
     };
   }
 

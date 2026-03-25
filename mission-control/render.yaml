@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: oraclaw-api
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: cd apps/api && npm install && npx tsc
+    startCommand: cd apps/api && node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3001"
+      - key: RECEIVING_WALLET_ADDRESS
+        value: "0x450996401D587C8206803F544cCA74C33f6FbC93"
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

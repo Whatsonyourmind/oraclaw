@@ -394,18 +394,18 @@ server.register(exportRoutes, { prefix: '/api/oracle/export' });
 server.register(wsRoutes);
 
 // FREE TIER FRIENDLY ERROR HANDLING
-server.setErrorHandler((error, request, reply) => {
+server.setErrorHandler((error: Error & { statusCode?: number }, request, reply) => {
   server.log.error(error);
-  
+
   if (error.statusCode === 429) {
-    reply.code(429).send({ 
+    reply.code(429).send({
       error: 'Rate limit exceeded. Please try again later.',
       retry_after: 60
     });
     return;
   }
 
-  reply.code(500).send({ 
+  reply.code(500).send({
     error: 'Internal server error. Please try again.',
     success: false
   });

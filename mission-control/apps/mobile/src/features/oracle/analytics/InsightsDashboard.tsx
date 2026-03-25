@@ -106,13 +106,13 @@ const InsightCard: React.FC<{
   const getSeverityColors = () => {
     switch (insight.severity) {
       case 'critical':
-        return { bg: ['#FEE2E2', '#FECACA'], accent: '#DC2626', icon: '!' };
+        return { bg: ['#FEE2E2', '#FECACA'] as const, accent: '#DC2626', icon: '!' };
       case 'warning':
-        return { bg: ['#FEF3C7', '#FDE68A'], accent: '#D97706', icon: '!' };
+        return { bg: ['#FEF3C7', '#FDE68A'] as const, accent: '#D97706', icon: '!' };
       case 'success':
-        return { bg: ['#DCFCE7', '#BBF7D0'], accent: '#16A34A', icon: '+' };
+        return { bg: ['#DCFCE7', '#BBF7D0'] as const, accent: '#16A34A', icon: '+' };
       default:
-        return { bg: ['#DBEAFE', '#BFDBFE'], accent: '#2563EB', icon: 'i' };
+        return { bg: ['#DBEAFE', '#BFDBFE'] as const, accent: '#2563EB', icon: 'i' };
     }
   };
 
