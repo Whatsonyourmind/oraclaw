@@ -10,8 +10,6 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: "3001"
       - key: RECEIVING_WALLET_ADDRESS
         value: "0x450996401D587C8206803F544cCA74C33f6FbC93"
       - key: STRIPE_SECRET_KEY
