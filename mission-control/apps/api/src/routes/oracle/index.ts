@@ -26,7 +26,7 @@ import { webhookRoutes } from './webhooks';
 import { batchRoutes } from './batch';
 import { googleIntegrationRoutes } from './integrations/google';
 import { githubIntegrationRoutes } from './integrations/github';
-import publicApiRoutes from './api-public.js';
+import publicApiRoutes from './api-public';
 
 // In-memory state for demo (would be persisted in production)
 const oracleStateStore = new Map<string, OracleState>();
