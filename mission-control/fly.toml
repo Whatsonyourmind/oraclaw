@@ -1,0 +1,21 @@
+app = "oraclaw-api"
+primary_region = "fra"
+
+[build]
+  dockerfile = "Dockerfile.api"
+
+[env]
+  NODE_ENV = "production"
+  RECEIVING_WALLET_ADDRESS = "0x450996401D587C8206803F544cCA74C33f6FbC93"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

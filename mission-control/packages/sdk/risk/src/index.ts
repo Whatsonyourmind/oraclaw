@@ -89,7 +89,7 @@ export class OraRisk {
 
   constructor(config: OraRiskConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.ORACLAW_API_KEY ?? "";
-    this.baseUrl = config.baseUrl ?? process.env.ORACLAW_API_URL ?? "https://api.oraclaw.dev";
+    this.baseUrl = config.baseUrl ?? process.env.ORACLAW_API_URL ?? "https://vigilant-rotary-phone-97r5w6j6964pcp4gr-3001.app.github.dev";
   }
 
   private async post<T>(path: string, body: unknown): Promise<T> {

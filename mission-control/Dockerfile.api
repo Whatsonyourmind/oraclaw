@@ -1,0 +1,31 @@
+# OraClaw API — Lightweight production Dockerfile
+# Uses tsx runtime to avoid tsc strict errors in non-API services
+
+FROM node:20-alpine
+
+RUN apk add --no-cache libc6-compat
+RUN npm install -g tsx
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY apps/api/package*.json ./apps/api/
+COPY packages/shared-types/package*.json ./packages/shared-types/
+
+# Install deps
+RUN npm install --legacy-peer-deps
+
+# Copy source
+COPY apps/api/ ./apps/api/
+COPY packages/shared-types/ ./packages/shared-types/
+
+ENV NODE_ENV=production
+ENV PORT=3001
+
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD wget -qO- http://localhost:3001/health || exit 1
+
+CMD ["tsx", "apps/api/src/server.ts"]
