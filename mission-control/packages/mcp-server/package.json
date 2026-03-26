@@ -1,19 +1,23 @@
 {
   "name": "@oraclaw/mcp-server",
   "version": "1.0.0",
-  "description": "OraClaw Decision Intelligence — MCP server exposing 14 ML algorithms for AI agents",
+  "description": "OraClaw Decision Intelligence — 12 MCP tools for AI agents (bandits, LP solver, graph analytics, forecasting, anomaly detection, CMA-ES)",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "src/index.npm.ts",
   "bin": {
-    "oracle-mcp": "src/index.ts"
+    "oraclaw-mcp": "src/index.npm.ts"
   },
   "scripts": {
-    "start": "npx tsx src/index.ts",
-    "dev": "npx tsx --watch src/index.ts"
+    "start": "npx tsx src/index.npm.ts",
+    "start:local": "npx tsx src/index.ts",
+    "dev": "npx tsx --watch src/index.npm.ts"
   },
+  "keywords": ["mcp", "ai-agents", "decision-intelligence", "bandits", "optimization", "forecasting", "anomaly-detection", "graph-analytics", "oraclaw"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "homepage": "https://github.com/Whatsonyourmind/oraclaw",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.0",
-    "x402-mcp": "^0.1.1"
+    "@modelcontextprotocol/sdk": "^1.12.0"
   },
   "peerDependencies": {
     "tsx": "^4.0.0"
