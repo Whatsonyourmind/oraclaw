@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 import httpx
 import os
 
-ORACLAW_API_URL = os.getenv("ORACLAW_API_URL", "https://oraclaw-api.onrender.com")
+ORACLAW_API_URL = os.getenv("ORACLAW_API_URL", "https://vigilant-rotary-phone-97r5w6j6964pcp4gr-3001.app.github.dev")
 ORACLAW_API_KEY = os.getenv("ORACLAW_API_KEY", "")
 
 

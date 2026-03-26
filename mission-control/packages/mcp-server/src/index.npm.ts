@@ -20,7 +20,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
-const API_URL = process.env.ORACLAW_API_URL || "https://oraclaw-api.onrender.com";
+const API_URL = process.env.ORACLAW_API_URL || "https://vigilant-rotary-phone-97r5w6j6964pcp4gr-3001.app.github.dev";
 const API_KEY = process.env.ORACLAW_API_KEY || "";
 
 async function callAPI(endpoint: string, body: unknown): Promise<unknown> {
