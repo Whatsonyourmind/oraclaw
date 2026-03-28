@@ -6,7 +6,7 @@
 # -----------------------------------------------------------------------------
 # Stage 1: Dependencies
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 
 # Install build dependencies for native modules
 RUN apk add --no-cache libc6-compat python3 make g++
@@ -28,7 +28,7 @@ RUN npm ci --include=dev
 # -----------------------------------------------------------------------------
 # Stage 2: Builder
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -49,7 +49,7 @@ RUN npm prune --production --workspace=@mission-control/api
 # -----------------------------------------------------------------------------
 # Stage 3: Production Runner
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 # Install production dependencies
 RUN apk add --no-cache \

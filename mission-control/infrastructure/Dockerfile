@@ -8,7 +8,7 @@
 # ============================================================================
 # Stage 1: Builder
 # ============================================================================
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Install build dependencies for native modules
 RUN apk add --no-cache python3 make g++ curl
@@ -43,7 +43,7 @@ RUN npm prune --production --legacy-peer-deps
 # ============================================================================
 # Stage 2: Production Runner
 # ============================================================================
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 # Add non-root user for security
 RUN addgroup --system --gid 1001 nodejs && \
