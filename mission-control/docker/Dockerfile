@@ -22,8 +22,8 @@ COPY packages/shared-types/package*.json ./packages/shared-types/
 COPY packages/client-sdk/package*.json ./packages/client-sdk/
 COPY packages/mcp-server/package*.json ./packages/mcp-server/
 
-# Install dependencies
-RUN npm ci --include=dev
+# Install dependencies (npm install over npm ci for npm 10/11 lockfile compat)
+RUN npm install --include=dev
 
 # -----------------------------------------------------------------------------
 # Stage 2: Builder
