@@ -35,7 +35,6 @@ WORKDIR /app
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=deps /app/packages/shared-types/node_modules ./packages/shared-types/node_modules
 
 # Copy source code
 COPY . .
