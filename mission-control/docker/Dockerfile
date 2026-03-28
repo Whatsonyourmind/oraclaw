@@ -13,11 +13,14 @@ RUN apk add --no-cache libc6-compat python3 make g++
 
 WORKDIR /app
 
-# Copy package files for dependency installation
-COPY apps/api/package*.json ./apps/api/
-COPY packages/shared-types/package*.json ./packages/shared-types/
+# Copy all workspace package files so lockfile stays in sync
 COPY package*.json ./
 COPY turbo.json ./
+COPY apps/api/package*.json ./apps/api/
+COPY apps/mobile/package*.json ./apps/mobile/
+COPY packages/shared-types/package*.json ./packages/shared-types/
+COPY packages/client-sdk/package*.json ./packages/client-sdk/
+COPY packages/mcp-server/package*.json ./packages/mcp-server/
 
 # Install dependencies
 RUN npm ci --include=dev
