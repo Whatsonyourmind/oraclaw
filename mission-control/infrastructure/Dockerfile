@@ -20,9 +20,12 @@ WORKDIR /app
 COPY package*.json ./
 COPY turbo.json ./
 
-# Copy workspace package files
-COPY packages/shared-types/package*.json ./packages/shared-types/
+# Copy all workspace package files so lockfile stays in sync
 COPY apps/api/package*.json ./apps/api/
+COPY apps/mobile/package*.json ./apps/mobile/
+COPY packages/shared-types/package*.json ./packages/shared-types/
+COPY packages/client-sdk/package*.json ./packages/client-sdk/
+COPY packages/mcp-server/package*.json ./packages/mcp-server/
 
 # Install all dependencies (including dev)
 RUN npm ci --legacy-peer-deps
