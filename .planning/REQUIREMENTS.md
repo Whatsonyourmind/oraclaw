@@ -15,8 +15,8 @@
 ### Billing
 
 - [x] **BILL-01**: API calls are metered via Stripe Billing Meters API (upgrade from removed legacy usage_records)
-- [ ] **BILL-02**: Free tier allows 100 calls/day without API key
-- [ ] **BILL-03**: Paid tiers (starter/growth/scale/enterprise) billed per call via Stripe metered subscription
+- [x] **BILL-02**: Free tier allows 100 calls/day without API key
+- [x] **BILL-03**: Paid tiers (starter/growth/scale/enterprise) billed per call via Stripe metered subscription
 - [ ] **BILL-04**: AI agents can pay per call via x402 USDC machine payments (native Fastify preHandler)
 - [ ] **BILL-05**: Users can view usage and invoices via Stripe customer portal
 
@@ -78,8 +78,8 @@
 | AUTH-04 | Phase 1 | Complete |
 | INFRA-01 | Phase 2 | Complete |
 | BILL-01 | Phase 2 | Complete |
-| BILL-02 | Phase 3 | Pending |
-| BILL-03 | Phase 3 | Pending |
+| BILL-02 | Phase 3 | Complete |
+| BILL-03 | Phase 3 | Complete |
 | BILL-05 | Phase 3 | Pending |
 | DX-01 | Phase 4 | Pending |
 | DX-02 | Phase 4 | Pending |
