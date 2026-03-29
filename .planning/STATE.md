@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v21.0
 milestone_name: milestone
-status: in-progress
-stopped_at: Completed 02-01-PLAN.md (Stripe SDK install and apiVersion upgrade)
-last_updated: "2026-03-29T20:49:50Z"
-last_activity: 2026-03-29 -- Completed 02-01-PLAN.md (Stripe SDK install and apiVersion upgrade)
+status: executing
+stopped_at: Completed 02-02-PLAN.md (Stripe Billing Meter Usage Hook) -- Phase 2 complete
+last_updated: "2026-03-29T20:57:58.496Z"
+last_activity: 2026-03-29 -- Completed 02-02-PLAN.md (Stripe Billing Meter Usage Hook)
 progress:
   total_phases: 8
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 19
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
+  percent: 25
 ---
 
 # Project State
@@ -26,29 +26,29 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 ## Current Position
 
 Phase: 2 of 8 (Stripe Billing Setup)
-Plan: 1 of 2 in current phase
+Plan: 2 of 2 in current phase (PHASE COMPLETE)
 Status: In Progress
-Last activity: 2026-03-29 -- Completed 02-01-PLAN.md (Stripe SDK install and apiVersion upgrade)
+Last activity: 2026-03-29 -- Completed 02-02-PLAN.md (Stripe Billing Meter Usage Hook)
 
-Progress: [██░░░░░░░░] 19%
+Progress: [██▌░░░░░░░] 25%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 8 min
-- Total execution time: 0.4 hours
+- Total plans completed: 4
+- Average duration: 7 min
+- Total execution time: 0.5 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-auth | 2 | 15 min | 7.5 min |
-| 02-stripe | 1 | 9 min | 9 min |
+| 02-stripe | 2 | 12 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (9 min), 01-02 (6 min), 02-01 (9 min)
-- Trend: Stable
+- Last 5 plans: 01-01 (9 min), 01-02 (6 min), 02-01 (9 min), 02-02 (3 min)
+- Trend: Accelerating
 
 *Updated after each plan completion*
 
@@ -71,6 +71,9 @@ Recent decisions affecting current work:
 - Stripe SDK v21 dahlia has 6 breaking type changes from v15 (2023-10-16): coupon->discounts, retrieveUpcoming->createPreview, current_period_start/end removed, invoice.subscription->parent.subscription_details
 - Pinned stripe@21.0.1 exact (no caret) for reproducible builds
 - mock-stripe.ts follows mock-unkey.ts factory pattern: returns { client, meterEventsCreate }
+- Fire-and-forget meter events: .catch() logs errors but never blocks API response
+- Hook factory pattern (createXHook) for testability with injected Stripe client
+- Meter event identifier: request.id + Date.now() for idempotency
 
 ### Pending Todos
 
@@ -85,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29
-Stopped at: Completed 02-01-PLAN.md (Stripe SDK install and apiVersion upgrade)
-Resume file: .planning/phases/02-stripe-billing-setup/02-01-SUMMARY.md
+Last session: 2026-03-29T20:57:58.491Z
+Stopped at: Completed 02-02-PLAN.md (Stripe Billing Meter Usage Hook) -- Phase 2 complete
+Resume file: None
