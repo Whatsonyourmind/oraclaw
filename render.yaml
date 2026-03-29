@@ -5,8 +5,8 @@ services:
     region: frankfurt
     plan: free
     rootDir: mission-control
-    buildCommand: npm install && npm install -g tsx
-    startCommand: tsx apps/api/src/server.ts
+    buildCommand: npm install && npx tsc --project apps/api/tsconfig.json
+    startCommand: node apps/api/dist/server.js
     envVars:
       - key: NODE_ENV
         value: production
