@@ -32,11 +32,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. A developer can rotate or revoke an API key and the old key stops working immediately without API downtime
   3. Rate limits are enforced per tier via Unkey's distributed system (not in-memory), and exceeding the limit returns HTTP 429
   4. Every API response includes X-RateLimit-Remaining, X-RateLimit-Limit, and X-RateLimit-Reset headers
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md — Unkey auth middleware, rate limit headers, old auth removal
+- [ ] 01-02-PLAN.md — Key management tests, auth middleware tests, full regression
 
 ### Phase 2: Stripe Billing Setup
 **Goal**: API calls generate Stripe meter events that flow into the billing system
@@ -144,7 +144,7 @@ Note: Phases 4, 5, and 7 depend only on Phase 1 and can execute in parallel afte
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Auth and Access Control | 0/2 | Not started | - |
+| 1. Auth and Access Control | 0/2 | Planned | - |
 | 2. Stripe Billing Setup | 0/2 | Not started | - |
 | 3. Billing Tiers and Portal | 0/2 | Not started | - |
 | 4. Developer Experience | 0/2 | Not started | - |
