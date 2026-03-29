@@ -60,11 +60,11 @@ Plans:
   1. An unauthenticated caller can make up to 100 API calls per day without an API key (free tier)
   2. A paid subscriber on any tier (starter/growth/scale/enterprise) is billed per call via Stripe metered subscription
   3. A paying customer can access the Stripe customer portal to view usage, invoices, and manage their subscription
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md — Free-tier IP rate limiting (@fastify/rate-limit), tier config with Stripe price IDs
+- [ ] 03-02-PLAN.md — Subscription checkout route, customer portal session endpoint, billing route wiring
 
 ### Phase 4: Developer Experience
 **Goal**: Developers can discover, understand, and integrate with OraClaw in under 5 minutes using interactive docs and consistent error handling
