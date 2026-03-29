@@ -16,6 +16,9 @@ import { createAuthMiddleware, rateLimitHeadersHook } from './middleware/auth';
 import { createMeterUsageHook } from './hooks/meter-usage';
 import { stripe } from './services/billing/stripe';
 
+// Free-tier rate limiting
+import { registerFreeTierRateLimit } from './hooks/free-tier-rate-limit';
+
 // Database
 import { db } from './services/database/client';
 
@@ -66,6 +69,9 @@ server.register(multipart, {
 
 // Register Swagger/OpenAPI documentation
 registerSwagger(server);
+
+// Free-tier rate limiting (100 calls/day by IP, skips authenticated requests)
+registerFreeTierRateLimit(server);
 
 // Unkey auth middleware for public API routes (/api/v1/*)
 const unkeyAuthHandler = createAuthMiddleware(unkey);
