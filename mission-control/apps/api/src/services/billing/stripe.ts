@@ -10,7 +10,6 @@
  * - Payment method management
  */
 
-// @ts-ignore - stripe is an optional dependency
 import Stripe from 'stripe';
 import type {
   Subscription,
@@ -28,7 +27,7 @@ import type {
 
 // Initialize Stripe with secret key from environment
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-  apiVersion: '2023-10-16',
+  apiVersion: '2026-03-25.dahlia',
 });
 
 // Webhook secret for signature verification
@@ -212,7 +211,7 @@ export class StripeService {
     }
 
     if (params.couponCode) {
-      subscriptionParams.coupon = params.couponCode;
+      subscriptionParams.discounts = [{ coupon: params.couponCode }];
     }
 
     const subscription = await stripe.subscriptions.create(subscriptionParams);
@@ -317,21 +316,23 @@ export class StripeService {
   }): Promise<{ prorated_amount: number; amount_due: number; billing_date: string }> {
     const subscription = await stripe.subscriptions.retrieve(params.subscriptionId);
 
-    const invoice = await stripe.invoices.retrieveUpcoming({
+    const invoice = await stripe.invoices.createPreview({
       customer: subscription.customer as string,
       subscription: params.subscriptionId,
-      subscription_items: [
-        {
-          id: subscription.items.data[0].id,
-          price: params.newPriceId,
-        },
-      ],
+      subscription_details: {
+        items: [
+          {
+            id: subscription.items.data[0].id,
+            price: params.newPriceId,
+          },
+        ],
+      },
     });
 
     return {
       prorated_amount: invoice.subtotal / 100,
       amount_due: invoice.amount_due / 100,
-      billing_date: new Date(subscription.current_period_end * 1000).toISOString(),
+      billing_date: new Date(subscription.billing_cycle_anchor * 1000).toISOString(),
     };
   }
 
@@ -438,8 +439,8 @@ export class StripeService {
   /**
    * Get upcoming invoice
    */
-  async getUpcomingInvoice(customerId: string): Promise<Stripe.UpcomingInvoice> {
-    return stripe.invoices.retrieveUpcoming({
+  async getUpcomingInvoice(customerId: string): Promise<Stripe.Invoice> {
+    return stripe.invoices.createPreview({
       customer: customerId,
     });
   }
@@ -468,14 +469,17 @@ export class StripeService {
     switch (event.type) {
       case 'customer.subscription.created': {
         const subscription = event.data.object as Stripe.Subscription;
+        // current_period_start/end removed in SDK v21 (dahlia); use start_date + billing_cycle_anchor
         return {
           action: 'subscription_created',
           data: {
             stripe_subscription_id: subscription.id,
             stripe_customer_id: subscription.customer,
             status: mapStripeStatus(subscription.status),
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            current_period_start: new Date(subscription.start_date * 1000).toISOString(),
+            current_period_end: subscription.cancel_at
+              ? new Date(subscription.cancel_at * 1000).toISOString()
+              : null,
             trial_end: subscription.trial_end
               ? new Date(subscription.trial_end * 1000).toISOString()
               : null,
@@ -485,13 +489,16 @@ export class StripeService {
 
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
+        // current_period_start/end removed in SDK v21 (dahlia); use start_date + billing_cycle_anchor
         return {
           action: 'subscription_updated',
           data: {
             stripe_subscription_id: subscription.id,
             status: mapStripeStatus(subscription.status),
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            current_period_start: new Date(subscription.start_date * 1000).toISOString(),
+            current_period_end: subscription.cancel_at
+              ? new Date(subscription.cancel_at * 1000).toISOString()
+              : null,
             cancel_at_period_end: subscription.cancel_at_period_end,
             canceled_at: subscription.canceled_at
               ? new Date(subscription.canceled_at * 1000).toISOString()
@@ -518,7 +525,7 @@ export class StripeService {
           action: 'invoice_paid',
           data: {
             stripe_invoice_id: invoice.id,
-            stripe_subscription_id: invoice.subscription,
+            stripe_subscription_id: invoice.parent?.subscription_details?.subscription ?? null,
             amount_paid: invoice.amount_paid / 100,
             paid_at: new Date().toISOString(),
             pdf_url: invoice.invoice_pdf,
@@ -533,7 +540,7 @@ export class StripeService {
           action: 'payment_failed',
           data: {
             stripe_invoice_id: invoice.id,
-            stripe_subscription_id: invoice.subscription,
+            stripe_subscription_id: invoice.parent?.subscription_details?.subscription ?? null,
             amount_due: invoice.amount_due / 100,
             attempt_count: invoice.attempt_count,
             next_payment_attempt: invoice.next_payment_attempt
