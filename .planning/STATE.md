@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v21.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-01-PLAN.md (Free-Tier Rate Limiting & Tier Config)
-last_updated: "2026-03-29T21:31:08Z"
-last_activity: 2026-03-29 -- Completed 03-01-PLAN.md (Free-Tier Rate Limiting & Tier Config)
+stopped_at: Completed 03-02-PLAN.md (Subscription Checkout & Customer Portal)
+last_updated: "2026-03-29T21:38:42Z"
+last_activity: 2026-03-29 -- Completed 03-02-PLAN.md (Subscription Checkout & Customer Portal)
 progress:
   total_phases: 8
-  completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 31
+  completed_phases: 3
+  total_plans: 6
+  completed_plans: 6
+  percent: 38
 ---
 
 # Project State
@@ -25,19 +25,19 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 
 ## Current Position
 
-Phase: 3 of 8 (Billing Tiers and Portal)
-Plan: 1 of 2 in current phase
-Status: In Progress
-Last activity: 2026-03-29 -- Completed 03-01-PLAN.md (Free-Tier Rate Limiting & Tier Config)
+Phase: 3 of 8 (Billing Tiers and Portal) -- COMPLETE
+Plan: 2 of 2 in current phase (all plans complete)
+Status: Phase Complete
+Last activity: 2026-03-29 -- Completed 03-02-PLAN.md (Subscription Checkout & Customer Portal)
 
-Progress: [███░░░░░░░] 31%
+Progress: [████░░░░░░] 38%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 6.6 min
-- Total execution time: 0.5 hours
+- Total plans completed: 6
+- Average duration: 6 min
+- Total execution time: 0.6 hours
 
 **By Phase:**
 
@@ -45,10 +45,10 @@ Progress: [███░░░░░░░] 31%
 |-------|-------|-------|----------|
 | 01-auth | 2 | 15 min | 7.5 min |
 | 02-stripe | 2 | 12 min | 6 min |
-| 03-billing | 1 | 5 min | 5 min |
+| 03-billing | 2 | 9 min | 4.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (9 min), 01-02 (6 min), 02-01 (9 min), 02-02 (3 min), 03-01 (5 min)
+- Last 5 plans: 01-02 (6 min), 02-01 (9 min), 02-02 (3 min), 03-01 (5 min), 03-02 (4 min)
 - Trend: Accelerating
 
 *Updated after each plan completion*
@@ -78,6 +78,9 @@ Recent decisions affecting current work:
 - @fastify/rate-limit v10 uses allowList (not skip) to bypass rate limiting for authenticated requests
 - Tier config (TIER_CONFIG) reads Stripe price IDs from env vars for test/staging/prod portability
 - Free-tier rate limiter registered after swagger but before Unkey preHandler hook for correct ordering
+- Raw stripe client for billingPortal.sessions.create (StripeService does not expose portal methods)
+- Enterprise tier rejected at subscribe endpoint with 400 (contact sales, not self-service Checkout)
+- NON_SUBSCRIBABLE_TIERS Set for O(1) exclusion of free and enterprise from subscription flow
 
 ### Pending Todos
 
@@ -92,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29T21:31:08Z
-Stopped at: Completed 03-01-PLAN.md (Free-Tier Rate Limiting & Tier Config)
+Last session: 2026-03-29T21:38:42Z
+Stopped at: Completed 03-02-PLAN.md (Subscription Checkout & Customer Portal)
 Resume file: None
