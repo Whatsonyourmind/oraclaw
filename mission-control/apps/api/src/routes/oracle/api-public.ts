@@ -43,6 +43,14 @@ const RATE_LIMITS: Record<string, number> = {
 // In-memory rate tracking (replace with Unkey in production)
 const dailyCounts = new Map<string, { count: number; resetAt: number }>();
 
+// Cleanup expired entries every hour to prevent memory leak
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of dailyCounts.entries()) {
+    if (now > entry.resetAt) dailyCounts.delete(key);
+  }
+}, 3_600_000).unref();
+
 function checkApiKey(request: FastifyRequest): ApiKeyPayload {
   const authHeader = request.headers.authorization;
 
