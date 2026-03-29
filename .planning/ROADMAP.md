@@ -46,11 +46,11 @@ Plans:
   1. Stripe SDK v21.0.1 is installed as a real dependency (no @ts-ignore) with apiVersion 2026-03-25.dahlia
   2. Every authenticated API call emits a Stripe Billing Meter event (via async onResponse hook, not blocking the response)
   3. Meter events appear in the Stripe Dashboard under Billing > Meters within seconds of an API call
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Stripe SDK install, apiVersion upgrade, mock factory
+- [ ] 02-02-PLAN.md — Meter usage onResponse hook (TDD: tests first, then implementation + wiring)
 
 ### Phase 3: Billing Tiers and Portal
 **Goal**: Developers can use OraClaw for free or pay for higher usage, and view their billing in a self-service portal
@@ -144,8 +144,8 @@ Note: Phases 4, 5, and 7 depend only on Phase 1 and can execute in parallel afte
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Auth and Access Control | 0/2 | Planned | - |
-| 2. Stripe Billing Setup | 0/2 | Not started | - |
+| 1. Auth and Access Control | 2/2 | Complete | 2026-03-29 |
+| 2. Stripe Billing Setup | 0/2 | Planned | - |
 | 3. Billing Tiers and Portal | 0/2 | Not started | - |
 | 4. Developer Experience | 0/2 | Not started | - |
 | 5. x402 Machine Payments | 0/2 | Not started | - |
