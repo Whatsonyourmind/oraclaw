@@ -145,7 +145,7 @@ Note: Phases 4, 5, and 7 depend only on Phase 1 and can execute in parallel afte
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Auth and Access Control | 2/2 | Complete | 2026-03-29 |
-| 2. Stripe Billing Setup | 0/2 | Planned | - |
+| 2. Stripe Billing Setup | 1/2 | In Progress | - |
 | 3. Billing Tiers and Portal | 0/2 | Not started | - |
 | 4. Developer Experience | 0/2 | Not started | - |
 | 5. x402 Machine Payments | 0/2 | Not started | - |

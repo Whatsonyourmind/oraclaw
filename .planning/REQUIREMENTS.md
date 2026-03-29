@@ -36,7 +36,7 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Stripe SDK v21.0.1 installed and apiVersion upgraded to 2026-03-25.dahlia
+- [x] **INFRA-01**: Stripe SDK v21.0.1 installed and apiVersion upgraded to 2026-03-25.dahlia
 - [ ] **INFRA-02**: x402 packages installed (@x402/core, @x402/evm) with native Fastify hook
 - [ ] **INFRA-03**: End-to-end billing verification (free -> paid -> metered -> invoice -> x402)
 
@@ -76,7 +76,7 @@
 | AUTH-02 | Phase 1 | Complete |
 | AUTH-03 | Phase 1 | Complete |
 | AUTH-04 | Phase 1 | Complete |
-| INFRA-01 | Phase 2 | Pending |
+| INFRA-01 | Phase 2 | Complete |
 | BILL-01 | Phase 2 | Pending |
 | BILL-02 | Phase 3 | Pending |
 | BILL-03 | Phase 3 | Pending |
