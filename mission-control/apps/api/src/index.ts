@@ -12,6 +12,10 @@ import { authMiddleware } from './services/auth/authMiddleware';
 import { unkey } from './services/unkey';
 import { createAuthMiddleware, rateLimitHeadersHook } from './middleware/auth';
 
+// Billing Metering
+import { createMeterUsageHook } from './hooks/meter-usage';
+import { stripe } from './services/billing/stripe';
+
 // Database
 import { db } from './services/database/client';
 
@@ -73,6 +77,14 @@ server.addHook('preHandler', async (request, reply) => {
 
 // Rate limit headers on all responses (picks up values set by auth middleware)
 server.addHook('onSend', rateLimitHeadersHook);
+
+// Stripe Billing Meter: emit usage event after every authenticated /api/v1/* response
+const meterUsage = createMeterUsageHook(stripe, process.env.STRIPE_METER_EVENT_NAME || 'api_calls');
+server.addHook('onResponse', async (request, reply) => {
+  if (request.url.startsWith('/api/v1/')) {
+    await meterUsage(request, reply);
+  }
+});
 
 // API Routes
 
