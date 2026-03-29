@@ -68,7 +68,7 @@ class PostgresClient implements DBClient {
         database: this.config.database || 'oracle_db',
         user: this.config.user || 'oracle',
         password: this.config.password || 'oracle_dev',
-        max: this.config.max || 20,
+        max: this.config.max || 5,
         idleTimeoutMillis: this.config.idleTimeoutMillis || 30000,
         connectionTimeoutMillis: this.config.connectionTimeoutMillis || 5000,
       });
