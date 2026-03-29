@@ -8,6 +8,10 @@ import { supabaseService } from './services/supabase-mock';
 import { authRoutes } from './routes/auth';
 import { authMiddleware } from './services/auth/authMiddleware';
 
+// Unkey Auth (Public API)
+import { unkey } from './services/unkey';
+import { createAuthMiddleware, rateLimitHeadersHook } from './middleware/auth';
+
 // Database
 import { db } from './services/database/client';
 
@@ -59,35 +63,16 @@ server.register(multipart, {
 // Register Swagger/OpenAPI documentation
 registerSwagger(server);
 
-// FREE TIER RATE LIMITING
-const rateLimitStore = new Map();
-
-function checkRateLimit(ip: string, limit: number = 100, window: number = 60000) {
-  const now = Date.now();
-  const requests = rateLimitStore.get(ip) || [];
-  
-  const recentRequests = requests.filter((time: number) => now - time < window);
-  
-  if (recentRequests.length >= limit) {
-    return false;
+// Unkey auth middleware for public API routes (/api/v1/*)
+const unkeyAuthHandler = createAuthMiddleware(unkey);
+server.addHook('preHandler', async (request, reply) => {
+  if (request.url.startsWith('/api/v1/')) {
+    await unkeyAuthHandler(request, reply);
   }
-  
-  recentRequests.push(now);
-  rateLimitStore.set(ip, recentRequests);
-  return true;
-}
-
-// Middleware for rate limiting
-server.addHook('preHandler', (request, reply, done) => {
-  const ip = request.ip;
-  
-  if (!checkRateLimit(ip, 100, 60000)) { // 100 requests per minute
-    reply.code(429).send({ error: 'Rate limit exceeded' });
-    return;
-  }
-  
-  done();
 });
+
+// Rate limit headers on all responses (picks up values set by auth middleware)
+server.addHook('onSend', rateLimitHeadersHook);
 
 // API Routes
 

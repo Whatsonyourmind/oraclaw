@@ -25,92 +25,6 @@ import { detectAnomaliesZScore, detectAnomaliesIQR } from "../../services/oracle
 import { optimizeCMAES, type CMAESConfig } from "../../services/oracle/algorithms/cmaes";
 import { portfolioVaR } from "../../services/oracle/algorithms/correlationMatrix";
 
-// ── API Key Middleware ─────────────────────────────────
-
-interface ApiKeyPayload {
-  tier: "free" | "starter" | "growth" | "scale" | "enterprise";
-  customerId?: string;
-}
-
-const RATE_LIMITS: Record<string, number> = {
-  free: 100,       // 100 calls/day
-  starter: 1667,   // ~50K/month
-  growth: 16667,   // ~500K/month
-  scale: 166667,   // ~5M/month
-  enterprise: Infinity,
-};
-
-// In-memory rate tracking (replace with Unkey in production)
-const dailyCounts = new Map<string, { count: number; resetAt: number }>();
-
-// Cleanup expired entries every hour to prevent memory leak
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of dailyCounts.entries()) {
-    if (now > entry.resetAt) dailyCounts.delete(key);
-  }
-}, 3_600_000).unref();
-
-function checkApiKey(request: FastifyRequest): ApiKeyPayload {
-  const authHeader = request.headers.authorization;
-
-  // No key = free tier
-  if (!authHeader) {
-    return { tier: "free" };
-  }
-
-  const key = authHeader.replace("Bearer ", "");
-
-  // In production, validate via Unkey API:
-  // const { result } = await unkey.keys.verify({ key });
-  // For bootstrap: accept any key as "starter" tier
-  if (key.startsWith("ok_test_")) return { tier: "starter" };
-  if (key.startsWith("ok_live_")) return { tier: "growth" };
-  return { tier: "free" };
-}
-
-function checkRateLimit(apiKey: string, tier: string): boolean {
-  const limit = RATE_LIMITS[tier] ?? 100;
-  const now = Date.now();
-  const entry = dailyCounts.get(apiKey) ?? { count: 0, resetAt: now + 86400000 };
-
-  if (now > entry.resetAt) {
-    entry.count = 0;
-    entry.resetAt = now + 86400000;
-  }
-
-  if (entry.count >= limit) return false;
-  entry.count++;
-  dailyCounts.set(apiKey, entry);
-  return true;
-}
-
-// ── Usage Logging ──────────────────────────────────────
-
-interface UsageEvent {
-  endpoint: string;
-  tier: string;
-  durationMs: number;
-  timestamp: number;
-}
-
-const usageLog: UsageEvent[] = [];
-
-function logUsage(endpoint: string, tier: string, startTime: number) {
-  usageLog.push({
-    endpoint,
-    tier,
-    durationMs: Date.now() - startTime,
-    timestamp: Date.now(),
-  });
-
-  // In production: send to Stripe meter
-  // stripe.billing.meterEvents.create({
-  //   event_name: 'api_calls',
-  //   payload: { stripe_customer_id: customerId, value: '1' }
-  // });
-}
-
 // ── Route Registration ─────────────────────────────────
 
 export default async function publicApiRoutes(fastify: FastifyInstance) {
@@ -144,25 +58,14 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
 
   // ── Usage Stats ────────────────────────────────────
 
-  fastify.get("/api/v1/usage", async (request) => {
-    const auth = checkApiKey(request);
-    return {
-      tier: auth.tier,
-      calls_today: dailyCounts.get(auth.tier)?.count ?? 0,
-      limit_today: RATE_LIMITS[auth.tier],
-      total_logged: usageLog.length,
-    };
-  });
+  fastify.get("/api/v1/usage", async (request) => ({
+    tier: request.tier,
+    billingPath: request.billingPath,
+  }));
 
   // ── 1. Multi-Armed Bandit ──────────────────────────
 
   fastify.post("/api/v1/optimize/bandit", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("bandit-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded", tier: auth.tier });
-    }
-
     const body = request.body as {
       arms: Array<{ id: string; name: string; pulls?: number; totalReward?: number }>;
       algorithm?: "ucb1" | "thompson" | "epsilon-greedy";
@@ -186,8 +89,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
         ? bandit.selectArmEpsilonGreedy()
         : bandit.selectArmUCB1();
 
-    logUsage("bandit", auth.tier, start);
-
     return {
       selected: { id: selection.arm.id, name: selection.arm.name },
       score: selection.score,
@@ -201,12 +102,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 2. Contextual Bandit (LinUCB) ─────────────────
 
   fastify.post("/api/v1/optimize/contextual-bandit", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("ctx-bandit-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded" });
-    }
-
     const body = request.body as {
       arms: Array<{ id: string; name: string }>;
       context: number[];
@@ -231,8 +126,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
 
     const selection = bandit.selectArm(body.context);
 
-    logUsage("contextual-bandit", auth.tier, start);
-
     return {
       selected: { id: selection.arm.id, name: selection.arm.name },
       score: selection.score,
@@ -245,28 +138,15 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 3. Constraint Optimizer (LP/MIP) ───────────────
 
   fastify.post("/api/v1/solve/constraints", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("constraints-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded" });
-    }
-
     const body = request.body as Parameters<typeof solve>[0];
     const result = await solve(body);
 
-    logUsage("constraints", auth.tier, start);
     return result;
   });
 
   // ── 4. Schedule Optimizer ──────────────────────────
 
   fastify.post("/api/v1/solve/schedule", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("schedule-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded" });
-    }
-
     const body = request.body as {
       tasks: Parameters<typeof optimizeSchedule>[0];
       slots: Parameters<typeof optimizeSchedule>[1];
@@ -274,19 +154,12 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
 
     const result = await optimizeSchedule(body.tasks, body.slots);
 
-    logUsage("schedule", auth.tier, start);
     return result;
   });
 
   // ── 5. Decision Graph Analysis ─────────────────────
 
   fastify.post("/api/v1/analyze/graph", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("graph-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded" });
-    }
-
     const body = request.body as {
       nodes: Parameters<ReturnType<typeof createDecisionGraph>["addNode"]>[0][];
       edges: Parameters<ReturnType<typeof createDecisionGraph>["addEdge"]>[0][];
@@ -300,19 +173,12 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
 
     const analysis = graph.analyze(body.sourceGoal, body.targetGoal);
 
-    logUsage("graph", auth.tier, start);
     return analysis;
   });
 
   // ── 6. Convergence Scoring ─────────────────────────
 
   fastify.post("/api/v1/score/convergence", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("convergence-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded" });
-    }
-
     const body = request.body as {
       sources: Parameters<typeof computeConvergence>[0];
       config?: Parameters<typeof computeConvergence>[1];
@@ -320,25 +186,16 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
 
     const result = computeConvergence(body.sources, body.config);
 
-    logUsage("convergence", auth.tier, start);
     return result;
   });
 
   // ── 7. Calibration Scoring ─────────────────────────
 
   fastify.post("/api/v1/score/calibration", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("calibration-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded" });
-    }
-
     const body = request.body as {
       predictions: number[];
       outcomes: number[];
     };
-
-    logUsage("calibration", auth.tier, start);
 
     return {
       brier_score: brierScore(body.predictions, body.outcomes),
@@ -352,12 +209,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 8. Monte Carlo Simulation ─────────────────────
 
   fastify.post("/api/v1/simulate/montecarlo", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("montecarlo-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded", tier: auth.tier });
-    }
-
     const body = request.body as {
       simulations: number;
       distribution: DistributionParams["type"];
@@ -398,8 +249,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
       iterations,
     );
 
-    logUsage("montecarlo", auth.tier, start);
-
     return {
       mean: result.mean,
       stdDev: result.stdDev,
@@ -420,12 +269,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 9. Genetic Algorithm (Evolve) ────────────────
 
   fastify.post("/api/v1/optimize/evolve", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("evolve-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded", tier: auth.tier });
-    }
-
     const body = request.body as {
       populationSize?: number;
       maxGenerations?: number;
@@ -467,8 +310,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
 
     const result = engine.run(fitnessFunction, geneBounds);
 
-    logUsage("evolve", auth.tier, start);
-
     return {
       bestChromosome: {
         genes: result.bestChromosome.genes,
@@ -488,12 +329,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 10. Bayesian Belief Update ───────────────────
 
   fastify.post("/api/v1/predict/bayesian", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("bayesian-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded", tier: auth.tier });
-    }
-
     const body = request.body as {
       prior: number;
       evidence: Array<{ factor: string; weight: number; value: number }>;
@@ -523,8 +358,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
     const posteriorVariance = probabilityEngine.getPosteriorVariance(prediction.prior);
     const calibrationScore = 1 - Math.sqrt(posteriorVariance);
 
-    logUsage("bayesian", auth.tier, start);
-
     return {
       posterior: prediction.confidence,
       priorProbability: body.prior,
@@ -543,12 +376,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 11. Ensemble Multi-Model Consensus ───────────
 
   fastify.post("/api/v1/predict/ensemble", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("ensemble-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded", tier: auth.tier });
-    }
-
     const body = request.body as {
       predictions: Array<{
         modelId: string;
@@ -606,8 +433,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
       };
     }
 
-    logUsage("ensemble", auth.tier, start);
-
     return {
       consensus: result.value,
       confidence: result.confidence,
@@ -628,19 +453,13 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 12. Scenario Planning (What-If) ─────────────
 
   fastify.post("/api/v1/simulate/scenario", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("scenario-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded", tier: auth.tier });
-    }
-
     const body = request.body as {
       scenarios: Array<{ name: string; variables: Record<string, number> }>;
       baseCase: Record<string, number>;
     };
 
     // Create a temporary decision context for scenario comparison
-    const userId = "api-" + (auth.tier);
+    const userId = "api-" + (request.tier);
     const baseScenario = await scenarioPlanningService.createScenario(userId, {
       name: "Base Case",
       description: "API base case scenario",
@@ -711,8 +530,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
     // Clean up temporary scenarios
     await scenarioPlanningService.deleteScenario(baseScenario.id);
 
-    logUsage("scenario", auth.tier, start);
-
     return {
       baseCase: {
         outcome: baseOutcome,
@@ -727,12 +544,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 13. A* Pathfinding ──────────────────────────────
 
   fastify.post("/api/v1/plan/pathfind", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("pathfind-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded", tier: auth.tier });
-    }
-
     const body = request.body as {
       nodes: Array<{ id: string; cost?: number; time?: number; risk?: number }>;
       edges: Array<{ from: string; to: string; cost?: number; time?: number; risk?: number }>;
@@ -797,8 +608,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
       }));
     }
 
-    logUsage("pathfind", auth.tier, start);
-
     return {
       path: result.path,
       totalCost: result.totalCost,
@@ -817,12 +626,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 14. Time Series Forecasting ───────────────────────
 
   fastify.post("/api/v1/predict/forecast", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("forecast-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded", tier: auth.tier });
-    }
-
     const body = request.body as {
       data: number[];
       steps: number;
@@ -840,8 +643,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
       result = forecast(body.data, body.steps);
     }
 
-    logUsage("forecast", auth.tier, start);
-
     return {
       forecast: result.forecast,
       confidence: result.confidence,
@@ -855,12 +656,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 15. Anomaly Detection ────────────────────────────
 
   fastify.post("/api/v1/detect/anomaly", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("anomaly-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded", tier: auth.tier });
-    }
-
     const body = request.body as {
       data: number[];
       method?: "zscore" | "iqr";
@@ -871,7 +666,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
 
     if (method === "iqr") {
       const result = detectAnomaliesIQR(body.data, body.threshold ?? 1.5);
-      logUsage("anomaly", auth.tier, start);
       return {
         method: "iqr",
         anomalies: result.anomalies,
@@ -888,7 +682,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
     }
 
     const result = detectAnomaliesZScore(body.data, body.threshold ?? 3.0);
-    logUsage("anomaly", auth.tier, start);
     return {
       method: "zscore",
       anomalies: result.anomalies,
@@ -905,12 +698,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 16. CMA-ES Continuous Optimization ───────────────
 
   fastify.post("/api/v1/optimize/cmaes", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("cmaes-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded", tier: auth.tier });
-    }
-
     const body = request.body as {
       dimension: number;
       initialMean?: number[];
@@ -939,8 +726,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
 
     const result = optimizeCMAES(objectiveFn, cmaConfig);
 
-    logUsage("cmaes", auth.tier, start);
-
     return {
       bestSolution: result.bestSolution,
       bestFitness: -result.bestFitness,  // Un-negate for the caller
@@ -954,12 +739,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 17. Portfolio Risk (VaR / CVaR) ─────────────────
 
   fastify.post("/api/v1/analyze/risk", async (request: FastifyRequest, reply: FastifyReply) => {
-    const start = Date.now();
-    const auth = checkApiKey(request);
-    if (!checkRateLimit("risk-" + auth.tier, auth.tier)) {
-      return reply.code(429).send({ error: "Rate limit exceeded", tier: auth.tier });
-    }
-
     const body = request.body as {
       weights: number[];
       returns: number[][];
@@ -971,8 +750,6 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
     const horizonDays = body.horizonDays ?? 1;
 
     const result = portfolioVaR(body.weights, body.returns, confidence, horizonDays);
-
-    logUsage("risk", auth.tier, start);
 
     return {
       var: result.var,
