@@ -19,6 +19,10 @@ import { stripe } from './services/billing/stripe';
 // Free-tier rate limiting
 import { registerFreeTierRateLimit } from './hooks/free-tier-rate-limit';
 
+// Billing routes (subscribe + portal)
+import { subscribeRoutes } from './routes/billing/subscribe';
+import { portalRoutes } from './routes/billing/portal';
+
 // Database
 import { db } from './services/database/client';
 
@@ -395,6 +399,10 @@ server.register(scenarioRoutes, { prefix: '/api/oracle/scenarios' });
 server.register(exportRoutes, { prefix: '/api/oracle/export' });
 // WebSocket routes
 server.register(wsRoutes);
+
+// Billing routes (subscribe + portal)
+server.register(subscribeRoutes, { prefix: '/api/v1/billing' });
+server.register(portalRoutes, { prefix: '/api/v1/billing' });
 
 // FREE TIER FRIENDLY ERROR HANDLING
 server.setErrorHandler((error: Error & { statusCode?: number }, request, reply) => {
