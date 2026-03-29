@@ -7,10 +7,10 @@
 
 ### Authentication
 
-- [ ] **AUTH-01**: API consumers can create and manage API keys via Unkey
-- [ ] **AUTH-02**: API keys can be rotated and revoked without downtime
-- [ ] **AUTH-03**: Rate limits enforced per tier via Unkey (not in-memory), replacing prefix-based auth
-- [ ] **AUTH-04**: Every API response includes rate limit headers (X-RateLimit-Remaining, X-RateLimit-Limit, X-RateLimit-Reset)
+- [x] **AUTH-01**: API consumers can create and manage API keys via Unkey
+- [x] **AUTH-02**: API keys can be rotated and revoked without downtime
+- [x] **AUTH-03**: Rate limits enforced per tier via Unkey (not in-memory), replacing prefix-based auth
+- [x] **AUTH-04**: Every API response includes rate limit headers (X-RateLimit-Remaining, X-RateLimit-Limit, X-RateLimit-Reset)
 
 ### Billing
 
@@ -72,10 +72,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
+| AUTH-02 | Phase 1 | Complete |
+| AUTH-03 | Phase 1 | Complete |
+| AUTH-04 | Phase 1 | Complete |
 | INFRA-01 | Phase 2 | Pending |
 | BILL-01 | Phase 2 | Pending |
 | BILL-02 | Phase 3 | Pending |
