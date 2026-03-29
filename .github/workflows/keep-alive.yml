@@ -1,0 +1,19 @@
+name: Keep Alive
+
+on:
+  schedule:
+    # Ping every 10 minutes to prevent Render free tier spin-down
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: |
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 https://oraclaw-api.onrender.com/health)
+          echo "Health check returned: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::API returned $STATUS — may be cold-starting"
+          fi
