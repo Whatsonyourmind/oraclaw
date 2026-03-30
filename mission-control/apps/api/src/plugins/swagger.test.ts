@@ -45,10 +45,13 @@ describe('registerSwagger (Scalar + OpenAPI 3.1)', () => {
     await app.close();
   });
 
-  // Test 1: /docs route exists and returns 200 (Scalar playground is served)
-  it('serves Scalar playground at /docs returning 200', async () => {
-    const response = await app.inject({ method: 'GET', url: '/docs' });
+  // Test 1: /docs route exists and serves Scalar playground
+  // Scalar redirects /docs -> /docs/ (301), so we test /docs/ for 200
+  it('serves Scalar playground at /docs/ returning 200', async () => {
+    const response = await app.inject({ method: 'GET', url: '/docs/' });
     expect(response.statusCode).toBe(200);
+    // Verify it's Scalar, not Swagger UI (Scalar serves HTML with @scalar references)
+    expect(response.headers['content-type']).toContain('text/html');
   });
 
   // Test 2: OpenAPI spec reports version "3.1.0"
