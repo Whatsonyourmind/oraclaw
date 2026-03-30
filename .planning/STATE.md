@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v21.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 5 context gathered
-last_updated: "2026-03-30T08:42:07.398Z"
-last_activity: 2026-03-30 -- Completed 04-01-PLAN.md (Problem Details & llms.txt)
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-30T09:08:04.196Z"
+last_activity: 2026-03-30 -- Completed 05-01-PLAN.md (x402 Payment Hooks)
 progress:
   total_phases: 8
   completed_phases: 4
-  total_plans: 8
-  completed_plans: 8
-  percent: 44
+  total_plans: 10
+  completed_plans: 9
+  percent: 90
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Developers and AI agents can call production-grade decision algorithms via API and pay per use
-**Current focus:** Phase 4 - Developer Experience
+**Current focus:** Phase 5 - x402 Machine Payments
 
 ## Current Position
 
-Phase: 4 of 8 (Developer Experience)
+Phase: 5 of 8 (x402 Machine Payments)
 Plan: 1 of 2 in current phase
 Status: In Progress
-Last activity: 2026-03-30 -- Completed 04-01-PLAN.md (Problem Details & llms.txt)
+Last activity: 2026-03-30 -- Completed 05-01-PLAN.md (x402 Payment Hooks)
 
-Progress: [████░░░░░░] 44%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 6 min
-- Total execution time: 0.7 hours
+- Total plans completed: 9
+- Average duration: 5 min
+- Total execution time: 0.8 hours
 
 **By Phase:**
 
@@ -47,12 +47,14 @@ Progress: [████░░░░░░] 44%
 | 02-stripe | 2 | 12 min | 6 min |
 | 03-billing | 2 | 9 min | 4.5 min |
 | 04-dx | 1 | 4 min | 4 min |
+| 05-x402 | 1 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (9 min), 02-02 (3 min), 03-01 (5 min), 03-02 (4 min), 04-01 (4 min)
+- Last 5 plans: 02-02 (3 min), 03-01 (5 min), 03-02 (4 min), 04-01 (4 min), 05-01 (4 min)
 - Trend: Accelerating
 
 *Updated after each plan completion*
+| Phase 05-x402 P01 | 4min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -86,6 +88,9 @@ Recent decisions affecting current work:
 - ProblemTypes registry has 12 error URIs under https://oraclaw.dev/errors/ namespace
 - 500 errors hide internal details with generic message for security
 - llms.txt content is a const string literal (no dynamic generation needed)
+- [Phase 05-x402]: Loose X402Server interface instead of importing @x402/core types for hook decoupling
+- [Phase 05-x402]: Manual base64 JSON decode for payment headers instead of @x402/core utility (import path uncertainty)
+- [Phase 05-x402]: Check both payment-signature and x-payment headers for v1/v2 x402 protocol compatibility
 
 ### Pending Todos
 
@@ -100,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T08:42:07.394Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-x402-machine-payments/05-CONTEXT.md
+Last session: 2026-03-30T09:07:53.499Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: None

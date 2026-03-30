@@ -17,7 +17,7 @@
 - [x] **BILL-01**: API calls are metered via Stripe Billing Meters API (upgrade from removed legacy usage_records)
 - [x] **BILL-02**: Free tier allows 100 calls/day without API key
 - [x] **BILL-03**: Paid tiers (starter/growth/scale/enterprise) billed per call via Stripe metered subscription
-- [ ] **BILL-04**: AI agents can pay per call via x402 USDC machine payments (native Fastify preHandler)
+- [x] **BILL-04**: AI agents can pay per call via x402 USDC machine payments (native Fastify preHandler)
 - [x] **BILL-05**: Users can view usage and invoices via Stripe customer portal
 
 ### Developer Experience
@@ -37,7 +37,7 @@
 ### Infrastructure
 
 - [x] **INFRA-01**: Stripe SDK v21.0.1 installed and apiVersion upgraded to 2026-03-25.dahlia
-- [ ] **INFRA-02**: x402 packages installed (@x402/core, @x402/evm) with native Fastify hook
+- [x] **INFRA-02**: x402 packages installed (@x402/core, @x402/evm) with native Fastify hook
 - [ ] **INFRA-03**: End-to-end billing verification (free -> paid -> metered -> invoice -> x402)
 
 ## v2 Requirements
@@ -84,8 +84,8 @@
 | DX-01 | Phase 4 | Pending |
 | DX-02 | Phase 4 | Complete |
 | DX-03 | Phase 4 | Complete |
-| BILL-04 | Phase 5 | Pending |
-| INFRA-02 | Phase 5 | Pending |
+| BILL-04 | Phase 5 | Complete |
+| INFRA-02 | Phase 5 | Complete |
 | DX-04 | Phase 6 | Pending |
 | DIST-01 | Phase 7 | Pending |
 | DIST-02 | Phase 7 | Pending |

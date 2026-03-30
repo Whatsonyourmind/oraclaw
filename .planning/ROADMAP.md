@@ -88,7 +88,7 @@ Plans:
   1. @x402/core and @x402/evm packages are installed and a native Fastify preHandler hook validates x402 payment headers
   2. An AI agent can call any gated endpoint by including x402 USDC payment in the request, receiving the algorithm result after settlement
   3. The x402 payment flow works independently of Stripe -- an agent with a funded wallet needs no API key or Stripe subscription
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 05-01-PLAN.md — Install x402 packages, payment/settlement hooks, mock factory, unit tests
@@ -148,7 +148,7 @@ Note: Phases 4, 5, and 7 depend only on Phase 1 and can execute in parallel afte
 | 2. Stripe Billing Setup | 2/2 | Complete | 2026-03-29 |
 | 3. Billing Tiers and Portal | 2/2 | Complete | 2026-03-29 |
 | 4. Developer Experience | 0/2 | Not started | - |
-| 5. x402 Machine Payments | 0/2 | Not started | - |
+| 5. x402 Machine Payments | 1/2 | In Progress|  |
 | 6. Batch Endpoint | 0/1 | Not started | - |
 | 7. npm and MCP Distribution | 0/2 | Not started | - |
 | 8. ClawHub Distribution and E2E Verification | 0/2 | Not started | - |
