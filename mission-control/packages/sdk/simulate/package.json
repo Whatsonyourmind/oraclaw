@@ -3,11 +3,37 @@
   "version": "1.0.0",
   "description": "Monte Carlo simulation as a service. Run 10,000 probabilistic scenarios in milliseconds.",
   "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "keywords": ["monte-carlo", "simulation", "risk", "forecasting", "probability"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "keywords": [
+    "monte-carlo",
+    "simulation",
+    "risk",
+    "forecasting",
+    "probability"
+  ],
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Whatsonyourmind/oraclaw"
+  },
   "homepage": "https://oraclaw.dev/simulate",
-  "dependencies": {}
+  "dependencies": {},
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

@@ -3,11 +3,39 @@
   "version": "1.0.0",
   "description": "What happens next? Time series forecasting with ARIMA and Holt-Winters. Confidence intervals included.",
   "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "keywords": ["forecasting", "time-series", "arima", "prediction", "holt-winters", "revenue", "analytics"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "keywords": [
+    "forecasting",
+    "time-series",
+    "arima",
+    "prediction",
+    "holt-winters",
+    "revenue",
+    "analytics"
+  ],
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Whatsonyourmind/oraclaw"
+  },
   "homepage": "https://oraclaw.dev/forecast",
-  "dependencies": {}
+  "dependencies": {},
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }
