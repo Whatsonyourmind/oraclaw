@@ -23,6 +23,8 @@ declare module 'fastify' {
     rateLimitReset?: number;
     billingPath: 'stripe' | 'free' | 'x402';
     x402Payment?: { paymentPayload: unknown; requirements: unknown };
+    isBatchRequest?: boolean;
+    batchSize?: number;
   }
 }
 
