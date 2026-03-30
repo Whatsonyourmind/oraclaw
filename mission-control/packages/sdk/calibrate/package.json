@@ -1,13 +1,43 @@
 {
   "name": "@oraclaw/calibrate",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Are your predictions actually good? Calibration scoring, convergence analysis, and forecast quality metrics.",
   "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "keywords": ["calibration", "brier-score", "forecasting", "prediction-quality", "convergence", "scoring", "accuracy", "prediction-markets", "ensemble"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "keywords": [
+    "calibration",
+    "brier-score",
+    "forecasting",
+    "prediction-quality",
+    "convergence",
+    "scoring",
+    "accuracy",
+    "prediction-markets",
+    "ensemble"
+  ],
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Whatsonyourmind/oraclaw"
+  },
   "homepage": "https://oraclaw.dev/calibrate",
-  "dependencies": {}
+  "dependencies": {},
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

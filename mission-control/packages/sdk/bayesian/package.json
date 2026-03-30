@@ -3,11 +3,37 @@
   "version": "1.0.0",
   "description": "Bayesian inference engine. Update beliefs with new evidence. Prior + data = posterior.",
   "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "keywords": ["bayesian", "inference", "prediction", "probability", "belief-updating"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "keywords": [
+    "bayesian",
+    "inference",
+    "prediction",
+    "probability",
+    "belief-updating"
+  ],
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Whatsonyourmind/oraclaw"
+  },
   "homepage": "https://oraclaw.dev/bayesian",
-  "dependencies": {}
+  "dependencies": {},
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }
