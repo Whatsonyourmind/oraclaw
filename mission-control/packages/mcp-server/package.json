@@ -1,6 +1,7 @@
 {
   "name": "@oraclaw/mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "mcpName": "io.github.Whatsonyourmind/oraclaw",
   "description": "OraClaw Decision Intelligence — 12 MCP tools for AI agents (bandits, LP solver, graph analytics, forecasting, anomaly detection, CMA-ES)",
   "type": "module",
   "main": "dist/index.npm.js",
@@ -14,10 +15,25 @@
     "build": "tsc && node -e \"const fs=require('fs');const f='dist/index.npm.js';const c=fs.readFileSync(f,'utf8');if(!c.startsWith('#!'))fs.writeFileSync(f,'#!/usr/bin/env node\\n'+c)\"",
     "prepublishOnly": "npm run build"
   },
-  "files": ["dist"],
-  "keywords": ["mcp", "ai-agents", "decision-intelligence", "bandits", "optimization", "forecasting", "anomaly-detection", "graph-analytics", "oraclaw"],
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "mcp",
+    "ai-agents",
+    "decision-intelligence",
+    "bandits",
+    "optimization",
+    "forecasting",
+    "anomaly-detection",
+    "graph-analytics",
+    "oraclaw"
+  ],
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Whatsonyourmind/oraclaw"
+  },
   "homepage": "https://github.com/Whatsonyourmind/oraclaw",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0"

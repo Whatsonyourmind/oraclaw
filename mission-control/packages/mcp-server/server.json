@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Whatsonyourmind/oraclaw",
+  "description": "Decision intelligence for AI agents. 19 ML algorithms, 12 tools, sub-25ms.",
+  "repository": {
+    "url": "https://github.com/Whatsonyourmind/oraclaw",
+    "source": "github",
+    "subfolder": "mission-control/packages/mcp-server"
+  },
+  "version": "1.0.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@oraclaw/mcp-server",
+      "version": "1.0.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": []
+    }
+  ]
+}
