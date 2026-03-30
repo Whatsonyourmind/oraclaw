@@ -15,8 +15,12 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
 import { createMockX402 } from '../test-utils/mock-x402';
+import { createMockUnkey, mockVerifyValid } from '../test-utils/mock-unkey';
+import { createMockStripe } from '../test-utils/mock-stripe';
 import { createX402PaymentHook } from './x402-payment';
 import { createX402SettleHook } from './x402-settle';
+import { createAuthMiddleware } from '../middleware/auth';
+import { createMeterUsageHook } from './meter-usage';
 
 // ── Helpers ─────────────────────────────────────────────────
 
@@ -215,5 +219,204 @@ describe('createX402SettleHook', () => {
     await new Promise((r) => setTimeout(r, 10));
 
     expect(mock.settlePayment).not.toHaveBeenCalled();
+  });
+});
+
+// ── Integration Tests: Three Billing Paths ─────────────────
+
+describe('integration: three billing paths coexistence', () => {
+  let app: FastifyInstance;
+  let x402Mock: ReturnType<typeof createMockX402>;
+  let unkeyMock: ReturnType<typeof createMockUnkey>;
+  let stripeMock: ReturnType<typeof createMockStripe>;
+
+  beforeAll(async () => {
+    x402Mock = createMockX402();
+    unkeyMock = createMockUnkey();
+    stripeMock = createMockStripe();
+
+    app = Fastify({ logger: false });
+
+    // Register hooks in SAME ORDER as index.ts:
+
+    // 1. x402 payment preHandler (BEFORE Unkey auth)
+    const paymentHook = createX402PaymentHook(
+      x402Mock.server,
+      '0x077Etest',
+      '$0.001',
+      'eip155:8453',
+    );
+    app.addHook('preHandler', async (request, reply) => {
+      if (request.url.startsWith('/api/v1/')) {
+        await paymentHook(request, reply);
+      }
+    });
+
+    // 2. Unkey auth preHandler (skips if billingPath already set)
+    const unkeyAuthHandler = createAuthMiddleware(unkeyMock as any);
+    app.addHook('preHandler', async (request, reply) => {
+      if (request.url.startsWith('/api/v1/') && !request.billingPath) {
+        await unkeyAuthHandler(request, reply);
+      }
+    });
+
+    // 3. Stripe meter onResponse
+    const meterUsage = createMeterUsageHook(stripeMock.client, 'api_calls');
+    app.addHook('onResponse', async (request, reply) => {
+      if (request.url.startsWith('/api/v1/')) {
+        await meterUsage(request, reply);
+      }
+    });
+
+    // 4. x402 settle onResponse
+    const settleHook = createX402SettleHook(x402Mock.server);
+    app.addHook('onResponse', async (request, reply) => {
+      if (request.url.startsWith('/api/v1/')) {
+        await settleHook(request, reply);
+      }
+    });
+
+    // Test route that returns request context
+    app.get('/api/v1/test', async (request) => {
+      return {
+        billingPath: request.billingPath,
+        tier: request.tier,
+      };
+    });
+
+    await app.ready();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  beforeEach(() => {
+    // Reset all mocks before each test
+    x402Mock.verifyPayment.mockReset().mockResolvedValue({ isValid: true });
+    x402Mock.settlePayment.mockReset().mockResolvedValue({ success: true, transaction: '0xabc123', network: 'eip155:8453' });
+    x402Mock.buildPaymentRequirements.mockReset().mockResolvedValue([{ scheme: 'exact', network: 'eip155:8453', amount: '1000', asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', payTo: '0x077Etest', maxTimeoutSeconds: 300, extra: {} }]);
+    x402Mock.findMatchingRequirements.mockReset().mockReturnValue({ scheme: 'exact', network: 'eip155:8453', amount: '1000' });
+
+    unkeyMock.keys.verifyKey.mockReset();
+    stripeMock.meterEventsCreate.mockReset().mockResolvedValue({ id: 'mevt_mock' });
+  });
+
+  // INT-01: x402 payment bypasses Unkey auth
+  it('x402 payment bypasses Unkey auth and skips Stripe metering', async () => {
+    const payload = { x402Version: 2, payload: { sig: '0xtest' } };
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/v1/test',
+      headers: { 'payment-signature': encodePaymentHeader(payload) },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = JSON.parse(response.payload);
+    expect(body.billingPath).toBe('x402');
+    expect(body.tier).toBe('x402');
+
+    // Unkey should NOT be called (billingPath already set)
+    expect(unkeyMock.keys.verifyKey).not.toHaveBeenCalled();
+
+    // Stripe meter should NOT fire (billingPath !== 'stripe')
+    // Allow fire-and-forget to complete
+    await new Promise((r) => setTimeout(r, 20));
+    expect(stripeMock.meterEventsCreate).not.toHaveBeenCalled();
+
+    // x402 settlement SHOULD fire (billingPath === 'x402' and 2xx)
+    expect(x402Mock.settlePayment).toHaveBeenCalledTimes(1);
+  });
+
+  // INT-02: free tier still works without x402
+  it('free tier still works without x402 or API key', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/v1/test',
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = JSON.parse(response.payload);
+    expect(body.billingPath).toBe('free');
+
+    // x402 should NOT be called (no payment header)
+    expect(x402Mock.verifyPayment).not.toHaveBeenCalled();
+
+    // Unkey should NOT be called (no auth header -> free tier skip)
+    expect(unkeyMock.keys.verifyKey).not.toHaveBeenCalled();
+
+    // Stripe meter should NOT fire (billingPath !== 'stripe')
+    await new Promise((r) => setTimeout(r, 20));
+    expect(stripeMock.meterEventsCreate).not.toHaveBeenCalled();
+  });
+
+  // INT-03: Stripe billing still works with API key
+  it('Stripe billing still works with API key', async () => {
+    unkeyMock.keys.verifyKey.mockResolvedValueOnce(mockVerifyValid({
+      tier: 'starter',
+      stripeCustomerId: 'cus_test_int',
+    }));
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/v1/test',
+      headers: { authorization: 'Bearer test-key-123' },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = JSON.parse(response.payload);
+    expect(body.billingPath).toBe('stripe');
+    expect(body.tier).toBe('starter');
+
+    // x402 should NOT be called (no payment header)
+    expect(x402Mock.verifyPayment).not.toHaveBeenCalled();
+
+    // Unkey SHOULD be called (API key present, no billingPath set)
+    expect(unkeyMock.keys.verifyKey).toHaveBeenCalledTimes(1);
+
+    // Stripe meter SHOULD fire (billingPath === 'stripe')
+    await new Promise((r) => setTimeout(r, 20));
+    expect(stripeMock.meterEventsCreate).toHaveBeenCalledTimes(1);
+  });
+
+  // INT-04: three paths in sequence without cross-contamination
+  it('three paths in sequence without cross-contamination', async () => {
+    const payload = { x402Version: 2, payload: { sig: '0xtest' } };
+
+    // 1. x402 request
+    const r1 = await app.inject({
+      method: 'GET',
+      url: '/api/v1/test',
+      headers: { 'payment-signature': encodePaymentHeader(payload) },
+    });
+    expect(JSON.parse(r1.payload).billingPath).toBe('x402');
+
+    // 2. Free request
+    const r2 = await app.inject({
+      method: 'GET',
+      url: '/api/v1/test',
+    });
+    expect(JSON.parse(r2.payload).billingPath).toBe('free');
+
+    // 3. Stripe request
+    unkeyMock.keys.verifyKey.mockResolvedValueOnce(mockVerifyValid({
+      tier: 'pro',
+      stripeCustomerId: 'cus_seq_test',
+    }));
+    const r3 = await app.inject({
+      method: 'GET',
+      url: '/api/v1/test',
+      headers: { authorization: 'Bearer seq-key-456' },
+    });
+    expect(JSON.parse(r3.payload).billingPath).toBe('stripe');
+    expect(JSON.parse(r3.payload).tier).toBe('pro');
+
+    // Allow fire-and-forget hooks to complete
+    await new Promise((r) => setTimeout(r, 20));
+
+    // Verify no cross-contamination: only x402 request triggered settlement
+    expect(x402Mock.settlePayment).toHaveBeenCalledTimes(1);
+    // Only Stripe request triggered metering
+    expect(stripeMock.meterEventsCreate).toHaveBeenCalledTimes(1);
   });
 });
