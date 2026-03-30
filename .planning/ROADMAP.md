@@ -74,11 +74,11 @@ Plans:
   1. An OpenAPI 3.1 spec is auto-generated from Fastify routes and served via Scalar interactive playground at a public URL
   2. All error responses across every endpoint follow RFC 9457 problem details format (type, title, status, detail fields)
   3. An llms.txt file is served at /llms.txt describing OraClaw's capabilities for AI assistant discovery
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md — RFC 9457 problem-details helper, global error handler, llms.txt route
+- [ ] 04-02-PLAN.md — Scalar playground (replace Swagger UI), OpenAPI 3.1 upgrade, visual verification
 
 ### Phase 5: x402 Machine Payments
 **Goal**: AI agents can pay for OraClaw API calls with USDC via the x402 protocol without any human involvement
