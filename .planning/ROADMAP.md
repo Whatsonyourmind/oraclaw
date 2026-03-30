@@ -102,10 +102,11 @@ Plans:
   1. A single POST request to the batch endpoint can include multiple algorithm calls and returns all results in one response
   2. Partial failures in a batch are handled gracefully -- successful results are returned alongside error details for failed calls
   3. Batch calls are metered at 50% of the per-call rate in Stripe Billing Meters
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 06-01: TBD
+- [ ] 06-01-PLAN.md — Batch route with dispatch map, parallel execution, TDD tests
+- [ ] 06-02-PLAN.md — Wire batch route into server, batch metering hook, double-meter prevention
 
 ### Phase 7: npm and MCP Distribution
 **Goal**: All 14 OraClaw SDK packages and the MCP server are published to npm with automated, token-free publishing
@@ -149,6 +150,6 @@ Note: Phases 4, 5, and 7 depend only on Phase 1 and can execute in parallel afte
 | 3. Billing Tiers and Portal | 2/2 | Complete | 2026-03-29 |
 | 4. Developer Experience | 0/2 | Not started | - |
 | 5. x402 Machine Payments | 2/2 | Complete   | 2026-03-30 |
-| 6. Batch Endpoint | 0/1 | Not started | - |
+| 6. Batch Endpoint | 0/2 | Not started | - |
 | 7. npm and MCP Distribution | 0/2 | Not started | - |
 | 8. ClawHub Distribution and E2E Verification | 0/2 | Not started | - |
