@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "stripe": "^21.0.1"
+  }
+}

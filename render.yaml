@@ -14,6 +14,18 @@ services:
         value: "0x450996401D587C8206803F544cCA74C33f6FbC93"
       - key: STRIPE_SECRET_KEY
         sync: false
+      - key: STRIPE_PRICE_STARTER
+        sync: false
+      - key: STRIPE_PRICE_GROWTH
+        sync: false
+      - key: STRIPE_PRICE_SCALE
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: UNKEY_ROOT_KEY
+        sync: false
+      - key: UNKEY_API_ID
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
 
