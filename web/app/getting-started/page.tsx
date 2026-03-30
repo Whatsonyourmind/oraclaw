@@ -1,9 +1,12 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Get Started - OraClaw",
+  title: "Get Started",
   description:
-    "Get from zero to first API call in under 2 minutes. Free tier included.",
+    "Get from zero to first OraClaw API call in under 2 minutes. Free tier included, no API key required. curl examples for all 19 algorithms.",
+  alternates: {
+    canonical: "/getting-started",
+  },
 };
 
 export default function GettingStartedPage() {

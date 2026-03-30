@@ -2,8 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
 
+const SITE_URL = "https://oraclaw.dev";
+const OG_IMAGE = `${SITE_URL}/og-image.png`;
+
 export const metadata: Metadata = {
-  title: "OraClaw - Decision Intelligence as an API",
+  title: {
+    default: "OraClaw - Decision Intelligence as an API",
+    template: "%s | OraClaw",
+  },
   description:
     "19 production-grade ML algorithms for optimization, simulation, prediction, and planning. Sub-25ms response times. Pay per call.",
   keywords: [
@@ -15,10 +21,63 @@ export const metadata: Metadata = {
     "genetic algorithm",
     "pathfinding",
     "multi-armed bandit",
+    "AI agents",
+    "MCP server",
+    "machine learning API",
+    "bandits",
+    "CMA-ES",
+    "constraint solver",
+    "anomaly detection",
+    "time series forecasting",
+    "portfolio risk",
+    "typescript API",
   ],
+  metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: "OraClaw",
+    title: "OraClaw - Decision Intelligence as an API",
+    description:
+      "19 production-grade ML algorithms for optimization, simulation, prediction, and planning. Sub-25ms response times. 12 MCP tools for AI agents.",
+    images: [
+      {
+        url: OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: "OraClaw - Decision Intelligence as an API",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "OraClaw - Decision Intelligence as an API",
+    description:
+      "19 ML algorithms, 12 MCP tools, sub-25ms. Decision intelligence for AI agents without LLM cost.",
+    images: [OG_IMAGE],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 const navLinks = [
+  { href: "/demo", label: "Live Demo" },
   { href: "/algorithms", label: "Algorithms" },
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "API Docs" },
@@ -33,6 +92,78 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="min-h-screen flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "OraClaw",
+              applicationCategory: "DeveloperApplication",
+              operatingSystem: "Any",
+              description:
+                "Decision intelligence API with 19 production-grade ML algorithms for optimization, simulation, prediction, and planning. Sub-25ms response times.",
+              url: "https://oraclaw.dev",
+              offers: [
+                {
+                  "@type": "Offer",
+                  price: "0",
+                  priceCurrency: "USD",
+                  name: "Free",
+                  description: "100 API calls per day, all 19 algorithms",
+                },
+                {
+                  "@type": "Offer",
+                  price: "9",
+                  priceCurrency: "USD",
+                  name: "Starter",
+                  description: "10,000 API calls per month",
+                },
+                {
+                  "@type": "Offer",
+                  price: "49",
+                  priceCurrency: "USD",
+                  name: "Growth",
+                  description: "100,000 API calls per month",
+                },
+                {
+                  "@type": "Offer",
+                  price: "199",
+                  priceCurrency: "USD",
+                  name: "Scale",
+                  description: "1,000,000 API calls per month",
+                },
+              ],
+              featureList: [
+                "Multi-Armed Bandit (UCB1, Thompson Sampling, Epsilon-Greedy)",
+                "Contextual Bandit (LinUCB)",
+                "CMA-ES Continuous Optimization",
+                "Genetic Algorithm with Pareto Frontier",
+                "Monte Carlo Simulation",
+                "Scenario Planning",
+                "Constraint Solver (LP/MIP via HiGHS)",
+                "Schedule Optimizer",
+                "Decision Graph (PageRank, Louvain)",
+                "Portfolio Risk (VaR/CVaR)",
+                "Bayesian Inference",
+                "Ensemble Model",
+                "Time Series Forecast (ARIMA, Holt-Winters)",
+                "Anomaly Detection (Z-Score, IQR)",
+                "Convergence Scoring",
+                "Calibration Scoring",
+                "A* Pathfinding with K-Shortest Paths",
+                "12 MCP Tools for AI Agents",
+                "x402 USDC Machine Payments",
+              ],
+              softwareVersion: "2.3.0",
+              author: {
+                "@type": "Organization",
+                name: "OraClaw",
+                url: "https://github.com/Whatsonyourmind/oraclaw",
+              },
+            }),
+          }}
+        />
         {/* Header */}
         <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -2,9 +2,12 @@ import Link from "next/link";
 import { PRICING_TIERS, FEATURE_COMPARISON } from "@/lib/pricing";
 
 export const metadata = {
-  title: "Pricing - OraClaw",
+  title: "Pricing",
   description:
-    "Simple, transparent pricing for decision intelligence. Start free, scale as you grow.",
+    "Simple, transparent pricing for decision intelligence. Free tier (100 calls/day), Starter $9/mo, Growth $49/mo, Scale $199/mo. All 19 algorithms included.",
+  alternates: {
+    canonical: "/pricing",
+  },
 };
 
 function CheckIcon() {
