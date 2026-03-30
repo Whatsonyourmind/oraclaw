@@ -24,6 +24,8 @@
     "@scalar/fastify-api-reference": "^1.49.7",
     "@supabase/supabase-js": "^2.38.5",
     "@unkey/api": "^2.3.2",
+    "@x402/core": "^2.8.0",
+    "@x402/evm": "^2.8.0",
     "arima": "^0.2.8",
     "bayesian-optimizer": "^1.2.0",
     "dotenv": "^16.6.1",

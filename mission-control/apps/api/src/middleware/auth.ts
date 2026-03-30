@@ -21,7 +21,8 @@ declare module 'fastify' {
     rateLimitRemaining?: number;
     rateLimitLimit?: number;
     rateLimitReset?: number;
-    billingPath: 'stripe' | 'free';
+    billingPath: 'stripe' | 'free' | 'x402';
+    x402Payment?: { paymentPayload: unknown; requirements: unknown };
   }
 }
 

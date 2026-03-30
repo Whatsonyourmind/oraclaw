@@ -41,6 +41,7 @@ export const ProblemTypes = {
   INVALID_TIER: 'https://oraclaw.dev/errors/invalid-tier',
   NON_SUBSCRIBABLE_TIER: 'https://oraclaw.dev/errors/non-subscribable-tier',
   TIER_NOT_CONFIGURED: 'https://oraclaw.dev/errors/tier-not-configured',
+  PAYMENT_REQUIRED: 'https://oraclaw.dev/errors/payment-required',
 } as const;
 
 /**
