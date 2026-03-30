@@ -1,0 +1,80 @@
+name: Publish ClawHub Skills
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run (list skills without publishing)'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mission-control
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install ClawHub CLI
+        run: npm install -g clawhub@latest
+
+      - name: Authenticate ClawHub
+        run: clawhub auth login --token "${{ secrets.CLAWHUB_TOKEN }}"
+
+      - name: Publish all skills
+        run: |
+          SKILLS_DIR="packages/clawhub-skills"
+          PUBLISHED=0
+          SKIPPED=0
+          FAILED=0
+
+          for skill_dir in $SKILLS_DIR/oraclaw-*/; do
+            skill=$(basename "$skill_dir")
+            version=$(node -p "require('./$skill_dir/package.json').version" 2>/dev/null || echo "1.0.0")
+
+            if [ ! -f "$skill_dir/SKILL.md" ]; then
+              echo "SKIP $skill (no SKILL.md)"
+              SKIPPED=$((SKIPPED + 1))
+              continue
+            fi
+
+            # Check if already published
+            if clawhub info "$skill" 2>/dev/null | grep -q "$version"; then
+              echo "SKIP $skill@$version (already published)"
+              SKIPPED=$((SKIPPED + 1))
+              continue
+            fi
+
+            if [ "${{ inputs.dry-run }}" = "true" ]; then
+              echo "DRY RUN: would publish $skill@$version"
+              SKIPPED=$((SKIPPED + 1))
+              continue
+            fi
+
+            echo "Publishing $skill@$version..."
+            if clawhub publish "$skill_dir"; then
+              echo "OK $skill@$version published"
+              PUBLISHED=$((PUBLISHED + 1))
+            else
+              echo "FAIL $skill@$version"
+              FAILED=$((FAILED + 1))
+            fi
+          done
+
+          echo ""
+          echo "Results: $PUBLISHED published, $SKIPPED skipped, $FAILED failed"
+
+          if [ $FAILED -gt 0 ]; then
+            echo "::error::$FAILED skills failed to publish"
+            exit 1
+          fi
