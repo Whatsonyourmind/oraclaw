@@ -20,8 +20,8 @@ export const metadata: Metadata = {
 
 const navLinks = [
   { href: "/algorithms", label: "Algorithms" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "API Docs" },
-  { href: "/getting-started", label: "Get Started" },
   { href: "/try/bandit", label: "Try It" },
 ];
 
@@ -58,6 +58,12 @@ export default function RootLayout({
               </nav>
 
               <div className="flex items-center gap-3">
+                <Link
+                  href="/dashboard"
+                  className="text-sm text-gray-400 hover:text-claw-400 transition-colors font-mono hidden md:inline"
+                >
+                  Dashboard
+                </Link>
                 <a
                   href="https://github.com/Whatsonyourmind/oracle"
                   target="_blank"
@@ -73,14 +79,12 @@ export default function RootLayout({
                     />
                   </svg>
                 </a>
-                <a
-                  href="https://www.npmjs.com/org/oraclaw"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-mono text-gray-500 hover:text-red-400 transition-colors"
+                <Link
+                  href="/pricing"
+                  className="px-4 py-1.5 bg-claw-500 text-black font-mono text-sm font-semibold rounded-lg hover:bg-claw-400 transition-colors"
                 >
-                  npm
-                </a>
+                  Get API Key
+                </Link>
               </div>
             </div>
           </div>
@@ -100,8 +104,14 @@ export default function RootLayout({
                 <Link href="/algorithms" className="hover:text-gray-300 transition-colors">
                   Algorithms
                 </Link>
+                <Link href="/pricing" className="hover:text-gray-300 transition-colors">
+                  Pricing
+                </Link>
                 <Link href="/docs" className="hover:text-gray-300 transition-colors">
                   API Docs
+                </Link>
+                <Link href="/dashboard" className="hover:text-gray-300 transition-colors">
+                  Dashboard
                 </Link>
                 <a
                   href="https://github.com/Whatsonyourmind/oracle"
