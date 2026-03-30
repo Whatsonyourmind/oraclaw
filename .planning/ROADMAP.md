@@ -18,8 +18,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 4: Developer Experience** - OpenAPI 3.1 spec with Scalar playground, RFC 9457 errors, and llms.txt for AI discovery
 - [x] **Phase 5: x402 Machine Payments** - Native Fastify preHandler for USDC machine payments via @x402/core (completed 2026-03-30)
 - [x] **Phase 6: Batch Endpoint** - Multi-algorithm batch calls in one request with 50% metered discount (completed 2026-03-30)
-- [ ] **Phase 7: npm and MCP Distribution** - Publish remaining 10 SDK packages and MCP server with Trusted Publishing
-- [ ] **Phase 8: ClawHub Distribution and E2E Verification** - Publish 14 ClawHub skills and verify full billing flow end-to-end
+- [x] **Phase 7: npm and MCP Distribution** - Publish remaining 10 SDK packages and MCP server with Trusted Publishing (completed 2026-03-30)
+- [x] **Phase 8: ClawHub Distribution and E2E Verification** - Publish 14 ClawHub skills and verify full billing flow end-to-end (completed 2026-03-30)
 
 ## Phase Details
 
@@ -116,11 +116,11 @@ Plans:
   1. All 14 @oraclaw/* SDK packages (including the 10 remaining) are published and installable via npm
   2. @oraclaw/mcp-server is published and an AI agent can discover and use OraClaw tools via MCP
   3. GitHub Actions OIDC Trusted Publishing is configured so future publishes require no npm token
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 07-01-PLAN.md — Shared tsconfig, SDK + MCP server build infrastructure, package.json updates
-- [ ] 07-02-PLAN.md — Publish script, GitHub Actions OIDC workflow, npm publish + verification
+- [x] 07-01-PLAN.md — Shared tsconfig, SDK + MCP server build infrastructure, package.json updates
+- [x] 07-02-PLAN.md — Publish script, GitHub Actions OIDC workflow, npm publish + verification
 
 ### Phase 8: ClawHub Distribution and E2E Verification
 **Goal**: OraClaw skills are live on ClawHub with USDC pricing and the full billing pipeline is verified end-to-end
@@ -131,11 +131,12 @@ Plans:
   2. The full free-tier flow works: unauthenticated call -> algorithm result -> no charge
   3. The full paid-tier flow works: API key call -> algorithm result -> Stripe meter event -> appears on invoice
   4. The full x402 flow works: USDC payment header -> algorithm result -> settlement confirmation
-**Plans**: TBD
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
+- [x] 08-01-PLAN.md -- ClawHub skill package.json (14 skills), publish pipeline with retry, GitHub Actions workflow
+- [x] 08-02-PLAN.md -- E2E billing verification tests (28 tests: free, Stripe, x402, batch flows)
+- [x] 08-03-PLAN.md -- Demo script with curl examples for all 20 endpoints, .env.example template
 
 ## Progress
 
@@ -148,8 +149,8 @@ Note: Phases 4, 5, and 7 depend only on Phase 1 and can execute in parallel afte
 | 1. Auth and Access Control | 2/2 | Complete | 2026-03-29 |
 | 2. Stripe Billing Setup | 2/2 | Complete | 2026-03-29 |
 | 3. Billing Tiers and Portal | 2/2 | Complete | 2026-03-29 |
-| 4. Developer Experience | 0/2 | Not started | - |
+| 4. Developer Experience | 1/2 | Partial | 2026-03-29 |
 | 5. x402 Machine Payments | 2/2 | Complete   | 2026-03-30 |
 | 6. Batch Endpoint | 2/2 | Complete   | 2026-03-30 |
-| 7. npm and MCP Distribution | 0/2 | Not started | - |
-| 8. ClawHub Distribution and E2E Verification | 0/2 | Not started | - |
+| 7. npm and MCP Distribution | 2/2 | Complete | 2026-03-30 |
+| 8. ClawHub Distribution and E2E Verification | 3/3 | Complete | 2026-03-30 |

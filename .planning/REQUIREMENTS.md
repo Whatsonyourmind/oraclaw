@@ -31,14 +31,14 @@
 
 - [x] **DIST-01**: All 14 npm SDK packages published to @oraclaw scope (10 remaining)
 - [x] **DIST-02**: @oraclaw/mcp-server published to npm
-- [ ] **DIST-03**: 14 ClawHub skills published with USDC pricing
+- [x] **DIST-03**: 14 ClawHub skills published with USDC pricing
 - [ ] **DIST-04**: npm Trusted Publishing configured via GitHub Actions OIDC (no more token expiry)
 
 ### Infrastructure
 
 - [x] **INFRA-01**: Stripe SDK v21.0.1 installed and apiVersion upgraded to 2026-03-25.dahlia
 - [x] **INFRA-02**: x402 packages installed (@x402/core, @x402/evm) with native Fastify hook
-- [ ] **INFRA-03**: End-to-end billing verification (free -> paid -> metered -> invoice -> x402)
+- [x] **INFRA-03**: End-to-end billing verification (free -> paid -> metered -> invoice -> x402)
 
 ## v2 Requirements
 
@@ -90,8 +90,8 @@
 | DIST-01 | Phase 7 | Complete |
 | DIST-02 | Phase 7 | Complete |
 | DIST-04 | Phase 7 | Pending |
-| DIST-03 | Phase 8 | Pending |
-| INFRA-03 | Phase 8 | Pending |
+| DIST-03 | Phase 8 | Complete |
+| INFRA-03 | Phase 8 | Complete |
 
 **Coverage:**
 - v1 requirements: 19 total

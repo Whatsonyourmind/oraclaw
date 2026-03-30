@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v21.0
 milestone_name: milestone
-status: in_progress
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-03-30T10:39:01Z"
-last_activity: 2026-03-30 -- Completed 07-01-PLAN.md (TypeScript Build Infrastructure)
+status: complete
+stopped_at: Completed 08-03-PLAN.md
+last_updated: "2026-03-30T18:00:00Z"
+last_activity: 2026-03-30 -- Completed 08-03-PLAN.md (Demo Script + .env.example)
 progress:
   total_phases: 8
-  completed_phases: 6
-  total_plans: 14
-  completed_plans: 13
-  percent: 93
+  completed_phases: 8
+  total_plans: 17
+  completed_plans: 17
+  percent: 100
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Developers and AI agents can call production-grade decision algorithms via API and pay per use
-**Current focus:** Phase 7 - npm and MCP Distribution
+**Current focus:** v21.0 milestone COMPLETE (8/8 phases, 17/17 plans)
 
 ## Current Position
 
-Phase: 7 of 8 (npm and MCP Distribution)
-Plan: 1 of 2 in current phase
-Status: Plan 07-01 Complete
-Last activity: 2026-03-30 -- Completed 07-01-PLAN.md (TypeScript Build Infrastructure)
+Phase: 8 of 8 (ClawHub Distribution + E2E Verification)
+Plan: 3 of 3 in current phase (COMPLETE)
+Status: All 17 plans complete across 8 phases
+Last activity: 2026-03-30 -- Completed 08-03-PLAN.md (Demo Script + .env.example)
 
-Progress: [█████████░] 93%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
-- Average duration: 5 min
-- Total execution time: 0.8 hours
+- Total plans completed: 17
+- Average duration: 3.8 min
+- Total execution time: ~1.1 hours
 
 **By Phase:**
 
@@ -48,12 +48,13 @@ Progress: [█████████░] 93%
 | 03-billing | 2 | 9 min | 4.5 min |
 | 04-dx | 1 | 4 min | 4 min |
 | 05-x402 | 2 | 8 min | 4 min |
-
 | 06-batch | 2 | 7 min | 3.5 min |
+| 07-npm-dist | 2 | 7 min | 3.5 min |
+| 08-clawhub-e2e | 3 | 9 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (4 min), 05-01 (4 min), 05-02 (4 min), 06-01 (5 min), 06-02 (2 min)
-- Trend: Stable
+- Last 5 plans: 07-01 (4 min), 07-02 (3 min), 08-01 (4 min), 08-02 (3 min), 08-03 (2 min)
+- Trend: Stable / improving
 
 *Updated after each plan completion*
 | Phase 05-x402 P01 | 4min | 2 tasks | 7 files |
@@ -61,6 +62,10 @@ Progress: [█████████░] 93%
 | Phase 06-batch P01 | 5min | 2 tasks | 3 files |
 | Phase 06-batch P02 | 2min | 1 tasks | 2 files |
 | Phase 07-npm-dist P01 | 4min | 2 tasks | 31 files |
+| Phase 07-npm-dist P02 | 3min | 1 tasks | 3 files |
+| Phase 08-clawhub-e2e P01 | 4min | 1 tasks | 17 files |
+| Phase 08-clawhub-e2e P02 | 3min | 1 tasks | 1 files |
+| Phase 08-clawhub-e2e P03 | 2min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -110,19 +115,24 @@ Recent decisions affecting current work:
 - [Phase 07-npm-dist]: MCP server build: tsc + conditional shebang injection; tsx peerDependency removed after JS compilation
 - [Phase 07-npm-dist]: 5 published SDKs bumped to 1.1.0 (format changed from raw TS to compiled JS); 9 unpublished + MCP at 1.0.0
 
+- [Phase 08-clawhub-e2e]: ClawHub skill package.json includes clawhub field with price, currency, endpoint, method
+- [Phase 08-clawhub-e2e]: Publish script uses clawhub info for skip detection, 3 retries per skill
+- [Phase 08-clawhub-e2e]: E2E tests cover all 3 billing paths (free, stripe, x402) + batch with mock injection
+- [Phase 08-clawhub-e2e]: Forecast endpoint needs 12+ data points with holt-winters method for reliable results
+
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-- npm token expired (E401) -- browser login required before Phase 7
-- ClawHub CLI not authenticated -- browser login required before Phase 8
-- x402 V2 is new -- monitor @x402/core for breaking changes during Phase 5
+- npm token expired (E401) -- browser login required for npm publish
+- ClawHub CLI not authenticated -- browser login required for clawhub publish
+- x402 V2 is new -- monitor @x402/core for breaking changes
 - Stripe machine payments preview access may need Dashboard verification
 
 ## Session Continuity
 
-Last session: 2026-03-30T10:39:01Z
-Stopped at: Completed 07-01-PLAN.md
-Resume file: .planning/phases/07-npm-and-mcp-distribution/07-02-PLAN.md
+Last session: 2026-03-30T18:00:00Z
+Stopped at: v21.0 milestone COMPLETE (17/17 plans, 8/8 phases)
+Resume file: Run /gsd:complete-milestone to archive, or /gsd:new-milestone for v22.0
