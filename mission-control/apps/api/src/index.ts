@@ -4,6 +4,9 @@ import multipart from '@fastify/multipart';
 import { geminiService } from './services/gemini-mock';
 import { supabaseService } from './services/supabase-mock';
 
+// RFC 9457 Problem Details
+import { sendProblem, ProblemTypes } from './utils/problem-details';
+
 // Auth
 import { authRoutes } from './routes/auth';
 import { authMiddleware } from './services/auth/authMiddleware';
@@ -151,7 +154,7 @@ server.post('/api/sources', async (request, reply) => {
   try {
     const data = await request.file();
     if (!data) {
-      reply.code(400).send({ error: 'No file provided' });
+      sendProblem(reply, 400, ProblemTypes.VALIDATION, 'Validation Error', 'No file provided');
       return;
     }
 
@@ -175,7 +178,7 @@ server.post('/api/sources', async (request, reply) => {
     return { success: true, source_id: source.id };
   } catch (error) {
     server.log.error(error);
-    return reply.code(500).send({ error: 'Failed to upload file' });
+    return sendProblem(reply, 500, ProblemTypes.INTERNAL, 'Internal Server Error', 'Failed to upload file');
   }
 });
 
@@ -188,7 +191,7 @@ server.post('/api/sources/:id/extract', async (request, reply) => {
     // Get source
     const source = await supabaseService.getSource(id);
     if (!source) {
-      reply.code(404).send({ error: 'Source not found' });
+      sendProblem(reply, 404, ProblemTypes.NOT_FOUND, 'Not Found', 'Source not found');
       return;
     }
 
@@ -228,7 +231,7 @@ server.post('/api/sources/:id/extract', async (request, reply) => {
     };
   } catch (error) {
     server.log.error(error);
-    return reply.code(500).send({ error: 'Failed to extract intelligence' });
+    return sendProblem(reply, 500, ProblemTypes.INTERNAL, 'Internal Server Error', 'Failed to extract intelligence');
   }
 });
 
@@ -260,7 +263,7 @@ server.post('/api/actions', async (request, reply) => {
     };
   } catch (error) {
     server.log.error(error);
-    return reply.code(500).send({ error: 'Failed to create actions' });
+    return sendProblem(reply, 500, ProblemTypes.INTERNAL, 'Internal Server Error', 'Failed to create actions');
   }
 });
 
@@ -301,7 +304,7 @@ server.post('/api/briefing', async (request, reply) => {
     };
   } catch (error) {
     server.log.error(error);
-    return reply.code(500).send({ error: 'Failed to generate briefing' });
+    return sendProblem(reply, 500, ProblemTypes.INTERNAL, 'Internal Server Error', 'Failed to generate briefing');
   }
 });
 
@@ -331,7 +334,7 @@ server.post('/api/meetings/analyze', async (request, reply) => {
     };
   } catch (error) {
     server.log.error(error);
-    return reply.code(500).send({ error: 'Failed to analyze meeting' });
+    return sendProblem(reply, 500, ProblemTypes.INTERNAL, 'Internal Server Error', 'Failed to analyze meeting');
   }
 });
 
@@ -349,7 +352,7 @@ server.get('/api/missions', async (request, reply) => {
     };
   } catch (error) {
     server.log.error(error);
-    return reply.code(500).send({ error: 'Failed to get missions' });
+    return sendProblem(reply, 500, ProblemTypes.INTERNAL, 'Internal Server Error', 'Failed to get missions');
   }
 });
 
@@ -369,7 +372,7 @@ server.get('/api/actions', async (request, reply) => {
     };
   } catch (error) {
     server.log.error(error);
-    return reply.code(500).send({ error: 'Failed to get actions' });
+    return sendProblem(reply, 500, ProblemTypes.INTERNAL, 'Internal Server Error', 'Failed to get actions');
   }
 });
 
@@ -404,22 +407,29 @@ server.register(wsRoutes);
 server.register(subscribeRoutes, { prefix: '/api/v1/billing' });
 server.register(portalRoutes, { prefix: '/api/v1/billing' });
 
-// FREE TIER FRIENDLY ERROR HANDLING
-server.setErrorHandler((error: Error & { statusCode?: number }, request, reply) => {
+// RFC 9457 GLOBAL ERROR HANDLER
+server.setErrorHandler((error: Error & { statusCode?: number; validation?: unknown }, request, reply) => {
   server.log.error(error);
 
-  if (error.statusCode === 429) {
-    reply.code(429).send({
-      error: 'Rate limit exceeded. Please try again later.',
-      retry_after: 60
-    });
-    return;
+  const status = error.statusCode || 500;
+
+  // Fastify validation errors (schema validation failures)
+  if (error.validation) {
+    return sendProblem(reply, 400, ProblemTypes.VALIDATION, 'Validation Error', error.message);
   }
 
-  reply.code(500).send({
-    error: 'Internal server error. Please try again.',
-    success: false
-  });
+  // Rate limit exceeded
+  if (status === 429) {
+    return sendProblem(reply, 429, ProblemTypes.RATE_LIMITED, 'Rate limit exceeded', 'Too many requests. Please try again later.', { 'retry-after': 60 });
+  }
+
+  // Not found
+  if (status === 404) {
+    return sendProblem(reply, 404, ProblemTypes.NOT_FOUND, 'Not Found', error.message);
+  }
+
+  // Default: Internal server error (hide internal details)
+  return sendProblem(reply, 500, ProblemTypes.INTERNAL, 'Internal Server Error', 'An unexpected error occurred. Please try again.');
 });
 
 // Start server
