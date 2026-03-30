@@ -22,6 +22,10 @@ import { stripe } from './services/billing/stripe';
 // Free-tier rate limiting
 import { registerFreeTierRateLimit } from './hooks/free-tier-rate-limit';
 
+// x402 Machine Payments
+import { createX402PaymentHook } from './hooks/x402-payment';
+import { createX402SettleHook } from './hooks/x402-settle';
+
 // Billing routes (subscribe + portal)
 import { subscribeRoutes } from './routes/billing/subscribe';
 import { portalRoutes } from './routes/billing/portal';
@@ -80,13 +84,54 @@ server.register(multipart, {
 // Register Swagger/OpenAPI documentation
 registerSwagger(server);
 
+// x402 Resource Server (lazy init -- initialize() called in start())
+// Import conditionally to avoid hard failure if packages not installed
+let x402Server: any = null;
+async function initX402() {
+  try {
+    const { x402ResourceServer, HTTPFacilitatorClient } = await import('@x402/core/server');
+    const { ExactEvmScheme } = await import('@x402/evm/exact/server');
+
+    const facilitatorUrl = process.env.X402_FACILITATOR_URL || 'https://x402.org/facilitator';
+    const facilitatorClient = new HTTPFacilitatorClient({ url: facilitatorUrl });
+    x402Server = new x402ResourceServer(facilitatorClient);
+    x402Server.register(process.env.X402_NETWORK || 'eip155:84532', new ExactEvmScheme());
+    await x402Server.initialize();
+    server.log.info('x402 payment system initialized');
+  } catch (err) {
+    server.log.warn({ err }, 'x402 payment system not available (packages missing or facilitator unreachable)');
+  }
+}
+
+// Hook execution order for /api/v1/* requests:
+// 1. @fastify/rate-limit (onRequest) -- free tier IP limiting
+// 2. x402 payment (preHandler) -- checks PAYMENT-SIGNATURE, sets billingPath='x402' if valid
+// 3. Unkey auth (preHandler) -- skips if billingPath already set, otherwise verifies API key
+// 4. Rate limit headers (onSend) -- X-RateLimit-* response headers
+// 5. Stripe meter (onResponse) -- only fires when billingPath='stripe'
+// 6. x402 settlement (onResponse) -- only fires when billingPath='x402' and 2xx
+
 // Free-tier rate limiting (100 calls/day by IP, skips authenticated requests)
 registerFreeTierRateLimit(server);
 
+// x402 machine payment verification (preHandler, BEFORE Unkey auth)
+// If valid x402 payment header present, sets billingPath='x402' and skips auth
+const walletAddress = process.env.RECEIVING_WALLET_ADDRESS;
+const x402PricePerCall = process.env.X402_PRICE_PER_CALL || '$0.001';
+const x402Network = process.env.X402_NETWORK || 'eip155:84532';
+
+server.addHook('preHandler', async (request, reply) => {
+  if (x402Server && walletAddress && request.url.startsWith('/api/v1/')) {
+    const handler = createX402PaymentHook(x402Server, walletAddress, x402PricePerCall, x402Network);
+    await handler(request, reply);
+  }
+});
+
 // Unkey auth middleware for public API routes (/api/v1/*)
+// MODIFIED: Skip if billingPath already set by x402 payment hook
 const unkeyAuthHandler = createAuthMiddleware(unkey);
 server.addHook('preHandler', async (request, reply) => {
-  if (request.url.startsWith('/api/v1/')) {
+  if (request.url.startsWith('/api/v1/') && !request.billingPath) {
     await unkeyAuthHandler(request, reply);
   }
 });
@@ -99,6 +144,14 @@ const meterUsage = createMeterUsageHook(stripe, process.env.STRIPE_METER_EVENT_N
 server.addHook('onResponse', async (request, reply) => {
   if (request.url.startsWith('/api/v1/')) {
     await meterUsage(request, reply);
+  }
+});
+
+// x402 settlement: fire-and-forget USDC settlement after successful x402-paid requests
+server.addHook('onResponse', async (request, reply) => {
+  if (x402Server && request.url.startsWith('/api/v1/')) {
+    const settleHandler = createX402SettleHook(x402Server);
+    await settleHandler(request, reply);
   }
 });
 
@@ -445,6 +498,9 @@ const start = async () => {
     await db.initialize({
       connectionString: process.env.DATABASE_URL,
     });
+
+    // Initialize x402 payment system (graceful fallback if unavailable)
+    await initX402();
 
     const port = parseInt(process.env.PORT || '3001');
     await server.listen({
