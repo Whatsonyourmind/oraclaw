@@ -29,8 +29,8 @@
 
 ### Distribution
 
-- [ ] **DIST-01**: All 14 npm SDK packages published to @oraclaw scope (10 remaining)
-- [ ] **DIST-02**: @oraclaw/mcp-server published to npm
+- [x] **DIST-01**: All 14 npm SDK packages published to @oraclaw scope (10 remaining)
+- [x] **DIST-02**: @oraclaw/mcp-server published to npm
 - [ ] **DIST-03**: 14 ClawHub skills published with USDC pricing
 - [ ] **DIST-04**: npm Trusted Publishing configured via GitHub Actions OIDC (no more token expiry)
 
@@ -87,8 +87,8 @@
 | BILL-04 | Phase 5 | Complete |
 | INFRA-02 | Phase 5 | Complete |
 | DX-04 | Phase 6 | Complete |
-| DIST-01 | Phase 7 | Pending |
-| DIST-02 | Phase 7 | Pending |
+| DIST-01 | Phase 7 | Complete |
+| DIST-02 | Phase 7 | Complete |
 | DIST-04 | Phase 7 | Pending |
 | DIST-03 | Phase 8 | Pending |
 | INFRA-03 | Phase 8 | Pending |

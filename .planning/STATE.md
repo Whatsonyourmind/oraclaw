@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v21.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 7 context gathered
-last_updated: "2026-03-30T10:12:53.451Z"
-last_activity: 2026-03-30 -- Completed 06-02-PLAN.md (Batch Metering + Server Wiring)
+status: in_progress
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-03-30T10:39:01Z"
+last_activity: 2026-03-30 -- Completed 07-01-PLAN.md (TypeScript Build Infrastructure)
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 12
-  completed_plans: 12
-  percent: 100
+  total_plans: 14
+  completed_plans: 13
+  percent: 93
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Developers and AI agents can call production-grade decision algorithms via API and pay per use
-**Current focus:** Phase 6 - Batch Endpoint
+**Current focus:** Phase 7 - npm and MCP Distribution
 
 ## Current Position
 
-Phase: 6 of 8 (Batch Endpoint)
-Plan: 2 of 2 in current phase (PHASE COMPLETE)
-Status: Phase 6 Complete
-Last activity: 2026-03-30 -- Completed 06-02-PLAN.md (Batch Metering + Server Wiring)
+Phase: 7 of 8 (npm and MCP Distribution)
+Plan: 1 of 2 in current phase
+Status: Plan 07-01 Complete
+Last activity: 2026-03-30 -- Completed 07-01-PLAN.md (TypeScript Build Infrastructure)
 
-Progress: [██████████] 100%
+Progress: [█████████░] 93%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [██████████] 100%
 | Phase 05-x402 P02 | 4min | 2 tasks | 2 files |
 | Phase 06-batch P01 | 5min | 2 tasks | 3 files |
 | Phase 06-batch P02 | 2min | 1 tasks | 2 files |
+| Phase 07-npm-dist P01 | 4min | 2 tasks | 31 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,10 @@ Recent decisions affecting current work:
 - [Phase 06-batch]: isBatchRequest/batchSize on FastifyRequest for downstream metering hooks (Plan 02)
 - [Phase 06-batch]: Batch meter hook inline in index.ts; whole-number batchSize value with separate meter event name (api_calls_batch)
 
+- [Phase 07-npm-dist]: tsconfig include/exclude must be overridden locally in per-package tsconfig.json (extended paths resolve relative to parent)
+- [Phase 07-npm-dist]: MCP server build: tsc + conditional shebang injection; tsx peerDependency removed after JS compilation
+- [Phase 07-npm-dist]: 5 published SDKs bumped to 1.1.0 (format changed from raw TS to compiled JS); 9 unpublished + MCP at 1.0.0
+
 ### Pending Todos
 
 None yet.
@@ -118,6 +123,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T10:12:53.443Z
-Stopped at: Phase 7 context gathered
-Resume file: .planning/phases/07-npm-and-mcp-distribution/07-CONTEXT.md
+Last session: 2026-03-30T10:39:01Z
+Stopped at: Completed 07-01-PLAN.md
+Resume file: .planning/phases/07-npm-and-mcp-distribution/07-02-PLAN.md
