@@ -1,0 +1,116 @@
+# OraClaw
+
+> Decision intelligence API with 19 ML algorithms. No LLM cost -- pure math, sub-25ms.
+
+OraClaw provides production-grade ML algorithms as a REST API and MCP server.
+Each endpoint runs a deterministic algorithm and returns structured JSON.
+Free tier: 100 calls/day, no API key needed.
+
+## Docs
+
+- [API Documentation](https://oraclaw.dev/docs)
+- [Getting Started](https://oraclaw.dev/getting-started)
+- [Interactive Playground](https://oraclaw.dev/try/bandit)
+- [OpenAPI Spec](https://oraclaw-api.onrender.com/docs/json)
+- [GitHub](https://github.com/Whatsonyourmind/oraclaw)
+- [npm](https://www.npmjs.com/org/oraclaw)
+
+## Endpoints (17)
+
+Base URL: `https://oraclaw-api.onrender.com`
+
+### Optimize
+
+- `POST /api/v1/optimize/bandit` -- Multi-Armed Bandit (UCB1, Thompson Sampling, Epsilon-Greedy). A/B testing, feature flags, ad placement. Input: arms[], algorithm. Output: selected, score, regret. Latency: <1ms. Price: $0.01/call.
+- `POST /api/v1/optimize/contextual-bandit` -- Contextual Bandit (LinUCB). Personalized recommendations using feature vectors. Input: arms[], context[], history[]. Output: selected, expectedReward. Latency: <1ms. Price: $0.02/call.
+- `POST /api/v1/optimize/evolve` -- Genetic Algorithm with Pareto frontier. Multi-objective optimization. Input: geneLength, populationSize, maxGenerations, bounds. Output: bestChromosome, paretoFrontier. Latency: <10ms. Price: $0.10/call.
+- `POST /api/v1/optimize/cmaes` -- CMA-ES (Covariance Matrix Adaptation Evolution Strategy). Black-box continuous optimization. Input: dimension, initialMean, initialSigma. Output: bestSolution, bestFitness. Latency: <5ms. Price: $0.10/call.
+
+### Simulate
+
+- `POST /api/v1/simulate/montecarlo` -- Monte Carlo Simulation. 6 distributions (normal, lognormal, uniform, triangular, beta, exponential). Input: simulations, distribution, params. Output: mean, stdDev, percentiles, histogram. Latency: <5ms. Price: $0.05/call.
+- `POST /api/v1/simulate/scenario` -- Scenario Planning. What-if analysis with sensitivity rankings. Input: baseCase, scenarios[]. Output: results, sensitivityRanking. Latency: <3ms. Price: $0.08/call.
+
+### Solve
+
+- `POST /api/v1/solve/constraints` -- Constraint Optimizer (LP/MIP). Production HiGHS solver via WASM. Input: objective, constraints[], bounds[]. Output: status, objectiveValue, variables. Latency: <10ms. Price: $0.10/call.
+- `POST /api/v1/solve/schedule` -- Schedule Optimizer. Task-to-slot assignment with constraint satisfaction. Input: tasks[], slots[]. Output: assignments, utilization. Latency: <5ms. Price: $0.10/call.
+
+### Analyze
+
+- `POST /api/v1/analyze/graph` -- Decision Graph. PageRank, Louvain community detection, shortest path via graphology. Input: nodes[], edges[]. Output: pageRank, communities, shortestPath. Latency: <3ms. Price: $0.05/call.
+- `POST /api/v1/analyze/risk` -- Portfolio Risk (VaR/CVaR). Value at Risk and Expected Shortfall. Input: weights[], returns[][], confidence. Output: var, cvar, volatility. Latency: <2ms. Price: $0.10/call.
+
+### Predict
+
+- `POST /api/v1/predict/bayesian` -- Bayesian Inference. Belief updating with evidence factors. Input: prior, evidence[]. Output: posterior, calibrationScore. Latency: <1ms. Price: $0.02/call.
+- `POST /api/v1/predict/ensemble` -- Ensemble Model. Weighted voting, stacking, Bayesian model averaging. Input: predictions[], method. Output: consensus, confidence, weights. Latency: <1ms. Price: $0.05/call.
+- `POST /api/v1/predict/forecast` -- Time Series Forecast. ARIMA and Holt-Winters. Input: data[], steps, method. Output: forecast[], confidence[]. Latency: <3ms. Price: $0.05/call.
+
+### Detect
+
+- `POST /api/v1/detect/anomaly` -- Anomaly Detection. Z-Score and IQR methods. Input: data[], method, threshold. Output: anomalies[], stats. Latency: <1ms. Price: $0.02/call.
+
+### Score
+
+- `POST /api/v1/score/convergence` -- Convergence Scoring. Multi-source agreement via Hellinger distance. Input: sources[]. Output: convergenceScore, pairwiseDistances. Latency: <1ms. Price: $0.02/call.
+- `POST /api/v1/score/calibration` -- Calibration Scoring. Brier score and log score. Input: predictions[], outcomes[]. Output: brier_score, log_score. Latency: <1ms. Price: $0.01/call.
+
+### Plan
+
+- `POST /api/v1/plan/pathfind` -- A* Pathfinding with K-shortest paths (Yen's algorithm). Input: nodes[], edges[], start, end, heuristic. Output: path, totalCost, alternativePaths. Latency: <2ms. Price: $0.03/call.
+
+## Pricing
+
+| Tier | Calls | Price | Auth |
+|------|-------|-------|------|
+| Free | 100/day | $0 | None (IP-based) |
+| Starter | 10K/mo | $9/mo | API key |
+| Growth | 100K/mo | $49/mo | API key |
+| Scale | 1M/mo | $199/mo | API key |
+| Enterprise | Custom | Custom | API key |
+| x402 USDC | Pay-per-call | $0.01-$0.15 | On-chain |
+
+## Authentication
+
+- **Free**: No key needed. 100 calls/day per IP.
+- **API Key**: `Authorization: Bearer <key>` header.
+- **x402 USDC**: Machine-to-machine payments on Base L2.
+
+## MCP Server
+
+12 tools available for Claude, GPT, and other AI agents:
+optimize_bandit, optimize_contextual, optimize_cmaes, solve_constraints, solve_schedule, analyze_decision_graph, analyze_portfolio_risk, score_convergence, score_calibration, predict_forecast, detect_anomaly, plan_pathfind
+
+Install: `npx @oraclaw/mcp-server`
+
+## SDK Packages (14)
+
+@oraclaw/bandit, @oraclaw/solver, @oraclaw/simulate, @oraclaw/risk, @oraclaw/forecast, @oraclaw/anomaly, @oraclaw/graph, @oraclaw/bayesian, @oraclaw/ensemble, @oraclaw/calibrate, @oraclaw/evolve, @oraclaw/pathfind, @oraclaw/cmaes, @oraclaw/decide
+
+## Example
+
+```bash
+curl -X POST https://oraclaw-api.onrender.com/api/v1/optimize/bandit \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "arms": [
+      {"id": "A", "name": "Option A", "pulls": 10, "totalReward": 7},
+      {"id": "B", "name": "Option B", "pulls": 10, "totalReward": 5},
+      {"id": "C", "name": "Option C", "pulls": 2, "totalReward": 1.8}
+    ],
+    "algorithm": "ucb1"
+  }'
+```
+
+Response (<1ms):
+```json
+{
+  "selected": {"id": "C", "name": "Option C"},
+  "score": 1.876,
+  "algorithm": "ucb1",
+  "exploitation": 0.9,
+  "exploration": 0.976,
+  "regret": 0.1
+}
+```

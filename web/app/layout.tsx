@@ -3,7 +3,6 @@ import Link from "next/link";
 import "./globals.css";
 
 const SITE_URL = "https://oraclaw.dev";
-const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 export const metadata: Metadata = {
   title: {
@@ -44,21 +43,12 @@ export const metadata: Metadata = {
     title: "OraClaw - Decision Intelligence as an API",
     description:
       "19 production-grade ML algorithms for optimization, simulation, prediction, and planning. Sub-25ms response times. 12 MCP tools for AI agents.",
-    images: [
-      {
-        url: OG_IMAGE,
-        width: 1200,
-        height: 630,
-        alt: "OraClaw - Decision Intelligence as an API",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "OraClaw - Decision Intelligence as an API",
     description:
       "19 ML algorithms, 12 MCP tools, sub-25ms. Decision intelligence for AI agents without LLM cost.",
-    images: [OG_IMAGE],
   },
   robots: {
     index: true,
@@ -196,7 +186,7 @@ export default function RootLayout({
                   Dashboard
                 </Link>
                 <a
-                  href="https://github.com/Whatsonyourmind/oracle"
+                  href="https://github.com/Whatsonyourmind/oraclaw"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-400 hover:text-white transition-colors"
@@ -245,7 +235,7 @@ export default function RootLayout({
                   Dashboard
                 </Link>
                 <a
-                  href="https://github.com/Whatsonyourmind/oracle"
+                  href="https://github.com/Whatsonyourmind/oraclaw"
                   className="hover:text-gray-300 transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
