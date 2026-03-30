@@ -26,6 +26,9 @@ import { registerFreeTierRateLimit } from './hooks/free-tier-rate-limit';
 import { subscribeRoutes } from './routes/billing/subscribe';
 import { portalRoutes } from './routes/billing/portal';
 
+// AI discovery route
+import { llmsTxtRoute } from './routes/llms-txt';
+
 // Database
 import { db } from './services/database/client';
 
@@ -110,6 +113,9 @@ server.addHook('preHandler', async (request, reply) => {
     await authMiddleware(request, reply);
   }
 });
+
+// AI discovery (llms.txt)
+server.register(llmsTxtRoute);
 
 // Health check (always free)
 server.get('/health', async () => {
