@@ -23,8 +23,8 @@
 ### Developer Experience
 
 - [ ] **DX-01**: OpenAPI 3.1 spec generated from routes with Scalar interactive playground
-- [ ] **DX-02**: All error responses follow RFC 9457 problem details format
-- [ ] **DX-03**: llms.txt file served at /llms.txt for AI assistant discovery
+- [x] **DX-02**: All error responses follow RFC 9457 problem details format
+- [x] **DX-03**: llms.txt file served at /llms.txt for AI assistant discovery
 - [ ] **DX-04**: Batch endpoint accepts multiple algorithm calls in one request at 50% discount
 
 ### Distribution
@@ -82,8 +82,8 @@
 | BILL-03 | Phase 3 | Complete |
 | BILL-05 | Phase 3 | Complete |
 | DX-01 | Phase 4 | Pending |
-| DX-02 | Phase 4 | Pending |
-| DX-03 | Phase 4 | Pending |
+| DX-02 | Phase 4 | Complete |
+| DX-03 | Phase 4 | Complete |
 | BILL-04 | Phase 5 | Pending |
 | INFRA-02 | Phase 5 | Pending |
 | DX-04 | Phase 6 | Pending |

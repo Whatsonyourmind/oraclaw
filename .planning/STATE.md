@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v21.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 03-02-PLAN.md (Subscription Checkout & Customer Portal)
-last_updated: "2026-03-29T21:41:39.893Z"
-last_activity: 2026-03-29 -- Completed 03-02-PLAN.md (Subscription Checkout & Customer Portal)
+status: in-progress
+stopped_at: Completed 04-01-PLAN.md (Problem Details & llms.txt)
+last_updated: "2026-03-30T06:49:01.000Z"
+last_activity: 2026-03-30 -- Completed 04-01-PLAN.md (Problem Details & llms.txt)
 progress:
   total_phases: 8
   completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
-  percent: 38
+  total_plans: 8
+  completed_plans: 7
+  percent: 44
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Developers and AI agents can call production-grade decision algorithms via API and pay per use
-**Current focus:** Phase 3 - Billing Tiers and Portal
+**Current focus:** Phase 4 - Developer Experience
 
 ## Current Position
 
-Phase: 3 of 8 (Billing Tiers and Portal) -- COMPLETE
-Plan: 2 of 2 in current phase (all plans complete)
-Status: Phase Complete
-Last activity: 2026-03-29 -- Completed 03-02-PLAN.md (Subscription Checkout & Customer Portal)
+Phase: 4 of 8 (Developer Experience)
+Plan: 1 of 2 in current phase
+Status: In Progress
+Last activity: 2026-03-30 -- Completed 04-01-PLAN.md (Problem Details & llms.txt)
 
-Progress: [████░░░░░░] 38%
+Progress: [████░░░░░░] 44%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 6 min
-- Total execution time: 0.6 hours
+- Total execution time: 0.7 hours
 
 **By Phase:**
 
@@ -46,9 +46,10 @@ Progress: [████░░░░░░] 38%
 | 01-auth | 2 | 15 min | 7.5 min |
 | 02-stripe | 2 | 12 min | 6 min |
 | 03-billing | 2 | 9 min | 4.5 min |
+| 04-dx | 1 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (6 min), 02-01 (9 min), 02-02 (3 min), 03-01 (5 min), 03-02 (4 min)
+- Last 5 plans: 02-01 (9 min), 02-02 (3 min), 03-01 (5 min), 03-02 (4 min), 04-01 (4 min)
 - Trend: Accelerating
 
 *Updated after each plan completion*
@@ -81,6 +82,10 @@ Recent decisions affecting current work:
 - Raw stripe client for billingPortal.sessions.create (StripeService does not expose portal methods)
 - Enterprise tier rejected at subscribe endpoint with 400 (contact sales, not self-service Checkout)
 - NON_SUBSCRIBABLE_TIERS Set for O(1) exclusion of free and enterprise from subscription flow
+- sendProblem helper returns FastifyReply for chaining; sets application/problem+json content-type
+- ProblemTypes registry has 12 error URIs under https://oraclaw.dev/errors/ namespace
+- 500 errors hide internal details with generic message for security
+- llms.txt content is a const string literal (no dynamic generation needed)
 
 ### Pending Todos
 
@@ -95,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29T21:38:42Z
-Stopped at: Completed 03-02-PLAN.md (Subscription Checkout & Customer Portal)
+Last session: 2026-03-30T06:49:01Z
+Stopped at: Completed 04-01-PLAN.md (Problem Details & llms.txt)
 Resume file: None
