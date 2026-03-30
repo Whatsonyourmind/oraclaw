@@ -3,15 +3,18 @@
   "version": "1.0.0",
   "description": "OraClaw Decision Intelligence — 12 MCP tools for AI agents (bandits, LP solver, graph analytics, forecasting, anomaly detection, CMA-ES)",
   "type": "module",
-  "main": "src/index.npm.ts",
+  "main": "dist/index.npm.js",
   "bin": {
-    "oraclaw-mcp": "src/index.npm.ts"
+    "oraclaw-mcp": "dist/index.npm.js"
   },
   "scripts": {
     "start": "npx tsx src/index.npm.ts",
     "start:local": "npx tsx src/index.ts",
-    "dev": "npx tsx --watch src/index.npm.ts"
+    "dev": "npx tsx --watch src/index.npm.ts",
+    "build": "tsc && node -e \"const fs=require('fs');const f='dist/index.npm.js';const c=fs.readFileSync(f,'utf8');if(!c.startsWith('#!'))fs.writeFileSync(f,'#!/usr/bin/env node\\n'+c)\"",
+    "prepublishOnly": "npm run build"
   },
+  "files": ["dist"],
   "keywords": ["mcp", "ai-agents", "decision-intelligence", "bandits", "optimization", "forecasting", "anomaly-detection", "graph-analytics", "oraclaw"],
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/Whatsonyourmind/oraclaw" },
@@ -19,7 +22,8 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0"
   },
-  "peerDependencies": {
-    "tsx": "^4.0.0"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }
