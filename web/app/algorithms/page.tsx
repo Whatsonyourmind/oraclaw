@@ -7,9 +7,12 @@ import {
 } from "@/lib/algorithms";
 
 export const metadata = {
-  title: "Algorithms - OraClaw",
+  title: "Algorithms",
   description:
-    "Browse 19 production-grade ML algorithms for optimization, simulation, prediction, and planning.",
+    "Browse 19 production-grade ML algorithms for optimization, simulation, prediction, and planning. Bandits, solvers, forecasters, risk models and more.",
+  alternates: {
+    canonical: "/algorithms",
+  },
 };
 
 const CATEGORY_ORDER: AlgorithmCategory[] = [

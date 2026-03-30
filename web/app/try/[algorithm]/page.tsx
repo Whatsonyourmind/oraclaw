@@ -18,8 +18,11 @@ export async function generateMetadata({ params }: PageProps) {
   if (!algo) return { title: "Not Found - OraClaw" };
 
   return {
-    title: `Try ${algo.name} - OraClaw`,
-    description: algo.description,
+    title: `Try ${algo.name}`,
+    description: `Try the ${algo.name} algorithm live. ${algo.description}`,
+    alternates: {
+      canonical: `/try/${algorithm}`,
+    },
   };
 }
 
