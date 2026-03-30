@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v21.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 6 context gathered
-last_updated: "2026-03-30T09:43:20.602Z"
-last_activity: 2026-03-30 -- Completed 05-02-PLAN.md (x402 Hook Integration)
+status: in-progress
+stopped_at: Completed 06-01-PLAN.md (Batch Endpoint Route + Dispatch Map)
+last_updated: "2026-03-30T10:02:11.000Z"
+last_activity: 2026-03-30 -- Completed 06-01-PLAN.md (Batch Endpoint Route + Dispatch Map)
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 10
-  completed_plans: 10
-  percent: 100
+  total_plans: 12
+  completed_plans: 11
+  percent: 92
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Developers and AI agents can call production-grade decision algorithms via API and pay per use
-**Current focus:** Phase 5 - x402 Machine Payments
+**Current focus:** Phase 6 - Batch Endpoint
 
 ## Current Position
 
-Phase: 5 of 8 (x402 Machine Payments)
-Plan: 2 of 2 in current phase
-Status: Phase Complete
-Last activity: 2026-03-30 -- Completed 05-02-PLAN.md (x402 Hook Integration)
+Phase: 6 of 8 (Batch Endpoint)
+Plan: 1 of 2 in current phase
+Status: In Progress
+Last activity: 2026-03-30 -- Completed 06-01-PLAN.md (Batch Endpoint Route + Dispatch Map)
 
-Progress: [██████████] 100%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -49,13 +49,16 @@ Progress: [██████████] 100%
 | 04-dx | 1 | 4 min | 4 min |
 | 05-x402 | 2 | 8 min | 4 min |
 
+| 06-batch | 1 | 5 min | 5 min |
+
 **Recent Trend:**
-- Last 5 plans: 03-01 (5 min), 03-02 (4 min), 04-01 (4 min), 05-01 (4 min), 05-02 (4 min)
-- Trend: Accelerating
+- Last 5 plans: 03-02 (4 min), 04-01 (4 min), 05-01 (4 min), 05-02 (4 min), 06-01 (5 min)
+- Trend: Stable
 
 *Updated after each plan completion*
 | Phase 05-x402 P01 | 4min | 2 tasks | 7 files |
 | Phase 05-x402 P02 | 4min | 2 tasks | 2 files |
+| Phase 06-batch P01 | 5min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -96,6 +99,10 @@ Recent decisions affecting current work:
 - [Phase 05-x402]: Lazy x402ResourceServer init via dynamic import with graceful fallback if packages unavailable
 - [Phase 05-x402]: Integration tests mock at service boundary but use real Fastify hook registration for ordering verification
 
+- [Phase 06-batch]: Direct function dispatch via ALGORITHM_DISPATCH lookup table (not app.inject) avoids hook re-execution per batch call
+- [Phase 06-batch]: Promise.allSettled for parallel execution; HTTP 200 always returned with per-call inline RFC 9457 errors
+- [Phase 06-batch]: isBatchRequest/batchSize on FastifyRequest for downstream metering hooks (Plan 02)
+
 ### Pending Todos
 
 None yet.
@@ -109,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T09:43:20.596Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-batch-endpoint/06-CONTEXT.md
+Last session: 2026-03-30T10:02:11.000Z
+Stopped at: Completed 06-01-PLAN.md (Batch Endpoint Route + Dispatch Map)
+Resume file: .planning/phases/06-batch-endpoint/06-02-PLAN.md
