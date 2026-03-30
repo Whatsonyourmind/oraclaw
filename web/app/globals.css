@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-950 text-gray-100 antialiased;
+  }
+}
+
+@layer components {
+  .glow-green {
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(0, 136, 255, 0.15);
+  }
+
+  .card-hover {
+    @apply transition-all duration-200 hover:border-claw-500/40 hover:shadow-lg hover:shadow-claw-500/5;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-claw-400 to-ooda-orient;
+  }
+}
