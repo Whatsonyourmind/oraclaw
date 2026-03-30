@@ -27,10 +27,12 @@ export function createMeterUsageHook(stripe: Stripe, eventName: string) {
     reply: FastifyReply,
   ): Promise<void> {
     // Only meter authenticated Stripe-billed requests that succeeded
+    // Skip batch requests (metered separately at 50% rate via batch hook in index.ts)
     if (
       request.billingPath !== 'stripe' ||
       !request.stripeCustomerId ||
-      reply.statusCode >= 400
+      reply.statusCode >= 400 ||
+      request.isBatchRequest
     ) {
       return;
     }
