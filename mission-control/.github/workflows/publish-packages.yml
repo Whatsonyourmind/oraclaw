@@ -1,0 +1,68 @@
+name: Publish Packages
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run (skip actual publish)'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mission-control
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
+      - name: Install dependencies
+        run: npm ci
+      - name: Build and publish SDK packages
+        run: |
+          for pkg_dir in packages/sdk/*/; do
+            name=$(node -p "require('./$pkg_dir/package.json').name")
+            version=$(node -p "require('./$pkg_dir/package.json').version")
+            published=$(npm view "$name@$version" version 2>/dev/null || echo "")
+            if [ "$published" = "$version" ]; then
+              echo "SKIP $name@$version (already published)"
+              continue
+            fi
+            echo "Publishing $name@$version..."
+            (
+              cd "$pkg_dir"
+              npm run build
+              if [ "${{ inputs.dry-run }}" = "true" ]; then
+                echo "DRY RUN: would publish $name@$version"
+                npm pack --dry-run
+              else
+                npm publish --provenance --access public
+              fi
+            )
+          done
+      - name: Build and publish MCP server
+        run: |
+          cd packages/mcp-server
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          published=$(npm view "$name@$version" version 2>/dev/null || echo "")
+          if [ "$published" = "$version" ]; then
+            echo "SKIP $name@$version (already published)"
+          elif [ "${{ inputs.dry-run }}" = "true" ]; then
+            npm run build
+            echo "DRY RUN: would publish $name@$version"
+            npm pack --dry-run
+          else
+            npm run build
+            npm publish --provenance --access public
+          fi
