@@ -116,11 +116,11 @@ Plans:
   1. All 14 @oraclaw/* SDK packages (including the 10 remaining) are published and installable via npm
   2. @oraclaw/mcp-server is published and an AI agent can discover and use OraClaw tools via MCP
   3. GitHub Actions OIDC Trusted Publishing is configured so future publishes require no npm token
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md — Shared tsconfig, SDK + MCP server build infrastructure, package.json updates
+- [ ] 07-02-PLAN.md — Publish script, GitHub Actions OIDC workflow, npm publish + verification
 
 ### Phase 8: ClawHub Distribution and E2E Verification
 **Goal**: OraClaw skills are live on ClawHub with USDC pricing and the full billing pipeline is verified end-to-end
