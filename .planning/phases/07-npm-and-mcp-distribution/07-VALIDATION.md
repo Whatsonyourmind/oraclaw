@@ -2,8 +2,8 @@
 phase: 7
 slug: npm-and-mcp-distribution
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-30
 ---
 
@@ -38,8 +38,8 @@ created: 2026-03-30
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 07-01-01 | 01 | 1 | DIST-01 | unit | `node -e "require('./packages/sdk/bandit/dist/index.js')"` per package | ❌ W0 | ⬜ pending |
-| 07-01-02 | 01 | 1 | DIST-02 | smoke | `head -1 packages/mcp-server/dist/index.npm.js \| grep shebang` | ❌ W0 | ⬜ pending |
+| 07-01-01 | 01 | 1 | DIST-01 | unit + field check | `cd mission-control && for pkg in packages/sdk/*/; do ... done` (checks dist/ output AND package.json main/types/files/publishConfig fields) | Inline `<automated>` | ⬜ pending |
+| 07-01-02 | 01 | 1 | DIST-02 | smoke | `head -1 packages/mcp-server/dist/index.npm.js \| grep shebang` | Inline `<automated>` | ⬜ pending |
 | 07-02-01 | 02 | 2 | DIST-01 | integration | `npm info @oraclaw/bandit version` per package | N/A (requires publish) | ⬜ pending |
 | 07-02-02 | 02 | 2 | DIST-02 | integration | `npm info @oraclaw/mcp-server version` | N/A (requires publish) | ⬜ pending |
 | 07-02-03 | 02 | 2 | DIST-04 | manual | Review publish-packages.yml for OIDC permissions | N/A | ⬜ pending |
@@ -50,9 +50,9 @@ created: 2026-03-30
 
 ## Wave 0 Requirements
 
-- [ ] Build all SDK packages to dist/ with tsc
-- [ ] Build MCP server with shebang prepended
-- [ ] Package.json fields updated (main, types, files pointing to dist/)
+- [x] Build all SDK packages to dist/ with tsc — verified by 07-01-01 `<automated>` (checks dist/index.js + dist/index.d.ts existence)
+- [x] Build MCP server with shebang prepended — verified by 07-01-02 `<automated>` (greps shebang from dist/index.npm.js)
+- [x] Package.json fields updated (main, types, files pointing to dist/) — verified by 07-01-01 `<automated>` (spot-checks main, types, files, publishConfig.access on each SDK package)
 
 ---
 
@@ -68,11 +68,11 @@ created: 2026-03-30
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved (revision pass — checker issues resolved)
