@@ -1,156 +1,111 @@
-# Roadmap: OraClaw Revenue-Ready Launch
+# Roadmap: OraClaw Platform Maturity
 
 ## Overview
 
-OraClaw has 19 algorithms deployed and tested but zero revenue flowing. This roadmap takes the platform from "code exists" to "money comes in" by wiring authentication, dual-path billing (Stripe metered + x402 USDC), developer-facing documentation, and marketplace distribution. Every phase delivers a verifiable capability, ordered so that each unlocks the next: identity first, then billing, then docs, then distribution, then full verification.
+OraClaw v21.0 shipped the revenue-ready launch: authentication, dual-path billing (Stripe + x402), SDK distribution, and ClawHub marketplace. v22.0 takes the platform from "ready to earn" to "ready to scale" by adding the web presence, observability, API hardening, and developer growth features needed to support real production traffic and customer acquisition.
+
+## Milestone History
+
+### v21.0 — Revenue-Ready Launch (COMPLETED 2026-03-30)
+
+8 phases, 17 plans, ~1.1 hours. Delivered Unkey auth, Stripe metered billing, x402 USDC payments, batch endpoint, 14 npm SDKs, 14 ClawHub skills, E2E billing verification.
+
+See: `.planning/milestones/v21.0-COMPLETED.md`
+
+---
+
+## v22.0 — Platform Maturity
+
+**Goal:** Make OraClaw production-grade for real traffic: web dashboard for developer onboarding, observability for operations, API hardening for reliability, and growth tooling for adoption.
+
+**Why this order:**
+1. Web dashboard comes first because developers need a landing page and interactive playground to discover and try algorithms
+2. Observability comes second because you need to see what's happening before you can optimize it
+3. API hardening comes third because rate limiting improvements and caching require observability data to tune
+4. Advanced algorithms and growth features come last because they drive adoption on top of a stable, observable platform
 
 ## Phases
 
-**Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
-
-Decimal phases appear between their surrounding integers in numeric order.
-
-- [ ] **Phase 1: Auth and Access Control** - Wire Unkey API key management, tier-based rate limiting, and rate limit headers into all routes
-- [ ] **Phase 2: Stripe Billing Setup** - Upgrade Stripe SDK to v21.0.1, wire Billing Meters API for per-call metering
-- [ ] **Phase 3: Billing Tiers and Portal** - Implement free/paid tier enforcement and Stripe customer portal access
-- [ ] **Phase 4: Developer Experience** - OpenAPI 3.1 spec with Scalar playground, RFC 9457 errors, and llms.txt for AI discovery
-- [x] **Phase 5: x402 Machine Payments** - Native Fastify preHandler for USDC machine payments via @x402/core (completed 2026-03-30)
-- [x] **Phase 6: Batch Endpoint** - Multi-algorithm batch calls in one request with 50% metered discount (completed 2026-03-30)
-- [x] **Phase 7: npm and MCP Distribution** - Publish remaining 10 SDK packages and MCP server with Trusted Publishing (completed 2026-03-30)
-- [x] **Phase 8: ClawHub Distribution and E2E Verification** - Publish 14 ClawHub skills and verify full billing flow end-to-end (completed 2026-03-30)
+- [x] **Phase 1: Web Dashboard & Documentation Site** - Next.js landing page with Scalar API playground, algorithm catalog, and getting-started guides (completed 2026-03-30)
+- [ ] **Phase 2: Observability & Monitoring** - Structured logging, Prometheus metrics, Grafana dashboards, health checks, and alerting
+- [ ] **Phase 3: API Hardening & Performance** - Response caching, request validation tightening, graceful degradation, and load testing
+- [ ] **Phase 4: Advanced Algorithms & Model Registry** - 3-5 new SOTA algorithms, algorithm versioning, A/B testing framework for algorithm selection
+- [ ] **Phase 5: Developer Growth & Analytics** - Usage analytics dashboard, webhook notifications, SDK examples in 5+ languages, changelog feed
 
 ## Phase Details
 
-### Phase 1: Auth and Access Control
-**Goal**: API consumers can authenticate, manage keys, and receive transparent rate limiting on every call
+### Phase 1: Web Dashboard & Documentation Site
+**Goal**: Developers can discover, try, and integrate OraClaw from a single web destination in under 5 minutes
 **Depends on**: Nothing (first phase)
-**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04
+**Requirements**: WEB-01, WEB-02, WEB-03, DX-01 (carried from v21.0)
 **Success Criteria** (what must be TRUE):
-  1. A developer can create an API key via Unkey and use it to call any OraClaw endpoint successfully
-  2. A developer can rotate or revoke an API key and the old key stops working immediately without API downtime
-  3. Rate limits are enforced per tier via Unkey's distributed system (not in-memory), and exceeding the limit returns HTTP 429
-  4. Every API response includes X-RateLimit-Remaining, X-RateLimit-Limit, and X-RateLimit-Reset headers
-**Plans:** 2 plans
-
-Plans:
-- [ ] 01-01-PLAN.md — Unkey auth middleware, rate limit headers, old auth removal
-- [ ] 01-02-PLAN.md — Key management tests, auth middleware tests, full regression
-
-### Phase 2: Stripe Billing Setup
-**Goal**: API calls generate Stripe meter events that flow into the billing system
-**Depends on**: Phase 1
-**Requirements**: INFRA-01, BILL-01
-**Success Criteria** (what must be TRUE):
-  1. Stripe SDK v21.0.1 is installed as a real dependency (no @ts-ignore) with apiVersion 2026-03-25.dahlia
-  2. Every authenticated API call emits a Stripe Billing Meter event (via async onResponse hook, not blocking the response)
-  3. Meter events appear in the Stripe Dashboard under Billing > Meters within seconds of an API call
-**Plans:** 2 plans
-
-Plans:
-- [ ] 02-01-PLAN.md — Stripe SDK install, apiVersion upgrade, mock factory
-- [ ] 02-02-PLAN.md — Meter usage onResponse hook (TDD: tests first, then implementation + wiring)
-
-### Phase 3: Billing Tiers and Portal
-**Goal**: Developers can use OraClaw for free or pay for higher usage, and view their billing in a self-service portal
-**Depends on**: Phase 2
-**Requirements**: BILL-02, BILL-03, BILL-05
-**Success Criteria** (what must be TRUE):
-  1. An unauthenticated caller can make up to 100 API calls per day without an API key (free tier)
-  2. A paid subscriber on any tier (starter/growth/scale/enterprise) is billed per call via Stripe metered subscription
-  3. A paying customer can access the Stripe customer portal to view usage, invoices, and manage their subscription
-**Plans:** 2 plans
-
-Plans:
-- [ ] 03-01-PLAN.md — Free-tier IP rate limiting (@fastify/rate-limit), tier config with Stripe price IDs
-- [ ] 03-02-PLAN.md — Subscription checkout route, customer portal session endpoint, billing route wiring
-
-### Phase 4: Developer Experience
-**Goal**: Developers can discover, understand, and integrate with OraClaw in under 5 minutes using interactive docs and consistent error handling
-**Depends on**: Phase 1
-**Requirements**: DX-01, DX-02, DX-03
-**Success Criteria** (what must be TRUE):
-  1. An OpenAPI 3.1 spec is auto-generated from Fastify routes and served via Scalar interactive playground at a public URL
-  2. All error responses across every endpoint follow RFC 9457 problem details format (type, title, status, detail fields)
-  3. An llms.txt file is served at /llms.txt describing OraClaw's capabilities for AI assistant discovery
-**Plans:** 2 plans
-
-Plans:
-- [ ] 04-01-PLAN.md — RFC 9457 problem-details helper, global error handler, llms.txt route
-- [ ] 04-02-PLAN.md — Scalar playground (replace Swagger UI), OpenAPI 3.1 upgrade, visual verification
-
-### Phase 5: x402 Machine Payments
-**Goal**: AI agents can pay for OraClaw API calls with USDC via the x402 protocol without any human involvement
-**Depends on**: Phase 1
-**Requirements**: BILL-04, INFRA-02
-**Success Criteria** (what must be TRUE):
-  1. @x402/core and @x402/evm packages are installed and a native Fastify preHandler hook validates x402 payment headers
-  2. An AI agent can call any gated endpoint by including x402 USDC payment in the request, receiving the algorithm result after settlement
-  3. The x402 payment flow works independently of Stripe -- an agent with a funded wallet needs no API key or Stripe subscription
+  1. A public Next.js site at oraclaw.dev (or subdomain) shows algorithm catalog with interactive try-it forms
+  2. Scalar API playground is embedded and connected to the live API with pre-filled examples
+  3. Getting-started guide walks through: get API key -> make first call -> see result in under 2 minutes
+  4. The site is deployed and accessible (Vercel or similar)
 **Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 05-01-PLAN.md — Install x402 packages, payment/settlement hooks, mock factory, unit tests
-- [ ] 05-02-PLAN.md — Wire hooks into server, modify auth skip logic, integration tests for three billing paths
+- [x] 01-01-PLAN.md -- Next.js scaffold, algorithm catalog (17 algorithms), Scalar playground embed
+- [x] 01-02-PLAN.md -- Interactive try-it forms (17 algorithms), getting-started guide, code examples
 
-### Phase 6: Batch Endpoint
-**Goal**: Power users and agents can call multiple algorithms in a single request and receive a 50% discount on metered billing
-**Depends on**: Phase 2, Phase 3
-**Requirements**: DX-04
+**Notes:**
+- Web app at `web/` (standalone outside monorepo to avoid React 18/19 conflict with mobile app)
+- 24 static pages generated (homepage, algorithms, docs, getting-started, 17 try-it pages, not-found)
+- Build: 101 kB first load JS shared
+
+### Phase 2: Observability & Monitoring
+**Goal**: Operations team can see real-time API health, algorithm performance, billing flow status, and get alerted on anomalies
+**Depends on**: Nothing (can run parallel with Phase 1)
+**Requirements**: OBS-01, OBS-02, OBS-03, OBS-04
 **Success Criteria** (what must be TRUE):
-  1. A single POST request to the batch endpoint can include multiple algorithm calls and returns all results in one response
-  2. Partial failures in a batch are handled gracefully -- successful results are returned alongside error details for failed calls
-  3. Batch calls are metered at 50% of the per-call rate in Stripe Billing Meters
-**Plans:** 2/2 plans complete
+  1. Structured JSON logging with request ID correlation across the full request lifecycle
+  2. Prometheus metrics exported for request rate, latency percentiles, error rate, and algorithm-specific timings
+  3. Grafana dashboards show real-time API health, billing pipeline status, and algorithm performance
+  4. Alerting configured for error rate spikes, latency degradation, and billing pipeline failures
+**Plans:** TBD
 
-Plans:
-- [ ] 06-01-PLAN.md — Batch route with dispatch map, parallel execution, TDD tests
-- [ ] 06-02-PLAN.md — Wire batch route into server, batch metering hook, double-meter prevention
-
-### Phase 7: npm and MCP Distribution
-**Goal**: All 14 OraClaw SDK packages and the MCP server are published to npm with automated, token-free publishing
-**Depends on**: Phase 1
-**Requirements**: DIST-01, DIST-02, DIST-04
+### Phase 3: API Hardening & Performance
+**Goal**: API handles 10x current capacity without degradation, with proper caching, input validation, and graceful error handling
+**Depends on**: Phase 2 (needs metrics to tune)
+**Requirements**: PERF-01, PERF-02, PERF-03, PERF-04
 **Success Criteria** (what must be TRUE):
-  1. All 14 @oraclaw/* SDK packages (including the 10 remaining) are published and installable via npm
-  2. @oraclaw/mcp-server is published and an AI agent can discover and use OraClaw tools via MCP
-  3. GitHub Actions OIDC Trusted Publishing is configured so future publishes require no npm token
-**Plans:** 2/2 plans complete
+  1. Response caching (ETag/conditional GET) reduces redundant computation for repeated calls
+  2. Request payload validation rejects malformed inputs before reaching algorithm layer
+  3. Circuit breaker pattern prevents cascade failures when downstream services (Stripe, Unkey) are down
+  4. Load test results show <100ms p99 latency at 100 concurrent requests
+**Plans:** TBD
 
-Plans:
-- [x] 07-01-PLAN.md — Shared tsconfig, SDK + MCP server build infrastructure, package.json updates
-- [x] 07-02-PLAN.md — Publish script, GitHub Actions OIDC workflow, npm publish + verification
-
-### Phase 8: ClawHub Distribution and E2E Verification
-**Goal**: OraClaw skills are live on ClawHub with USDC pricing and the full billing pipeline is verified end-to-end
-**Depends on**: Phase 5, Phase 7
-**Requirements**: DIST-03, INFRA-03
+### Phase 4: Advanced Algorithms & Model Registry
+**Goal**: Platform offers 24+ algorithms with versioning, so developers can pin algorithm versions and try new ones without breaking existing integrations
+**Depends on**: Phase 3 (stable API needed)
+**Requirements**: ALG-01, ALG-02, ALG-03
 **Success Criteria** (what must be TRUE):
-  1. All 14 ClawHub skills are published with USDC pricing ($0.01-$0.15/call) and discoverable in the ClawHub marketplace
-  2. The full free-tier flow works: unauthenticated call -> algorithm result -> no charge
-  3. The full paid-tier flow works: API key call -> algorithm result -> Stripe meter event -> appears on invoice
-  4. The full x402 flow works: USDC payment header -> algorithm result -> settlement confirmation
-**Plans:** 3/3 plans complete
+  1. 3-5 new algorithms added: MCTS (Monte Carlo Tree Search), PSO (Particle Swarm), Neural Architecture Search, Causal Inference, or Conformal Prediction
+  2. Algorithm versioning system allows callers to specify version (v1, v2) or use latest
+  3. Algorithm registry provides metadata (input schema, output schema, complexity, pricing) for each algorithm
+**Plans:** TBD
 
-Plans:
-- [x] 08-01-PLAN.md -- ClawHub skill package.json (14 skills), publish pipeline with retry, GitHub Actions workflow
-- [x] 08-02-PLAN.md -- E2E billing verification tests (28 tests: free, Stripe, x402, batch flows)
-- [x] 08-03-PLAN.md -- Demo script with curl examples for all 20 endpoints, .env.example template
+### Phase 5: Developer Growth & Analytics
+**Goal**: Developers have self-service tools to monitor their own usage, get notified on quota changes, and integrate faster with code examples
+**Depends on**: Phase 2 (needs observability for analytics)
+**Requirements**: GROW-01, GROW-02, GROW-03, GROW-04 (carried from v21.0 REQUIREMENTS.md)
+**Success Criteria** (what must be TRUE):
+  1. Usage analytics endpoint returns per-algorithm call counts, latency percentiles, and cost for the authenticated user
+  2. Webhook notifications fire on quota threshold (80%, 100%) and billing events (invoice created, payment failed)
+  3. SDK code examples published for Python, JavaScript, Go, Rust, and curl
+  4. Changelog RSS/JSON feed auto-generated from git tags or a changelog file
+**Plans:** TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
-Note: Phases 4, 5, and 7 depend only on Phase 1 and can execute in parallel after Phase 1 completes.
+Phases 1 and 2 can execute in parallel. Phase 3 depends on Phase 2. Phase 4 depends on Phase 3. Phase 5 depends on Phase 2.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Auth and Access Control | 2/2 | Complete | 2026-03-29 |
-| 2. Stripe Billing Setup | 2/2 | Complete | 2026-03-29 |
-| 3. Billing Tiers and Portal | 2/2 | Complete | 2026-03-29 |
-| 4. Developer Experience | 1/2 | Partial | 2026-03-29 |
-| 5. x402 Machine Payments | 2/2 | Complete   | 2026-03-30 |
-| 6. Batch Endpoint | 2/2 | Complete   | 2026-03-30 |
-| 7. npm and MCP Distribution | 2/2 | Complete | 2026-03-30 |
-| 8. ClawHub Distribution and E2E Verification | 3/3 | Complete | 2026-03-30 |
+| 1. Web Dashboard & Documentation Site | 2/2 | Complete | 2026-03-30 |
+| 2. Observability & Monitoring | 0/? | Not Started | — |
+| 3. API Hardening & Performance | 0/? | Not Started | — |
+| 4. Advanced Algorithms & Model Registry | 0/? | Not Started | — |
+| 5. Developer Growth & Analytics | 0/? | Not Started | — |

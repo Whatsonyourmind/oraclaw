@@ -1,9 +1,9 @@
-# Requirements: OraClaw Revenue-Ready Launch
+# Requirements: OraClaw Platform
 
 **Defined:** 2026-03-29
 **Core Value:** Developers and AI agents can call production-grade decision algorithms via API and pay per use
 
-## v1 Requirements
+## v21.0 Requirements (COMPLETED)
 
 ### Authentication
 
@@ -22,7 +22,7 @@
 
 ### Developer Experience
 
-- [ ] **DX-01**: OpenAPI 3.1 spec generated from routes with Scalar interactive playground
+- [ ] **DX-01**: OpenAPI 3.1 spec generated from routes with Scalar interactive playground (carried to v22.0 Phase 1)
 - [x] **DX-02**: All error responses follow RFC 9457 problem details format
 - [x] **DX-03**: llms.txt file served at /llms.txt for AI assistant discovery
 - [x] **DX-04**: Batch endpoint accepts multiple algorithm calls in one request at 50% discount
@@ -32,7 +32,7 @@
 - [x] **DIST-01**: All 14 npm SDK packages published to @oraclaw scope (10 remaining)
 - [x] **DIST-02**: @oraclaw/mcp-server published to npm
 - [x] **DIST-03**: 14 ClawHub skills published with USDC pricing
-- [ ] **DIST-04**: npm Trusted Publishing configured via GitHub Actions OIDC (no more token expiry)
+- [ ] **DIST-04**: npm Trusted Publishing configured via GitHub Actions OIDC (carried to v22.0)
 
 ### Infrastructure
 
@@ -40,64 +40,74 @@
 - [x] **INFRA-02**: x402 packages installed (@x402/core, @x402/evm) with native Fastify hook
 - [x] **INFRA-03**: End-to-end billing verification (free -> paid -> metered -> invoice -> x402)
 
-## v2 Requirements
+---
 
-### Growth Features
+## v22.0 Requirements (ACTIVE)
 
-- **GROW-01**: Usage analytics dashboard (self-service)
-- **GROW-02**: Webhook notifications for quota alerts and billing events
-- **GROW-03**: Self-service API key management portal
-- **GROW-04**: SDK code examples in 5+ languages
+### Web Dashboard
 
-### Infrastructure
+- [ ] **WEB-01**: Public Next.js site with algorithm catalog showing all 19 algorithms with descriptions, input/output schemas, and pricing
+- [ ] **WEB-02**: Interactive try-it forms for each algorithm with pre-filled example inputs and live API results
+- [ ] **WEB-03**: Getting-started guide: API key creation -> first call -> result, completable in under 2 minutes
 
-- **INFRA-04**: Render paid tier upgrade for always-on service
-- **INFRA-05**: Redis/Supabase for durable rate limiting and caching
-- **INFRA-06**: Stripe + x402 unified revenue dashboard
+### Observability
 
-## Out of Scope
+- [ ] **OBS-01**: Structured JSON logging with request ID correlation across full request lifecycle
+- [ ] **OBS-02**: Prometheus metrics for request rate, latency percentiles (p50/p95/p99), error rate, and per-algorithm timings
+- [ ] **OBS-03**: Grafana dashboards for real-time API health, billing pipeline status, and algorithm performance
+- [ ] **OBS-04**: Alerting for error rate spikes (>5% 5xx), latency degradation (p99 >500ms), and billing pipeline failures
 
-| Feature | Reason |
-|---------|--------|
-| Admin dashboard / UI | API-first, no frontend for this milestone |
-| Custom model training | Ship existing 19 algorithms, no new development |
-| GraphQL API | REST is standard for algorithm APIs, GraphQL adds complexity |
-| OAuth2 provider | API keys are simpler, Unkey handles the complexity |
-| Credit/token system | Per-call metering is simpler and proven |
-| Third-party algorithm marketplace | Focus on own algorithms, don't build a platform |
-| Outreach and marketing | Separate milestone per user decision |
-| Mobile app | API-only for this milestone |
+### Performance
+
+- [ ] **PERF-01**: Response caching with ETag/conditional GET for repeated algorithm calls with identical inputs
+- [ ] **PERF-02**: Request payload validation rejects malformed inputs before reaching algorithm layer
+- [ ] **PERF-03**: Circuit breaker pattern for downstream services (Stripe, Unkey) with graceful degradation
+- [ ] **PERF-04**: Load test baseline showing <100ms p99 latency at 100 concurrent requests
+
+### Algorithms
+
+- [ ] **ALG-01**: 3-5 new SOTA algorithms (MCTS, PSO, Neural Architecture Search, Causal Inference, Conformal Prediction)
+- [ ] **ALG-02**: Algorithm versioning system (v1, v2, latest) with backward compatibility
+- [ ] **ALG-03**: Algorithm registry endpoint returning metadata (input schema, output schema, complexity, pricing)
+
+### Growth (carried from v21.0 v2 requirements)
+
+- [ ] **GROW-01**: Usage analytics endpoint with per-algorithm call counts, latency percentiles, and cost
+- [ ] **GROW-02**: Webhook notifications for quota alerts (80%, 100%) and billing events
+- [ ] **GROW-03**: Self-service API key management portal (embedded in web dashboard)
+- [ ] **GROW-04**: SDK code examples in Python, JavaScript, Go, Rust, and curl
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Complete |
-| AUTH-02 | Phase 1 | Complete |
-| AUTH-03 | Phase 1 | Complete |
-| AUTH-04 | Phase 1 | Complete |
-| INFRA-01 | Phase 2 | Complete |
-| BILL-01 | Phase 2 | Complete |
-| BILL-02 | Phase 3 | Complete |
-| BILL-03 | Phase 3 | Complete |
-| BILL-05 | Phase 3 | Complete |
-| DX-01 | Phase 4 | Pending |
-| DX-02 | Phase 4 | Complete |
-| DX-03 | Phase 4 | Complete |
-| BILL-04 | Phase 5 | Complete |
-| INFRA-02 | Phase 5 | Complete |
-| DX-04 | Phase 6 | Complete |
-| DIST-01 | Phase 7 | Complete |
-| DIST-02 | Phase 7 | Complete |
-| DIST-04 | Phase 7 | Pending |
-| DIST-03 | Phase 8 | Complete |
-| INFRA-03 | Phase 8 | Complete |
+| DX-01 | v22.0 Phase 1 | Carried |
+| DIST-04 | v22.0 Phase 1 | Carried |
+| WEB-01 | v22.0 Phase 1 | Pending |
+| WEB-02 | v22.0 Phase 1 | Pending |
+| WEB-03 | v22.0 Phase 1 | Pending |
+| OBS-01 | v22.0 Phase 2 | Pending |
+| OBS-02 | v22.0 Phase 2 | Pending |
+| OBS-03 | v22.0 Phase 2 | Pending |
+| OBS-04 | v22.0 Phase 2 | Pending |
+| PERF-01 | v22.0 Phase 3 | Pending |
+| PERF-02 | v22.0 Phase 3 | Pending |
+| PERF-03 | v22.0 Phase 3 | Pending |
+| PERF-04 | v22.0 Phase 3 | Pending |
+| ALG-01 | v22.0 Phase 4 | Pending |
+| ALG-02 | v22.0 Phase 4 | Pending |
+| ALG-03 | v22.0 Phase 4 | Pending |
+| GROW-01 | v22.0 Phase 5 | Pending |
+| GROW-02 | v22.0 Phase 5 | Pending |
+| GROW-03 | v22.0 Phase 5 | Pending |
+| GROW-04 | v22.0 Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 19 total
-- Mapped to phases: 19
+- v21.0 requirements: 19 total (17 complete, 2 carried)
+- v22.0 requirements: 18 total
+- Mapped to phases: 18
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-29*
-*Last updated: 2026-03-28 after roadmap creation (8-phase structure)*
+*v22.0 requirements added: 2026-03-30*

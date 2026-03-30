@@ -1,17 +1,23 @@
 ---
 gsd_state_version: 1.0
-milestone: v21.0
-milestone_name: milestone
-status: complete
-stopped_at: Completed 08-03-PLAN.md
-last_updated: "2026-03-30T18:00:00Z"
-last_activity: 2026-03-30 -- Completed 08-03-PLAN.md (Demo Script + .env.example)
+milestone: v22.0
+milestone_name: Platform Maturity
+status: active
+stopped_at: Phase 1 execution complete (Plan 01-01 + 01-02)
+last_updated: "2026-03-30T19:30:00Z"
+last_activity: 2026-03-30 -- Phase 1 complete (web dashboard scaffold, algorithm catalog, try-it forms, getting-started guide)
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 17
-  completed_plans: 17
-  percent: 100
+  total_phases: 5
+  completed_phases: 1
+  total_plans: 2
+  completed_plans: 2
+  percent: 20
+previous_milestone:
+  version: v21.0
+  name: Revenue-Ready Launch
+  status: COMPLETED
+  completed: 2026-03-30
+  summary: 8 phases, 17 plans, 1072 tests, ~1.1 hours
 ---
 
 # Project State
@@ -19,120 +25,65 @@ progress:
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-03-29)
+See: .planning/milestones/v21.0-COMPLETED.md (archived milestone)
 
 **Core value:** Developers and AI agents can call production-grade decision algorithms via API and pay per use
-**Current focus:** v21.0 milestone COMPLETE (8/8 phases, 17/17 plans)
+**Current focus:** v22.0 Platform Maturity — Phase 1 (Web Dashboard & Documentation Site)
 
 ## Current Position
 
-Phase: 8 of 8 (ClawHub Distribution + E2E Verification)
-Plan: 3 of 3 in current phase (COMPLETE)
-Status: All 17 plans complete across 8 phases
-Last activity: 2026-03-30 -- Completed 08-03-PLAN.md (Demo Script + .env.example)
+Phase: 1 of 5 (Web Dashboard & Documentation Site) -- COMPLETE
+Plan: 2 of 2 in current phase (COMPLETE)
+Status: Phase 1 delivered; Next: Phase 2 (Observability & Monitoring)
+Last activity: 2026-03-30 -- Phase 1 complete (Next.js dashboard, 17 algorithm try-it pages, Scalar docs, getting-started guide)
 
-Progress: [██████████] 100%
+Progress: [██░░░░░░░░] 20%
 
-## Performance Metrics
+## v21.0 Completion Summary
 
-**Velocity:**
-- Total plans completed: 17
-- Average duration: 3.8 min
-- Total execution time: ~1.1 hours
+- **Completed:** 2026-03-30 (8/8 phases, 17/17 plans)
+- **Tests:** 1,072 passing (37 files)
+- **Velocity:** 3.8 min/plan average, ~1.1 hours total
+- **Key deliverables:** Unkey auth, Stripe billing, x402 USDC, batch endpoint, 14 SDKs, 14 ClawHub skills
 
-**By Phase:**
+## v22.0 Milestone Overview
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 01-auth | 2 | 15 min | 7.5 min |
-| 02-stripe | 2 | 12 min | 6 min |
-| 03-billing | 2 | 9 min | 4.5 min |
-| 04-dx | 1 | 4 min | 4 min |
-| 05-x402 | 2 | 8 min | 4 min |
-| 06-batch | 2 | 7 min | 3.5 min |
-| 07-npm-dist | 2 | 7 min | 3.5 min |
-| 08-clawhub-e2e | 3 | 9 min | 3 min |
-
-**Recent Trend:**
-- Last 5 plans: 07-01 (4 min), 07-02 (3 min), 08-01 (4 min), 08-02 (3 min), 08-03 (2 min)
-- Trend: Stable / improving
-
-*Updated after each plan completion*
-| Phase 05-x402 P01 | 4min | 2 tasks | 7 files |
-| Phase 05-x402 P02 | 4min | 2 tasks | 2 files |
-| Phase 06-batch P01 | 5min | 2 tasks | 3 files |
-| Phase 06-batch P02 | 2min | 1 tasks | 2 files |
-| Phase 07-npm-dist P01 | 4min | 2 tasks | 31 files |
-| Phase 07-npm-dist P02 | 3min | 1 tasks | 3 files |
-| Phase 08-clawhub-e2e P01 | 4min | 1 tasks | 17 files |
-| Phase 08-clawhub-e2e P02 | 3min | 1 tasks | 1 files |
-| Phase 08-clawhub-e2e P03 | 2min | 1 tasks | 2 files |
+| Phase | Goal | Dependencies |
+|-------|------|-------------|
+| 1. Web Dashboard & Docs | Landing page, Scalar playground, algorithm catalog | None |
+| 2. Observability | Structured logging, Prometheus, Grafana, alerting | None (parallel with 1) |
+| 3. API Hardening | Caching, validation, circuit breakers, load testing | Phase 2 |
+| 4. Advanced Algorithms | 3-5 new SOTA, versioning, algorithm registry | Phase 3 |
+| 5. Developer Growth | Usage analytics, webhooks, SDK examples, changelog | Phase 2 |
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- Auth must come first because billing, rate limiting, and usage tracking all depend on customer identity
-- Stripe metered billing split from tier enforcement (Phases 2 and 3) because SDK upgrade + metering is distinct from business logic
-- x402 is independent payment path (Phase 5), not gated behind Stripe completion
-- Batch endpoint (Phase 6) is its own phase due to discount metering complexity
-- Unkey SDK v2.3.2 throws on errors (try/catch), not { data, error } pattern
-- Rate limit headers set in both preHandler and onSend to cover all response paths
-- Free tier (no auth header) skips Unkey entirely to preserve quota
-- vi.hoisted() required for module-level mock declarations used by hoisted vi.mock()
-- Class-based mock constructor for Unkey SDK in vitest (vi.fn().mockImplementation not constructable in v4)
-- Stripe SDK v21 dahlia has 6 breaking type changes from v15 (2023-10-16): coupon->discounts, retrieveUpcoming->createPreview, current_period_start/end removed, invoice.subscription->parent.subscription_details
-- Pinned stripe@21.0.1 exact (no caret) for reproducible builds
-- mock-stripe.ts follows mock-unkey.ts factory pattern: returns { client, meterEventsCreate }
-- Fire-and-forget meter events: .catch() logs errors but never blocks API response
-- Hook factory pattern (createXHook) for testability with injected Stripe client
-- Meter event identifier: request.id + Date.now() for idempotency
-- @fastify/rate-limit v10 uses allowList (not skip) to bypass rate limiting for authenticated requests
-- Tier config (TIER_CONFIG) reads Stripe price IDs from env vars for test/staging/prod portability
-- Free-tier rate limiter registered after swagger but before Unkey preHandler hook for correct ordering
-- Raw stripe client for billingPortal.sessions.create (StripeService does not expose portal methods)
-- Enterprise tier rejected at subscribe endpoint with 400 (contact sales, not self-service Checkout)
-- NON_SUBSCRIBABLE_TIERS Set for O(1) exclusion of free and enterprise from subscription flow
-- sendProblem helper returns FastifyReply for chaining; sets application/problem+json content-type
-- ProblemTypes registry has 12 error URIs under https://oraclaw.dev/errors/ namespace
-- 500 errors hide internal details with generic message for security
-- llms.txt content is a const string literal (no dynamic generation needed)
-- [Phase 05-x402]: Loose X402Server interface instead of importing @x402/core types for hook decoupling
-- [Phase 05-x402]: Manual base64 JSON decode for payment headers instead of @x402/core utility (import path uncertainty)
-- [Phase 05-x402]: Check both payment-signature and x-payment headers for v1/v2 x402 protocol compatibility
-- [Phase 05-x402]: x402 preHandler registered BEFORE Unkey auth; Unkey guarded by !request.billingPath
-- [Phase 05-x402]: Lazy x402ResourceServer init via dynamic import with graceful fallback if packages unavailable
-- [Phase 05-x402]: Integration tests mock at service boundary but use real Fastify hook registration for ordering verification
-
-- [Phase 06-batch]: Direct function dispatch via ALGORITHM_DISPATCH lookup table (not app.inject) avoids hook re-execution per batch call
-- [Phase 06-batch]: Promise.allSettled for parallel execution; HTTP 200 always returned with per-call inline RFC 9457 errors
-- [Phase 06-batch]: isBatchRequest/batchSize on FastifyRequest for downstream metering hooks (Plan 02)
-- [Phase 06-batch]: Batch meter hook inline in index.ts; whole-number batchSize value with separate meter event name (api_calls_batch)
-
-- [Phase 07-npm-dist]: tsconfig include/exclude must be overridden locally in per-package tsconfig.json (extended paths resolve relative to parent)
-- [Phase 07-npm-dist]: MCP server build: tsc + conditional shebang injection; tsx peerDependency removed after JS compilation
-- [Phase 07-npm-dist]: 5 published SDKs bumped to 1.1.0 (format changed from raw TS to compiled JS); 9 unpublished + MCP at 1.0.0
-
-- [Phase 08-clawhub-e2e]: ClawHub skill package.json includes clawhub field with price, currency, endpoint, method
-- [Phase 08-clawhub-e2e]: Publish script uses clawhub info for skip detection, 3 retries per skill
-- [Phase 08-clawhub-e2e]: E2E tests cover all 3 billing paths (free, stripe, x402) + batch with mock injection
-- [Phase 08-clawhub-e2e]: Forecast endpoint needs 12+ data points with holt-winters method for reliable results
+- v22.0 focuses on platform maturity: web presence, observability, hardening, algorithms, growth
+- Web dashboard lives at `web/` (standalone, not inside monorepo) to avoid React 18/19 conflict with mobile app
+- Web app uses Next.js 15.3.2 + React 19.1.0 + Tailwind CSS 3.4 with App Router
+- Observability builds on existing Docker Prometheus + Grafana infrastructure
+- Algorithm versioning before adding new algorithms (stability first)
+- DX-01 (Scalar playground) carried from v21.0 into Phase 1 -- DELIVERED via Scalar CDN embed
+- Algorithm catalog covers 17 algorithms with pre-filled try-it examples for all of them
+- 24 static pages generated at build time (SSG) for fast first load
 
 ### Pending Todos
 
-None.
+- DX-01: OpenAPI 3.1 spec with Scalar interactive playground (carried from v21.0)
+- DIST-04: npm Trusted Publishing verification (carried from v21.0)
+- npm token expired (E401) -- browser login still required
+- ClawHub CLI not authenticated -- browser login still required
 
 ### Blockers/Concerns
 
 - npm token expired (E401) -- browser login required for npm publish
 - ClawHub CLI not authenticated -- browser login required for clawhub publish
-- x402 V2 is new -- monitor @x402/core for breaking changes
-- Stripe machine payments preview access may need Dashboard verification
+- Render free tier limits (512MB, spin-down) may need upgrade under real traffic
 
 ## Session Continuity
 
-Last session: 2026-03-30T18:00:00Z
-Stopped at: v21.0 milestone COMPLETE (17/17 plans, 8/8 phases)
-Resume file: Run /gsd:complete-milestone to archive, or /gsd:new-milestone for v22.0
+Last session: 2026-03-30T19:00:00Z
+Stopped at: v22.0 Phase 1 planning
+Resume file: Start with /gsd:plan-phase 1 or execute 01-01-PLAN.md

@@ -28,6 +28,10 @@ Handler/
 │   │   ├── client-sdk/    # SDK for mobile/web
 │   │   └── schemas/       # Zod validation
 │   └── docker/            # Prometheus + Grafana
+├── web/                   # Next.js 15 dashboard (standalone, React 19)
+│   ├── app/              # App Router pages (algorithms, docs, try-it, getting-started)
+│   ├── components/       # TryItForm, etc.
+│   └── lib/              # Algorithm metadata, examples
 └── ralph/                 # Ralph autonomous agent
 ```
 
