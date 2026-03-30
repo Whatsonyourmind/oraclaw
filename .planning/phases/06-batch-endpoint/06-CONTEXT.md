@@ -88,6 +88,8 @@ A single POST endpoint that accepts multiple algorithm calls in one request and 
 - Batch-specific analytics (most common algorithm combinations) — future enhancement
 - Async batch processing with webhook callback — v2 consideration
 - Batch result caching — future optimization
+- x402 batch pricing at 50% of per-call USDC price — requires x402-payment.ts modification for batch-aware pricing; deferred to gap closure or Phase 8 E2E verification
+- Free-tier per-call batch quota enforcement (each call in batch counts as 1 against daily limit) — requires @fastify/rate-limit bypass with manual quota checking; deferred to gap closure
 
 </deferred>
 
