@@ -19,3 +19,4 @@ coverage/
 mission-control/apps/api/src/services/oracle/algorithms/*.ts
 mission-control/apps/api/src/routes/oracle/api-public.ts
 mission-control/packages/mcp-server/src/index.ts
+.env.npm-recovery
