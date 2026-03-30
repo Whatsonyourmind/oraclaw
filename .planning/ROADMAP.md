@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Stripe Billing Setup** - Upgrade Stripe SDK to v21.0.1, wire Billing Meters API for per-call metering
 - [ ] **Phase 3: Billing Tiers and Portal** - Implement free/paid tier enforcement and Stripe customer portal access
 - [ ] **Phase 4: Developer Experience** - OpenAPI 3.1 spec with Scalar playground, RFC 9457 errors, and llms.txt for AI discovery
-- [ ] **Phase 5: x402 Machine Payments** - Native Fastify preHandler for USDC machine payments via @x402/core
+- [x] **Phase 5: x402 Machine Payments** - Native Fastify preHandler for USDC machine payments via @x402/core (completed 2026-03-30)
 - [ ] **Phase 6: Batch Endpoint** - Multi-algorithm batch calls in one request with 50% metered discount
 - [ ] **Phase 7: npm and MCP Distribution** - Publish remaining 10 SDK packages and MCP server with Trusted Publishing
 - [ ] **Phase 8: ClawHub Distribution and E2E Verification** - Publish 14 ClawHub skills and verify full billing flow end-to-end
@@ -88,7 +88,7 @@ Plans:
   1. @x402/core and @x402/evm packages are installed and a native Fastify preHandler hook validates x402 payment headers
   2. An AI agent can call any gated endpoint by including x402 USDC payment in the request, receiving the algorithm result after settlement
   3. The x402 payment flow works independently of Stripe -- an agent with a funded wallet needs no API key or Stripe subscription
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 05-01-PLAN.md — Install x402 packages, payment/settlement hooks, mock factory, unit tests
@@ -148,7 +148,7 @@ Note: Phases 4, 5, and 7 depend only on Phase 1 and can execute in parallel afte
 | 2. Stripe Billing Setup | 2/2 | Complete | 2026-03-29 |
 | 3. Billing Tiers and Portal | 2/2 | Complete | 2026-03-29 |
 | 4. Developer Experience | 0/2 | Not started | - |
-| 5. x402 Machine Payments | 1/2 | In Progress|  |
+| 5. x402 Machine Payments | 2/2 | Complete   | 2026-03-30 |
 | 6. Batch Endpoint | 0/1 | Not started | - |
 | 7. npm and MCP Distribution | 0/2 | Not started | - |
 | 8. ClawHub Distribution and E2E Verification | 0/2 | Not started | - |
