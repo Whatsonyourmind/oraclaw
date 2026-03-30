@@ -30,6 +30,9 @@ import { createX402SettleHook } from './hooks/x402-settle';
 import { subscribeRoutes } from './routes/billing/subscribe';
 import { portalRoutes } from './routes/billing/portal';
 
+// Batch endpoint (DX-04)
+import batchRoute from './routes/oracle/api-batch';
+
 // AI discovery route
 import { llmsTxtRoute } from './routes/llms-txt';
 
@@ -144,6 +147,32 @@ const meterUsage = createMeterUsageHook(stripe, process.env.STRIPE_METER_EVENT_N
 server.addHook('onResponse', async (request, reply) => {
   if (request.url.startsWith('/api/v1/')) {
     await meterUsage(request, reply);
+  }
+});
+
+// Batch metering: emit usage at 50% rate for batch requests
+// Separate meter event name configured in Stripe with 50% unit pricing
+server.addHook('onResponse', async (request, reply) => {
+  if (
+    request.url.startsWith('/api/v1/') &&
+    request.isBatchRequest &&
+    request.billingPath === 'stripe' &&
+    request.stripeCustomerId &&
+    reply.statusCode < 400
+  ) {
+    const batchEventName = process.env.STRIPE_BATCH_METER_EVENT_NAME || 'api_calls_batch';
+    stripe.billing.meterEvents
+      .create({
+        event_name: batchEventName,
+        payload: {
+          stripe_customer_id: request.stripeCustomerId,
+          value: String(request.batchSize || 0),
+        },
+        identifier: `${request.id}-batch-${Date.now()}`,
+      })
+      .catch((err) => {
+        request.log.error({ err }, 'Stripe batch meter event failed');
+      });
   }
 });
 
@@ -465,6 +494,9 @@ server.register(wsRoutes);
 // Billing routes (subscribe + portal)
 server.register(subscribeRoutes, { prefix: '/api/v1/billing' });
 server.register(portalRoutes, { prefix: '/api/v1/billing' });
+
+// Batch endpoint (DX-04)
+server.register(batchRoute);
 
 // RFC 9457 GLOBAL ERROR HANDLER
 server.setErrorHandler((error: Error & { statusCode?: number; validation?: unknown }, request, reply) => {
