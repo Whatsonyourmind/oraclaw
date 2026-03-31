@@ -2,8 +2,10 @@ name: Daily Product Report
 
 on:
   schedule:
-    # 7:00 UTC = 8:00 CET (9:00 CEST in summer)
+    # Primary: 7:00 UTC = 8:00 CET (9:00 CEST in summer)
     - cron: '0 7 * * *'
+    # Fallback: 7:30 UTC in case GitHub skips the first window
+    - cron: '30 7 * * *'
   workflow_dispatch: # Allow manual trigger
 
 permissions:
@@ -17,14 +19,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check for duplicate report
+        id: dedup
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DATE=$(date -u +"%Y-%m-%d")
+          EXISTING=$(gh issue list --repo Whatsonyourmind/oraclaw --label "daily-report" --search "Daily Report -- ${DATE}" --state all --json title --jq '.[].title' 2>/dev/null || echo "")
+          if echo "$EXISTING" | grep -q "Daily Report -- ${DATE}"; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Report for ${DATE} already exists, skipping."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Generate Daily Report
+        if: steps.dedup.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set +e  # Don't exit on individual failures
 
           DATE=$(date -u +"%Y-%m-%d")
-          REPORT=""
+          REPORT="/tmp/report-body.md"
 
           # ── OraClaw API Health ──
           ORACLAW_HEALTH=$(curl -s --max-time 15 "https://oraclaw-api.onrender.com/health" 2>/dev/null || echo "UNREACHABLE")
@@ -91,55 +108,54 @@ jobs:
           OSMS_VIEWS=$(gh api repos/Whatsonyourmind/OS-Multi-Science/traffic/views --jq '.uniques' 2>/dev/null || echo "?")
 
           # ── Build Issue Body ──
-          BODY=$(cat <<HEREDOC
-          ## Daily Product Report -- ${DATE}
-
-          ### OraClaw
-
-          | Metric | Value |
-          |--------|-------|
-          | API Health | ${API_STATUS} |
-          | npm Downloads (week) | ${TOTAL_DL} |
-          | GitHub Stars | ${OC_STARS} |
-          | GitHub Forks | ${OC_FORKS} |
-          | Open Issues | ${OC_ISSUES} |
-          | Watchers | ${OC_WATCHERS} |
-          | Unique Viewers (14d) | ${OC_VIEWS} |
-          | Unique Cloners (14d) | ${OC_CLONES} |
-
-          <details>
-          <summary>npm Package Breakdown</summary>
-
-          | Package | Downloads/week |
-          |---------|---------------|
-          $(echo -e "${NPM_DETAILS}")
-
-          </details>
-
-          ### DeckForge
-
-          | Metric | Value |
-          |--------|-------|
-          | API Health | ${DF_API} |
-          | npm Downloads (week) | ${DF_DL} |
-          | GitHub Stars | ${DF_STARS} |
-          | GitHub Forks | ${DF_FORKS} |
-          | Unique Viewers (14d) | ${DF_VIEWS} |
-          | Unique Cloners (14d) | ${DF_CLONES} |
-          | Landing Page (deckforge.dev) | HTTP ${DF_LANDING} |
-
-          ### OS Multi Science
-
-          | Metric | Value |
-          |--------|-------|
-          | GitHub Stars | ${OSMS_STARS} |
-          | GitHub Forks | ${OSMS_FORKS} |
-          | Unique Viewers (14d) | ${OSMS_VIEWS} |
-
-          ---
-          *Generated automatically at $(date -u +"%H:%M UTC")*
-          HEREDOC
-          )
+          {
+            echo "## Daily Product Report -- ${DATE}"
+            echo ""
+            echo "### OraClaw"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|--------|-------|"
+            echo "| API Health | ${API_STATUS} |"
+            echo "| npm Downloads (week) | ${TOTAL_DL} |"
+            echo "| GitHub Stars | ${OC_STARS} |"
+            echo "| GitHub Forks | ${OC_FORKS} |"
+            echo "| Open Issues | ${OC_ISSUES} |"
+            echo "| Watchers | ${OC_WATCHERS} |"
+            echo "| Unique Viewers (14d) | ${OC_VIEWS} |"
+            echo "| Unique Cloners (14d) | ${OC_CLONES} |"
+            echo ""
+            echo "<details>"
+            echo "<summary>npm Package Breakdown</summary>"
+            echo ""
+            echo "| Package | Downloads/week |"
+            echo "|---------|---------------|"
+            echo -e "${NPM_DETAILS}"
+            echo ""
+            echo "</details>"
+            echo ""
+            echo "### DeckForge"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|--------|-------|"
+            echo "| API Health | ${DF_API} |"
+            echo "| npm Downloads (week) | ${DF_DL} |"
+            echo "| GitHub Stars | ${DF_STARS} |"
+            echo "| GitHub Forks | ${DF_FORKS} |"
+            echo "| Unique Viewers (14d) | ${DF_VIEWS} |"
+            echo "| Unique Cloners (14d) | ${DF_CLONES} |"
+            echo "| Landing Page (deckforge.dev) | HTTP ${DF_LANDING} |"
+            echo ""
+            echo "### OS Multi Science"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|--------|-------|"
+            echo "| GitHub Stars | ${OSMS_STARS} |"
+            echo "| GitHub Forks | ${OSMS_FORKS} |"
+            echo "| Unique Viewers (14d) | ${OSMS_VIEWS} |"
+            echo ""
+            echo "---"
+            echo "*Generated automatically at $(date -u +"%H:%M UTC")*"
+          } > "$REPORT"
 
           # ── Create Issue ──
           gh api repos/Whatsonyourmind/oraclaw/labels -f name="daily-report" -f color="0e8a16" -f description="Automated daily product report" 2>/dev/null || true
@@ -147,7 +163,7 @@ jobs:
           gh issue create \
             --repo Whatsonyourmind/oraclaw \
             --title "Daily Report -- ${DATE}" \
-            --body "${BODY}" \
+            --body-file "$REPORT" \
             --label "daily-report"
 
           echo "Daily report issue created successfully"
