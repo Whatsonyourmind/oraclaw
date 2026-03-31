@@ -79,14 +79,14 @@ describe('GET /llms.txt', () => {
     expect(response.body).toContain('## Authentication');
   });
 
-  // Test 6: Mentions free tier "100 calls/day"
-  it('mentions "100 calls/day" free tier info', async () => {
+  // Test 6: Mentions free tier "25 calls/day"
+  it('mentions "25 calls/day" free tier info', async () => {
     const response = await app.inject({
       method: 'GET',
       url: '/llms.txt',
     });
 
-    expect(response.body).toContain('100 calls/day');
+    expect(response.body).toContain('25 calls/day');
   });
 
   // Test 7: Contains "/docs" reference

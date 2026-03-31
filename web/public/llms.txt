@@ -4,7 +4,7 @@
 
 OraClaw provides production-grade ML algorithms as a REST API and MCP server.
 Each endpoint runs a deterministic algorithm and returns structured JSON.
-Free tier: 100 calls/day, no API key needed.
+Free tier: 25 calls/day, no API key needed.
 
 ## Docs
 
@@ -64,7 +64,7 @@ Base URL: `https://oraclaw-api.onrender.com`
 
 | Tier | Calls | Price | Auth |
 |------|-------|-------|------|
-| Free | 100/day | $0 | None (IP-based) |
+| Free | 25/day | $0 | None (IP-based) |
 | Starter | 10K/mo | $9/mo | API key |
 | Growth | 100K/mo | $49/mo | API key |
 | Scale | 1M/mo | $199/mo | API key |
@@ -73,7 +73,7 @@ Base URL: `https://oraclaw-api.onrender.com`
 
 ## Authentication
 
-- **Free**: No key needed. 100 calls/day per IP.
+- **Free**: No key needed. 25 calls/day per IP.
 - **API Key**: `Authorization: Bearer <key>` header.
 - **x402 USDC**: Machine-to-machine payments on Base L2.
 

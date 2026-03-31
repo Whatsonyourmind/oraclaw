@@ -137,7 +137,7 @@ Thompson Sampling often outperforms UCB1 in practice, especially with non-statio
 
 **Hosted alternative (zero dependencies)**
 
-If you don't want to maintain the statistics code, OraClaw exposes a bandit API that runs all three algorithms with sub-millisecond latency. No signup or API key needed for 100 calls/day:
+If you don't want to maintain the statistics code, OraClaw exposes a bandit API that runs all three algorithms with sub-millisecond latency. No signup or API key needed for 25 calls/day:
 
 ```bash
 curl -X POST https://oraclaw-api.onrender.com/api/v1/optimize/bandit \
@@ -352,7 +352,7 @@ const res = await fetch('https://oraclaw-api.onrender.com/api/v1/solve/constrain
 const { status, objectiveValue, variables, dualValues } = await res.json();
 ```
 
-Free for 100 calls/day, no API key needed.
+Free for 25 calls/day, no API key needed.
 
 **Which should you choose?**
 
@@ -536,7 +536,7 @@ const { mean, stdDev, percentiles } = await res.json();
 console.log(`Mean: ${mean}, 95th percentile: ${percentiles.p95}`);
 ```
 
-Free for 100 calls/day, no API key.
+Free for 25 calls/day, no API key.
 
 *Disclosure: I'm the creator of OraClaw. The native implementations above give you full control and are recommended for production. The API is useful for prototyping when you don't want to implement all 6 distribution samplers yourself.*
 
@@ -671,7 +671,7 @@ const { anomalies, anomalyCount, stats } = await res.json();
 console.log(`Found ${anomalyCount} anomalies`);
 ```
 
-Sub-millisecond latency, free for 100 calls/day.
+Sub-millisecond latency, free for 25 calls/day.
 
 **Summary of options:**
 
@@ -1263,7 +1263,7 @@ console.log(`10-day 95% VaR: $${valueAtRisk.toFixed(2)}`);
 console.log(`10-day 95% CVaR: $${cvar.toFixed(2)}`);
 ```
 
-Free for 100 calls/day.
+Free for 25 calls/day.
 
 **Which method to choose:**
 

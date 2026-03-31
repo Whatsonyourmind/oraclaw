@@ -114,7 +114,7 @@ async function initX402() {
 // 5. Stripe meter (onResponse) -- only fires when billingPath='stripe'
 // 6. x402 settlement (onResponse) -- only fires when billingPath='x402' and 2xx
 
-// Free-tier rate limiting (100 calls/day by IP, skips authenticated requests)
+// Free-tier rate limiting (25 calls/day by IP, skips authenticated requests)
 registerFreeTierRateLimit(server);
 
 // x402 machine payment verification (preHandler, BEFORE Unkey auth)

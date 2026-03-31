@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OraClaw Decision Intelligence API",
-    "description": "19 production-grade ML algorithms for optimization, simulation, prediction, and planning. Sub-25ms response times. Free tier: 100 calls/day.",
+    "description": "19 production-grade ML algorithms for optimization, simulation, prediction, and planning. Sub-25ms response times. Free tier: 25 calls/day.",
     "version": "2.3.0",
     "contact": {
       "name": "OraClaw",
@@ -572,7 +572,7 @@
         "type": "apiKey",
         "name": "Authorization",
         "in": "header",
-        "description": "Bearer <your-api-key> from Unkey. Not required for free tier (100 calls/day)."
+        "description": "Bearer <your-api-key> from Unkey. Not required for free tier (25 calls/day)."
       }
     }
   }

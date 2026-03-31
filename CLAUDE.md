@@ -142,6 +142,6 @@ POST /api/oracle/scenarios/create
 
 - OODA loop is the core mental model — every feature maps to a phase
 - All algorithms are zero-dependency pure TypeScript (except new SOTA additions)
-- Free tier optimized: Gemini 15 req/min, 100 API req/min rate limit
+- Free tier optimized: Gemini 15 req/min, 25 API calls/day rate limit
 - Offline-first mobile: queue actions, fallback UI
 - Spy-themed aesthetic: matrix green, monospace, scan effects

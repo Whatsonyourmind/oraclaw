@@ -126,7 +126,7 @@ This is exactly how OraClaw works. It provides 19 deterministic algorithms acros
 - **Score** -- Convergence Scoring, Calibration Scoring
 - **Plan** -- A* Pathfinding (K-shortest paths)
 
-You can integrate via REST API (100 free calls/day, no signup), as an MCP server for Claude/ChatGPT, or through 14 npm SDK packages.
+You can integrate via REST API (25 free calls/day, no signup), as an MCP server for Claude/ChatGPT, or through 14 npm SDK packages.
 
 **[Try the interactive demo](https://web-olive-one-89.vercel.app/demo)** -- run any algorithm in your browser with zero setup.
 

@@ -243,7 +243,7 @@ const schedule = await solver.constraints({
 
 ## Try It Now -- No Signup Required
 
-The free tier gives you 100 calls/day with no API key and no signup. Every curl example in this post hits the live API. Copy one, run it, and look at the response.
+The free tier gives you 25 calls/day with no API key and no signup. Every curl example in this post hits the live API. Copy one, run it, and look at the response.
 
 - **Live API:** [oraclaw-api.onrender.com](https://oraclaw-api.onrender.com)
 - **GitHub:** [github.com/Whatsonyourmind/oracle](https://github.com/Whatsonyourmind/oracle)

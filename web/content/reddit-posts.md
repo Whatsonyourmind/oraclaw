@@ -61,7 +61,7 @@ This isn't an argument against LLMs. It's an argument against asking LLMs to do 
 
 The right architecture: let the LLM decide *what* to optimize, then call a deterministic algorithm to *do* the optimization.
 
-API is live with a free tier (100 calls/day, no signup): https://oraclaw-api.onrender.com
+API is live with a free tier (25 calls/day, no signup): https://oraclaw-api.onrender.com
 
 GitHub (MIT): https://github.com/Whatsonyourmind/oracle
 
@@ -97,7 +97,7 @@ curl -X POST https://oraclaw-api.onrender.com/api/v1/optimize/bandit \
   -d '{"arms": [{"id": "A", "pulls": 500, "totalReward": 175}, {"id": "B", "pulls": 12, "totalReward": 8}], "algorithm": "ucb1"}'
 ```
 
-No signup, no API key, 100 free calls/day.
+No signup, no API key, 25 free calls/day.
 
 Also ships as an MCP server (12 tools for AI agents) and 14 npm packages (`@oraclaw/bandit`, `@oraclaw/solver`, etc.).
 
@@ -123,7 +123,7 @@ Also ships as an MCP server (12 tools for AI agents) and 14 npm packages (`@orac
 - Added MCP server support so AI agents (Claude, ChatGPT) can call the algorithms natively
 - Built 14 npm SDK packages for direct integration
 
-**Revenue model:** Free tier (100/day), then $9/mo to $199/mo. Also supports autonomous machine-to-machine payments via USDC on Base (x402 protocol) -- AI agents can pay per call without a human.
+**Revenue model:** Free tier (25/day), then $9/mo to $199/mo. Also supports autonomous machine-to-machine payments via USDC on Base (x402 protocol) -- AI agents can pay per call without a human.
 
 **Stack:** Fastify 5, TypeScript (strict), Expo 55 + React Native (mobile app), Next.js 15 (dashboard), PostgreSQL (Supabase), Turborepo monorepo.
 
@@ -168,7 +168,7 @@ curl -X POST https://oraclaw-api.onrender.com/api/v1/optimize/bandit \
   -d '{"arms": [{"id": "A", "pulls": 500, "totalReward": 175}, {"id": "B", "pulls": 12, "totalReward": 8}], "algorithm": "ucb1"}'
 ```
 
-Free tier, no signup, 100 calls/day. GitHub: https://github.com/Whatsonyourmind/oracle
+Free tier, no signup, 25 calls/day. GitHub: https://github.com/Whatsonyourmind/oracle
 
 ---
 

@@ -155,7 +155,7 @@ No payment needed for Unkey to start. Just create an account at unkey.dev, get a
 ### Rate Limiting Architecture
 
 Three layers:
-1. `@fastify/rate-limit` (onRequest) -- 100 calls/24h for unauthenticated (IP-based)
+1. `@fastify/rate-limit` (onRequest) -- 25 calls/24h for unauthenticated (IP-based)
 2. Unkey rate limits (preHandler) -- tier-based limits configured per-key at creation
 3. Stripe metering (onResponse) -- usage tracking for billing, not limiting
 

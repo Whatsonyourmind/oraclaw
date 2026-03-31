@@ -139,7 +139,7 @@ At 1,000 optimization calls per day, that is $40-100/day with an LLM versus $10/
 
 ## Integration Options
 
-**REST API** -- zero install, 100 free calls/day, no signup required. Every curl example in this article hits the live API.
+**REST API** -- zero install, 25 free calls/day, no signup required. Every curl example in this article hits the live API.
 
 **MCP Server** -- plug into Claude, ChatGPT, or any AI agent framework. The agent decides *when* to use math; OraClaw does the math correctly.
 
