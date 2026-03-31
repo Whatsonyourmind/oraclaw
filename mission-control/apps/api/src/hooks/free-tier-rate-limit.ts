@@ -3,7 +3,7 @@
  *
  * BILL-02: Free-tier IP-based rate limiting using @fastify/rate-limit.
  *
- * - Limits unauthenticated callers (no Authorization header) to 100 calls per 24 hours
+ * - Limits unauthenticated callers (no Authorization header) to 25 calls per 24 hours
  * - Authenticated callers bypass this limit entirely (Unkey handles their rate limits)
  * - Returns RFC 9457 problem detail on 429
  *
@@ -21,7 +21,7 @@ import rateLimit from '@fastify/rate-limit';
  */
 export async function registerFreeTierRateLimit(fastify: FastifyInstance): Promise<void> {
   await fastify.register(rateLimit, {
-    max: 100,
+    max: 25,
     timeWindow: 86_400_000, // 24 hours in milliseconds
 
     // Rate limit by IP address
@@ -37,7 +37,7 @@ export async function registerFreeTierRateLimit(fastify: FastifyInstance): Promi
       type: 'https://web-olive-one-89.vercel.app/errors/rate-limited',
       title: 'Free tier rate limit exceeded',
       status: 429,
-      detail: 'Free tier allows 100 API calls per day. Upgrade for higher limits.',
+      detail: 'Free tier allows 25 API calls per day. Upgrade for higher limits.',
       'retry-after': Math.ceil(context.ttl / 1000),
     }),
 

@@ -16,7 +16,7 @@ const LLMS_TXT_CONTENT = `# OraClaw
 
 OraClaw implements the OODA loop (Observe, Orient, Decide, Act) as a REST API.
 Each endpoint runs a production-grade algorithm and returns structured JSON.
-Free tier available -- no API key needed for up to 100 calls/day.
+Free tier available -- no API key needed for up to 25 calls/day.
 
 ## Endpoints
 
@@ -51,7 +51,7 @@ Free tier available -- no API key needed for up to 100 calls/day.
 
 ## Authentication
 
-- **Free tier**: No API key required. Rate limited to 100 calls/day per IP.
+- **Free tier**: No API key required. Rate limited to 25 calls/day per IP.
 - **Paid tiers**: Pass API key via \`Authorization: Bearer <key>\` header. Higher rate limits and priority processing.
 - **Machine payments**: x402 USDC micropayments for per-call billing without subscriptions.
 

@@ -242,7 +242,7 @@ const schedule = await solver.constraints({
 
 ## Try It Now -- No Signup Required
 
-The free tier gives you 100 calls/day with no API key and no signup. Every curl example in this post hits the live API. Copy one, run it, and look at the response.
+The free tier gives you 25 calls/day with no API key and no signup. Every curl example in this post hits the live API. Copy one, run it, and look at the response.
 
 **[Try the Interactive Demo](https://web-olive-one-89.vercel.app/demo)** -- run algorithms in your browser, no signup.
 

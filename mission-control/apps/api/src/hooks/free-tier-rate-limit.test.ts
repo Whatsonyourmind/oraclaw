@@ -2,8 +2,8 @@
  * free-tier-rate-limit.test.ts
  *
  * Tests for BILL-02a, BILL-02b, BILL-02c:
- *   a) Free-tier (no Authorization header) is subject to 100/day IP rate limit
- *   b) The 101st free-tier call returns 429 with RFC 9457 body
+ *   a) Free-tier (no Authorization header) is subject to 25/day IP rate limit
+ *   b) The 26th free-tier call returns 429 with RFC 9457 body
  *   c) Authenticated requests (Authorization header present) bypass rate limit entirely
  *
  * Uses Fastify inject pattern: creates a minimal Fastify app with the rate limit plugin.
@@ -47,16 +47,16 @@ describe('registerFreeTierRateLimit', () => {
     expect(response.headers['x-ratelimit-reset']).toBeDefined();
   });
 
-  // BILL-02b: 101st unauthenticated request returns 429 with RFC 9457 body
-  it('returns 429 with RFC 9457 body after 100 unauthenticated requests', async () => {
+  // BILL-02b: 26th unauthenticated request returns 429 with RFC 9457 body
+  it('returns 429 with RFC 9457 body after 25 unauthenticated requests', async () => {
     // Create a fresh app for this test to avoid cross-test contamination
     const freshApp = Fastify();
     await registerFreeTierRateLimit(freshApp);
     freshApp.get('/test', async () => ({ ok: true }));
     await freshApp.ready();
 
-    // Send 100 requests (should all succeed)
-    for (let i = 0; i < 100; i++) {
+    // Send 25 requests (should all succeed)
+    for (let i = 0; i < 25; i++) {
       const res = await freshApp.inject({
         method: 'GET',
         url: '/test',
@@ -65,7 +65,7 @@ describe('registerFreeTierRateLimit', () => {
       expect(res.statusCode).toBe(200);
     }
 
-    // 101st request should be rate limited
+    // 26th request should be rate limited
     const limitedResponse = await freshApp.inject({
       method: 'GET',
       url: '/test',
@@ -78,7 +78,7 @@ describe('registerFreeTierRateLimit', () => {
     expect(body.type).toBe('https://web-olive-one-89.vercel.app/errors/rate-limited');
     expect(body.title).toBe('Free tier rate limit exceeded');
     expect(body.status).toBe(429);
-    expect(body.detail).toContain('100 API calls per day');
+    expect(body.detail).toContain('25 API calls per day');
     expect(body['retry-after']).toBeTypeOf('number');
 
     await freshApp.close();

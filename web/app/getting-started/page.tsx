@@ -24,7 +24,7 @@ export default function GettingStartedPage() {
       <h1 className="text-3xl font-mono font-bold mb-4">Get Started</h1>
       <p className="text-gray-400 mb-12">
         From zero to first API call in under 2 minutes. The free tier gives you
-        100 calls per day with no API key required.
+        25 calls per day with no API key required.
       </p>
 
       {/* Step 1 */}
@@ -183,7 +183,7 @@ console.log(result.selected); // { id: "C", name: "Option C" }`}
           <h2 className="text-xl font-mono font-bold">Get an API Key (Optional)</h2>
         </div>
         <p className="text-sm text-gray-400 mb-4">
-          The free tier allows 100 calls per day without an API key. For higher
+          The free tier allows 25 calls per day without an API key. For higher
           limits, create an API key:
         </p>
         <div className="p-4 rounded-lg border border-gray-800 bg-gray-900/50">
@@ -222,7 +222,7 @@ console.log(result.selected); // { id: "C", name: "Option C" }`}
         <h2 className="text-xl font-mono font-bold mb-4">Pricing</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { tier: "Free", price: "$0", calls: "100/day", highlight: true },
+            { tier: "Free", price: "$0", calls: "25/day", highlight: true },
             { tier: "Starter", price: "$99/mo", calls: "50K/mo", highlight: false },
             { tier: "Growth", price: "$499/mo", calls: "500K/mo", highlight: false },
             { tier: "Scale", price: "$2,499/mo", calls: "5M/mo", highlight: false },

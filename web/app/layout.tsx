@@ -100,7 +100,7 @@ export default function RootLayout({
                   price: "0",
                   priceCurrency: "USD",
                   name: "Free",
-                  description: "100 API calls per day, all 19 algorithms",
+                  description: "25 API calls per day, all 19 algorithms",
                 },
                 {
                   "@type": "Offer",
