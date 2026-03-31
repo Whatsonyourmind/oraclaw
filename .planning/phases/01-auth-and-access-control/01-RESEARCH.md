@@ -105,7 +105,7 @@ if (!data.valid) {
   };
   const status = statusMap[data.code] ?? 401;
   return reply.code(status).send({
-    type: `https://oraclaw.dev/errors/${data.code.toLowerCase().replace('_', '-')}`,
+    type: `https://web-olive-one-89.vercel.app/errors/${data.code.toLowerCase().replace('_', '-')}`,
     title: data.code === 'RATE_LIMITED' ? 'Rate limit exceeded' : 'Unauthorized',
     status,
     detail: data.code,
@@ -287,7 +287,7 @@ export function createAuthMiddleware(unkey: Unkey) {
     if (error) {
       request.log.error({ error }, 'Unkey verification failed');
       return reply.code(503).send({
-        type: 'https://oraclaw.dev/errors/service-unavailable',
+        type: 'https://web-olive-one-89.vercel.app/errors/service-unavailable',
         title: 'Authentication service unavailable',
         status: 503,
         detail: 'Unable to verify API key. Please retry.',
@@ -318,7 +318,7 @@ export function createAuthMiddleware(unkey: Unkey) {
       };
       const status = statusMap[data.code] ?? 401;
       return reply.code(status).send({
-        type: `https://oraclaw.dev/errors/${data.code.toLowerCase().replaceAll('_', '-')}`,
+        type: `https://web-olive-one-89.vercel.app/errors/${data.code.toLowerCase().replaceAll('_', '-')}`,
         title: data.code === 'RATE_LIMITED' ? 'Rate limit exceeded' : 'Unauthorized',
         status,
         detail: `Key verification failed: ${data.code}`,

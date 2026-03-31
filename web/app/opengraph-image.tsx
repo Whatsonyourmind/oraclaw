@@ -87,7 +87,7 @@ export default async function OGImage() {
         </div>
 
         <div style={{ color: "#555", fontSize: "16px" }}>
-          oraclaw.dev
+          web-olive-one-89.vercel.app
         </div>
       </div>
     ),

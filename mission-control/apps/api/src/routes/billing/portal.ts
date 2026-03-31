@@ -18,7 +18,7 @@ import { stripe } from '../../services/billing/stripe';
 
 // ── Default Return URL ──────────────────────────────────────
 
-const PORTAL_RETURN_URL = process.env.PORTAL_RETURN_URL || 'https://oraclaw.dev';
+const PORTAL_RETURN_URL = process.env.PORTAL_RETURN_URL || 'https://web-olive-one-89.vercel.app';
 
 // ── Route Plugin ────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ export async function portalRoutes(fastify: FastifyInstance): Promise<void> {
       // 1. Require Stripe customer identity (set by Unkey auth middleware)
       if (!request.stripeCustomerId) {
         return reply.code(403).send({
-          type: 'https://oraclaw.dev/errors/no-billing-account',
+          type: 'https://web-olive-one-89.vercel.app/errors/no-billing-account',
           title: 'No billing account',
           status: 403,
           detail:
@@ -48,7 +48,7 @@ export async function portalRoutes(fastify: FastifyInstance): Promise<void> {
       } catch (err: unknown) {
         request.log.error({ err }, 'Failed to create portal session');
         return reply.code(502).send({
-          type: 'https://oraclaw.dev/errors/portal-failed',
+          type: 'https://web-olive-one-89.vercel.app/errors/portal-failed',
           title: 'Portal session creation failed',
           status: 502,
           detail: 'Unable to create Stripe billing portal session. Please retry.',

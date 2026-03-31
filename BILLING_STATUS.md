@@ -69,7 +69,7 @@ Last updated: 2026-03-30
 | `STRIPE_PUBLISHABLE_KEY` | client-side only | NOT needed server-side | N/A (used by frontend) |
 | `STRIPE_METER_EVENT_NAME` | optional | not set | OK (defaults to `api_calls`) |
 | `STRIPE_BATCH_METER_EVENT_NAME` | optional | not set | OK (defaults to `api_calls_batch`) |
-| `PORTAL_RETURN_URL` | optional | not set | OK (defaults to `https://oraclaw.dev`) |
+| `PORTAL_RETURN_URL` | optional | not set | OK (defaults to `https://web-olive-one-89.vercel.app`) |
 | `UNKEY_ROOT_KEY` | YES (for auth) | NOT in render.yaml | MUST ADD to Render dashboard |
 | `UNKEY_API_ID` | YES (for key creation) | NOT in render.yaml | MUST ADD to Render dashboard |
 

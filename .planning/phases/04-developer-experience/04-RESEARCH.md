@@ -136,13 +136,13 @@ export function sendProblemDetail(
 
 // Pre-defined error types for consistency:
 export const ProblemTypes = {
-  VALIDATION: 'https://oraclaw.dev/errors/validation',
-  NOT_FOUND: 'https://oraclaw.dev/errors/not-found',
-  RATE_LIMITED: 'https://oraclaw.dev/errors/rate-limited',
-  UNAUTHORIZED: 'https://oraclaw.dev/errors/unauthorized',
-  INTERNAL: 'https://oraclaw.dev/errors/internal-server-error',
-  SERVICE_UNAVAILABLE: 'https://oraclaw.dev/errors/service-unavailable',
-  CHECKOUT_FAILED: 'https://oraclaw.dev/errors/checkout-failed',
+  VALIDATION: 'https://web-olive-one-89.vercel.app/errors/validation',
+  NOT_FOUND: 'https://web-olive-one-89.vercel.app/errors/not-found',
+  RATE_LIMITED: 'https://web-olive-one-89.vercel.app/errors/rate-limited',
+  UNAUTHORIZED: 'https://web-olive-one-89.vercel.app/errors/unauthorized',
+  INTERNAL: 'https://web-olive-one-89.vercel.app/errors/internal-server-error',
+  SERVICE_UNAVAILABLE: 'https://web-olive-one-89.vercel.app/errors/service-unavailable',
+  CHECKOUT_FAILED: 'https://web-olive-one-89.vercel.app/errors/checkout-failed',
   // ... more as needed
 } as const;
 ```
@@ -163,10 +163,10 @@ server.setErrorHandler((error, request, reply) => {
     .type('application/problem+json')
     .send({
       type: status === 429
-        ? 'https://oraclaw.dev/errors/rate-limited'
+        ? 'https://web-olive-one-89.vercel.app/errors/rate-limited'
         : status === 400
-          ? 'https://oraclaw.dev/errors/validation'
-          : 'https://oraclaw.dev/errors/internal-server-error',
+          ? 'https://web-olive-one-89.vercel.app/errors/validation'
+          : 'https://web-olive-one-89.vercel.app/errors/internal-server-error',
       title: error.message || 'Internal Server Error',
       status,
       detail: status === 500
@@ -287,7 +287,7 @@ export async function registerSwagger(fastify: FastifyInstance): Promise<void> {
       },
       servers: [
         { url: 'http://localhost:3001', description: 'Development' },
-        { url: 'https://oraclaw.dev', description: 'Production' },
+        { url: 'https://web-olive-one-89.vercel.app', description: 'Production' },
       ],
       tags: [
         { name: 'Optimize', description: 'Bandit, Genetic, CMA-ES optimization' },
@@ -359,12 +359,12 @@ server.setErrorHandler((error, request, reply) => {
 
   // Map Fastify validation errors to RFC 9457
   const type = error.validation
-    ? 'https://oraclaw.dev/errors/validation'
+    ? 'https://web-olive-one-89.vercel.app/errors/validation'
     : status === 429
-      ? 'https://oraclaw.dev/errors/rate-limited'
+      ? 'https://web-olive-one-89.vercel.app/errors/rate-limited'
       : status === 404
-        ? 'https://oraclaw.dev/errors/not-found'
-        : 'https://oraclaw.dev/errors/internal-server-error';
+        ? 'https://web-olive-one-89.vercel.app/errors/not-found'
+        : 'https://web-olive-one-89.vercel.app/errors/internal-server-error';
 
   const title = error.validation
     ? 'Validation Error'

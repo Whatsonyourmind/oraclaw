@@ -26,22 +26,22 @@ export interface ProblemDetail {
 
 /**
  * Registry of problem type URIs used across the OraClaw API.
- * Each maps to a stable URI under https://oraclaw.dev/errors/.
+ * Each maps to a stable URI under https://web-olive-one-89.vercel.app/errors/.
  */
 export const ProblemTypes = {
-  VALIDATION: 'https://oraclaw.dev/errors/validation',
-  NOT_FOUND: 'https://oraclaw.dev/errors/not-found',
-  RATE_LIMITED: 'https://oraclaw.dev/errors/rate-limited',
-  UNAUTHORIZED: 'https://oraclaw.dev/errors/unauthorized',
-  INTERNAL: 'https://oraclaw.dev/errors/internal',
-  SERVICE_UNAVAILABLE: 'https://oraclaw.dev/errors/service-unavailable',
-  CHECKOUT_FAILED: 'https://oraclaw.dev/errors/checkout-failed',
-  PORTAL_FAILED: 'https://oraclaw.dev/errors/portal-failed',
-  NO_BILLING_ACCOUNT: 'https://oraclaw.dev/errors/no-billing-account',
-  INVALID_TIER: 'https://oraclaw.dev/errors/invalid-tier',
-  NON_SUBSCRIBABLE_TIER: 'https://oraclaw.dev/errors/non-subscribable-tier',
-  TIER_NOT_CONFIGURED: 'https://oraclaw.dev/errors/tier-not-configured',
-  PAYMENT_REQUIRED: 'https://oraclaw.dev/errors/payment-required',
+  VALIDATION: 'https://web-olive-one-89.vercel.app/errors/validation',
+  NOT_FOUND: 'https://web-olive-one-89.vercel.app/errors/not-found',
+  RATE_LIMITED: 'https://web-olive-one-89.vercel.app/errors/rate-limited',
+  UNAUTHORIZED: 'https://web-olive-one-89.vercel.app/errors/unauthorized',
+  INTERNAL: 'https://web-olive-one-89.vercel.app/errors/internal',
+  SERVICE_UNAVAILABLE: 'https://web-olive-one-89.vercel.app/errors/service-unavailable',
+  CHECKOUT_FAILED: 'https://web-olive-one-89.vercel.app/errors/checkout-failed',
+  PORTAL_FAILED: 'https://web-olive-one-89.vercel.app/errors/portal-failed',
+  NO_BILLING_ACCOUNT: 'https://web-olive-one-89.vercel.app/errors/no-billing-account',
+  INVALID_TIER: 'https://web-olive-one-89.vercel.app/errors/invalid-tier',
+  NON_SUBSCRIBABLE_TIER: 'https://web-olive-one-89.vercel.app/errors/non-subscribable-tier',
+  TIER_NOT_CONFIGURED: 'https://web-olive-one-89.vercel.app/errors/tier-not-configured',
+  PAYMENT_REQUIRED: 'https://web-olive-one-89.vercel.app/errors/payment-required',
 } as const;
 
 /**

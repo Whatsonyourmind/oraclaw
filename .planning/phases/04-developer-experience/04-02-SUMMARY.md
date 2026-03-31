@@ -79,7 +79,7 @@ completed: 2026-03-30
 - Scalar registered via dynamic import pattern (Fastify handles promise resolution)
 - Security scheme changed to apiKey type matching Unkey-based auth
 - Removed 7 outdated component schemas from pre-v2 era
-- Added production server URL (https://oraclaw.dev)
+- Added production server URL (https://web-olive-one-89.vercel.app)
 
 ## Deviations from Plan
 

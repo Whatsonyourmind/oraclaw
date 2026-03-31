@@ -114,7 +114,7 @@ describe('createX402PaymentHook', () => {
 
     expect(response.statusCode).toBe(402);
     const body = JSON.parse(response.payload);
-    expect(body.type).toBe('https://oraclaw.dev/errors/payment-required');
+    expect(body.type).toBe('https://web-olive-one-89.vercel.app/errors/payment-required');
     expect(response.headers['content-type']).toContain('application/problem+json');
   });
 
@@ -148,7 +148,7 @@ describe('createX402PaymentHook', () => {
 
     expect(response.statusCode).toBe(402);
     const body = JSON.parse(response.payload);
-    expect(body.type).toBe('https://oraclaw.dev/errors/payment-required');
+    expect(body.type).toBe('https://web-olive-one-89.vercel.app/errors/payment-required');
     expect(body.paymentRequirements).toBeDefined();
   });
 });

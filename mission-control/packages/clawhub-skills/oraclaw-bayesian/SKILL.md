@@ -9,7 +9,7 @@ metadata:
         - ORACLAW_API_KEY
     primaryEnv: ORACLAW_API_KEY
     emoji: "🔮"
-    homepage: https://oraclaw.dev/bayesian
+    homepage: https://web-olive-one-89.vercel.app/bayesian
     tags:
       - bayesian
       - inference

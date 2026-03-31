@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/dashboard/"],
       },
     ],
-    sitemap: "https://oraclaw.dev/sitemap.xml",
+    sitemap: "https://web-olive-one-89.vercel.app/sitemap.xml",
   };
 }

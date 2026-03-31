@@ -284,7 +284,7 @@ async function billingMiddleware(request, reply) {
     if (error || !result.valid) {
       const code = result?.code === 'RATE_LIMITED' ? 429 : 401;
       return reply.code(code).send({
-        type: 'https://oraclaw.dev/errors/auth',
+        type: 'https://web-olive-one-89.vercel.app/errors/auth',
         title: result?.code === 'RATE_LIMITED' ? 'Rate limit exceeded' : 'Unauthorized',
         status: code,
         detail: result?.code || 'Invalid API key',
@@ -410,7 +410,7 @@ const ROUTE_PRICING: Record<string, { usdPrice: string; meterValue: number }> = 
 
 ```typescript
 {
-  type: "https://oraclaw.dev/errors/rate-limited",
+  type: "https://web-olive-one-89.vercel.app/errors/rate-limited",
   title: "Rate limit exceeded",
   status: 429,
   detail: "Growth tier allows 500,000 calls/month. 0 remaining.",

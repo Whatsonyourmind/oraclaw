@@ -29,7 +29,7 @@ key-files:
 
 key-decisions:
   - "sendProblem helper returns FastifyReply for chaining; sets application/problem+json content-type"
-  - "ProblemTypes registry has 12 error URIs under https://oraclaw.dev/errors/ namespace"
+  - "ProblemTypes registry has 12 error URIs under https://web-olive-one-89.vercel.app/errors/ namespace"
   - "500 errors hide internal details with generic message for security"
   - "llms.txt content is a const string literal (no dynamic generation needed)"
 
@@ -82,7 +82,7 @@ Each task was committed atomically (TDD: test then feat):
 
 ## Decisions Made
 - sendProblem helper returns FastifyReply for chaining -- matches Fastify's native .send() pattern
-- ProblemTypes registry uses 12 URIs under https://oraclaw.dev/errors/ namespace covering validation, not-found, rate-limited, unauthorized, internal, service-unavailable, and all billing-specific errors
+- ProblemTypes registry uses 12 URIs under https://web-olive-one-89.vercel.app/errors/ namespace covering validation, not-found, rate-limited, unauthorized, internal, service-unavailable, and all billing-specific errors
 - 500 errors always return generic detail "An unexpected error occurred. Please try again." to avoid leaking internal information
 - llms.txt content is a const string literal -- no dynamic generation, serving is O(1)
 - Did NOT modify auth.ts, free-tier-rate-limit.ts, subscribe.ts, or portal.ts -- they already used RFC 9457 format correctly

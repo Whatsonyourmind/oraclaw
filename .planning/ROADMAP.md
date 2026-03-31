@@ -39,7 +39,7 @@ See: `.planning/milestones/v21.0-COMPLETED.md`
 **Depends on**: Nothing (first phase)
 **Requirements**: WEB-01, WEB-02, WEB-03, DX-01 (carried from v21.0)
 **Success Criteria** (what must be TRUE):
-  1. A public Next.js site at oraclaw.dev (or subdomain) shows algorithm catalog with interactive try-it forms
+  1. A public Next.js site at web-olive-one-89.vercel.app (or subdomain) shows algorithm catalog with interactive try-it forms
   2. Scalar API playground is embedded and connected to the live API with pre-filled examples
   3. Getting-started guide walks through: get API key -> make first call -> see result in under 2 minutes
   4. The site is deployed and accessible (Vercel or similar)

@@ -4,9 +4,9 @@
   "description": "Multi-model consensus for AI agents. Combine predictions from multiple LLMs, models, or sources into a mathematically optimal consensus. Auto-weights by historical accuracy.",
   "files": ["SKILL.md"],
   "keywords": ["ensemble", "consensus", "multi-model", "voting", "bayesian-averaging", "prediction"],
-  "author": "OraClaw <team@oraclaw.dev>",
+  "author": "OraClaw <team@web-olive-one-89.vercel.app>",
   "license": "MIT",
-  "homepage": "https://oraclaw.dev/ensemble",
+  "homepage": "https://web-olive-one-89.vercel.app/ensemble",
   "repository": {
     "type": "git",
     "url": "https://github.com/Whatsonyourmind/oraclaw",

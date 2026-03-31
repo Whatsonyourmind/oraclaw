@@ -40,7 +40,7 @@ export async function webhookRoutes(fastify: FastifyInstance): Promise<void> {
 
       if (!signature) {
         return reply.code(400).send({
-          type: 'https://oraclaw.dev/errors/missing-signature',
+          type: 'https://web-olive-one-89.vercel.app/errors/missing-signature',
           title: 'Missing Stripe signature',
           status: 400,
           detail: 'The stripe-signature header is required for webhook verification.',
@@ -51,7 +51,7 @@ export async function webhookRoutes(fastify: FastifyInstance): Promise<void> {
       if (!webhookSecret) {
         request.log.error('STRIPE_WEBHOOK_SECRET not configured -- cannot verify webhook');
         return reply.code(500).send({
-          type: 'https://oraclaw.dev/errors/webhook-not-configured',
+          type: 'https://web-olive-one-89.vercel.app/errors/webhook-not-configured',
           title: 'Webhook not configured',
           status: 500,
           detail: 'Stripe webhook secret is not configured on the server.',
@@ -69,7 +69,7 @@ export async function webhookRoutes(fastify: FastifyInstance): Promise<void> {
         const message = err instanceof Error ? err.message : 'Unknown error';
         request.log.error({ err }, 'Stripe webhook signature verification failed');
         return reply.code(400).send({
-          type: 'https://oraclaw.dev/errors/invalid-signature',
+          type: 'https://web-olive-one-89.vercel.app/errors/invalid-signature',
           title: 'Invalid webhook signature',
           status: 400,
           detail: `Webhook signature verification failed: ${message}`,

@@ -196,7 +196,7 @@ fastify.post('/api/v1/billing/portal-session', async (request, reply) => {
   // Must be an authenticated paying customer
   if (!request.stripeCustomerId) {
     return reply.code(403).send({
-      type: 'https://oraclaw.dev/errors/no-subscription',
+      type: 'https://web-olive-one-89.vercel.app/errors/no-subscription',
       title: 'No billing account',
       status: 403,
       detail: 'Free tier users do not have a billing portal. Upgrade to access billing management.',
@@ -205,7 +205,7 @@ fastify.post('/api/v1/billing/portal-session', async (request, reply) => {
 
   const session = await stripe.billingPortal.sessions.create({
     customer: request.stripeCustomerId,
-    return_url: process.env.PORTAL_RETURN_URL || 'https://oraclaw.dev/dashboard',
+    return_url: process.env.PORTAL_RETURN_URL || 'https://web-olive-one-89.vercel.app/dashboard',
   });
 
   return { url: session.url };
@@ -295,7 +295,7 @@ export async function registerFreeTierRateLimit(fastify: FastifyInstance) {
     skip: (request) => !!request.headers.authorization,
     // Custom error response matching RFC 9457
     errorResponseBuilder: (request, context) => ({
-      type: 'https://oraclaw.dev/errors/rate-limited',
+      type: 'https://web-olive-one-89.vercel.app/errors/rate-limited',
       title: 'Free tier rate limit exceeded',
       status: 429,
       detail: `Free tier allows 100 API calls per day. Upgrade for higher limits.`,
@@ -324,7 +324,7 @@ export async function portalRoutes(fastify: FastifyInstance) {
   fastify.post('/api/v1/billing/portal-session', async (request, reply) => {
     if (!request.stripeCustomerId) {
       return reply.code(403).send({
-        type: 'https://oraclaw.dev/errors/no-billing-account',
+        type: 'https://web-olive-one-89.vercel.app/errors/no-billing-account',
         title: 'No billing account',
         status: 403,
         detail: 'Only paid subscribers can access the billing portal.',
@@ -333,7 +333,7 @@ export async function portalRoutes(fastify: FastifyInstance) {
 
     const session = await stripe.billingPortal.sessions.create({
       customer: request.stripeCustomerId,
-      return_url: process.env.PORTAL_RETURN_URL || 'https://oraclaw.dev',
+      return_url: process.env.PORTAL_RETURN_URL || 'https://web-olive-one-89.vercel.app',
     });
 
     return { url: session.url };

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { ALGORITHMS } from "@/lib/algorithms";
 
-const SITE_URL = "https://oraclaw.dev";
+const SITE_URL = "https://web-olive-one-89.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

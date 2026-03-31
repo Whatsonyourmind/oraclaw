@@ -8,9 +8,9 @@ Free tier: 100 calls/day, no API key needed.
 
 ## Docs
 
-- [API Documentation](https://oraclaw.dev/docs)
-- [Getting Started](https://oraclaw.dev/getting-started)
-- [Interactive Playground](https://oraclaw.dev/try/bandit)
+- [API Documentation](https://web-olive-one-89.vercel.app/docs)
+- [Getting Started](https://web-olive-one-89.vercel.app/getting-started)
+- [Interactive Playground](https://web-olive-one-89.vercel.app/try/bandit)
 - [OpenAPI Spec](https://oraclaw-api.onrender.com/docs/json)
 - [GitHub](https://github.com/Whatsonyourmind/oraclaw)
 - [npm](https://www.npmjs.com/org/oraclaw)

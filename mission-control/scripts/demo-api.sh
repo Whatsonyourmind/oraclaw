@@ -4,7 +4,7 @@
 # ============================================================
 # Usage:
 #   bash scripts/demo-api.sh                    # localhost:3001
-#   bash scripts/demo-api.sh https://oraclaw.dev  # production
+#   bash scripts/demo-api.sh https://web-olive-one-89.vercel.app  # production
 # ============================================================
 
 set -euo pipefail

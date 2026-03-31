@@ -21,7 +21,7 @@
     "type": "git",
     "url": "https://github.com/Whatsonyourmind/oraclaw"
   },
-  "homepage": "https://oraclaw.dev/calibrate",
+  "homepage": "https://web-olive-one-89.vercel.app/calibrate",
   "dependencies": {},
   "exports": {
     ".": {

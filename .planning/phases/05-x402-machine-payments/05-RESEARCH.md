@@ -33,7 +33,7 @@ The Coinbase Developer Platform (CDP) hosts the production facilitator at `https
 - Receiving wallet address from RECEIVING_WALLET_ADDRESS env var (already in .env.wallet)
 - USDC contract on Base mainnet: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
 - x402 payment errors use RFC 9457 problem details format (consistent with Phase 4's sendProblem helper)
-- Return 402 Payment Required with `type: 'https://oraclaw.dev/errors/payment-required'` when payment header is missing/invalid
+- Return 402 Payment Required with `type: 'https://web-olive-one-89.vercel.app/errors/payment-required'` when payment header is missing/invalid
 - Return 402 with payment details in response body so agents know how much to pay and where
 - Unit tests for the x402 preHandler hook (mock @x402/core verification)
 - Integration tests verifying the three billing paths coexist (free, stripe, x402)
@@ -119,7 +119,7 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 import { sendProblem, ProblemTypes } from '../utils/problem-details';
 
 // Add 'payment-required' to ProblemTypes registry
-// ProblemTypes.PAYMENT_REQUIRED = 'https://oraclaw.dev/errors/payment-required'
+// ProblemTypes.PAYMENT_REQUIRED = 'https://web-olive-one-89.vercel.app/errors/payment-required'
 
 export function createX402PaymentHook(
   resourceServer: x402ResourceServer,
@@ -445,7 +445,7 @@ type PaymentRequired = {
 ```typescript
 // Source: OraClaw problem-details.ts pattern + x402 protocol
 // Add to ProblemTypes registry:
-// PAYMENT_REQUIRED: 'https://oraclaw.dev/errors/payment-required'
+// PAYMENT_REQUIRED: 'https://web-olive-one-89.vercel.app/errors/payment-required'
 
 sendProblem(reply, 402, ProblemTypes.PAYMENT_REQUIRED,
   'Payment Required',

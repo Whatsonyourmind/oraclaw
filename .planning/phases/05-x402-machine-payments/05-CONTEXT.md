@@ -38,7 +38,7 @@ AI agents can pay for OraClaw API calls with USDC via the x402 protocol without 
 
 ### Error responses
 - x402 payment errors use RFC 9457 problem details format (consistent with Phase 4's sendProblem helper)
-- Return 402 Payment Required with `type: 'https://oraclaw.dev/errors/payment-required'` when payment header is missing/invalid
+- Return 402 Payment Required with `type: 'https://web-olive-one-89.vercel.app/errors/payment-required'` when payment header is missing/invalid
 - Return 402 with payment details in response body so agents know how much to pay and where
 
 ### Testing strategy

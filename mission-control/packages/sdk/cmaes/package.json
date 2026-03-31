@@ -18,7 +18,7 @@
     "type": "git",
     "url": "https://github.com/Whatsonyourmind/oraclaw"
   },
-  "homepage": "https://oraclaw.dev/cmaes",
+  "homepage": "https://web-olive-one-89.vercel.app/cmaes",
   "dependencies": {},
   "exports": {
     ".": {

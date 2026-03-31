@@ -6,7 +6,7 @@
    - Health check and pricing (GET)
    - 17 algorithm endpoints (POST) with realistic payloads
    - Batch endpoint (POST) with multi-algorithm call
-   - Configurable base URL: `bash scripts/demo-api.sh` (localhost) or `bash scripts/demo-api.sh https://oraclaw.dev`
+   - Configurable base URL: `bash scripts/demo-api.sh` (localhost) or `bash scripts/demo-api.sh https://web-olive-one-89.vercel.app`
    - Pass/fail summary at the end
 
 2. **Created `.env.example`** -- complete environment variable template documenting:
