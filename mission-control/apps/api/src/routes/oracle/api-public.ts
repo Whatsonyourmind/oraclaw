@@ -9,6 +9,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import { z } from "zod";
 import { createBandit } from "../../services/oracle/algorithms/multiArmedBandit";
 import { createContextualBandit } from "../../services/oracle/algorithms/contextualBandit";
 import { createDecisionGraph } from "../../services/oracle/algorithms/decisionGraph";
@@ -24,6 +25,86 @@ import { forecast, holtWinters } from "../../services/oracle/algorithms/timeSeri
 import { detectAnomaliesZScore, detectAnomaliesIQR } from "../../services/oracle/algorithms/anomalyDetector";
 import { optimizeCMAES, type CMAESConfig } from "../../services/oracle/algorithms/cmaes";
 import { portfolioVaR } from "../../services/oracle/algorithms/correlationMatrix";
+
+// ── Zod Schemas ──────────────────────────────────────────
+
+const ScheduleTaskSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  durationMinutes: z.number().positive(),
+  priority: z.number(),
+  deadline: z.number().optional(),
+  energyRequired: z.enum(["high", "medium", "low"]),
+  category: z.string().optional(),
+});
+
+const TimeSlotSchema = z.object({
+  id: z.string().min(1),
+  startTime: z.number({ invalid_type_error: "startTime must be a Unix timestamp (number), not a string like '09:00'" }),
+  durationMinutes: z.number().positive(),
+  energyLevel: z.enum(["high", "medium", "low"]),
+});
+
+const ScheduleInputSchema = z.object({
+  tasks: z.array(ScheduleTaskSchema).min(1, "At least one task is required"),
+  slots: z.array(TimeSlotSchema).min(1, "At least one time slot is required"),
+});
+
+const ConvergenceSourceSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  probability: z.number().min(0).max(1),
+  confidence: z.number().min(0).max(1).optional(),
+  volume: z.number().positive().optional(),
+  lastUpdated: z.number().default(() => Date.now()),
+});
+
+const ConvergenceInputSchema = z.object({
+  sources: z.array(ConvergenceSourceSchema).min(1, "At least one source is required"),
+  config: z.object({
+    wA: z.number().optional(),
+    wD: z.number().optional(),
+    wU: z.number().optional(),
+    wF: z.number().optional(),
+    scale: z.number().optional(),
+    shift: z.number().optional(),
+    freshnessHalfLifeMs: z.number().positive().optional(),
+    outlierThreshold: z.number().min(0).max(1).optional(),
+  }).optional(),
+});
+
+const ForecastInputSchema = z.object({
+  data: z.array(z.number()).min(2, "Forecast requires at least 2 data points"),
+  steps: z.number().int().positive(),
+  method: z.enum(["arima", "holt-winters"]).optional(),
+  seasonLength: z.number().int().positive().optional(),
+}).superRefine((val, ctx) => {
+  const method = val.method ?? "arima";
+  if (method === "arima" && val.data.length < 20) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.too_small,
+      minimum: 20,
+      type: "array",
+      inclusive: true,
+      path: ["data"],
+      message: "Forecast requires at least 20 data points for ARIMA. Use method: 'holt-winters' for smaller datasets.",
+    });
+  }
+  if (method === "holt-winters") {
+    const seasonLen = val.seasonLength ?? 4;
+    const minLen = 2 * seasonLen;
+    if (val.data.length < minLen) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.too_small,
+        minimum: minLen,
+        type: "array",
+        inclusive: true,
+        path: ["data"],
+        message: `Holt-Winters requires at least ${minLen} data points (2 × seasonLength=${seasonLen})`,
+      });
+    }
+  }
+});
 
 // ── Route Registration ─────────────────────────────────
 
@@ -147,12 +228,20 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 4. Schedule Optimizer ──────────────────────────
 
   fastify.post("/api/v1/solve/schedule", async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body as {
-      tasks: Parameters<typeof optimizeSchedule>[0];
-      slots: Parameters<typeof optimizeSchedule>[1];
-    };
+    const parsed = ScheduleInputSchema.safeParse(request.body);
+    if (!parsed.success) {
+      reply.status(400);
+      return {
+        error: "Invalid schedule input",
+        details: parsed.error.issues.map((i) => ({
+          path: i.path.join("."),
+          message: i.message,
+        })),
+      };
+    }
 
-    const result = await optimizeSchedule(body.tasks, body.slots);
+    const { tasks, slots } = parsed.data;
+    const result = await optimizeSchedule(tasks, slots);
 
     return result;
   });
@@ -179,12 +268,19 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 6. Convergence Scoring ─────────────────────────
 
   fastify.post("/api/v1/score/convergence", async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body as {
-      sources: Parameters<typeof computeConvergence>[0];
-      config?: Parameters<typeof computeConvergence>[1];
-    };
+    const parsed = ConvergenceInputSchema.safeParse(request.body);
+    if (!parsed.success) {
+      reply.status(400);
+      return {
+        error: "Invalid convergence input",
+        details: parsed.error.issues.map((i) => ({
+          path: i.path.join("."),
+          message: i.message,
+        })),
+      };
+    }
 
-    const result = computeConvergence(body.sources, body.config);
+    const result = computeConvergence(parsed.data.sources, parsed.data.config);
 
     return result;
   });
@@ -626,13 +722,19 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 14. Time Series Forecasting ───────────────────────
 
   fastify.post("/api/v1/predict/forecast", async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body as {
-      data: number[];
-      steps: number;
-      method?: "arima" | "holt-winters";
-      seasonLength?: number;
-    };
+    const parsed = ForecastInputSchema.safeParse(request.body);
+    if (!parsed.success) {
+      reply.status(400);
+      return {
+        error: "Invalid forecast input",
+        details: parsed.error.issues.map((i) => ({
+          path: i.path.join("."),
+          message: i.message,
+        })),
+      };
+    }
 
+    const body = parsed.data;
     const method = body.method ?? "arima";
 
     let result;
