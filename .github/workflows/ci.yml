@@ -83,7 +83,7 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Run unit tests
-        run: npm test -- --reporter=verbose
+        run: cd apps/api && npx vitest run --reporter=verbose
         env:
           NODE_ENV: test
 
@@ -138,7 +138,7 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Run integration tests
-        run: npm test -- --reporter=verbose
+        run: cd apps/api && npx vitest run --reporter=verbose
         env:
           NODE_ENV: test
           DATABASE_URL: postgres://oracle_test:test_secret@localhost:5432/oracle_test
