@@ -735,7 +735,7 @@ claude mcp add oraclaw -- npx @oraclaw/mcp-server
   "mcpServers": {
     "oraclaw": {
       "command": "npx",
-      "args": ["tsx", "/path/to/oraclaw/packages/mcp-server/src/index.ts"]
+      "args": ["tsx", "/path/to/oraclaw/mission-control/packages/mcp-server/src/index.ts"]
     }
   }
 }

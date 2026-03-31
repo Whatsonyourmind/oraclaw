@@ -154,6 +154,20 @@ curl -X POST https://oraclaw-api.onrender.com/api/v1/detect/anomaly \
 
 ---
 
+## Source Code
+
+| Component | Path |
+|-----------|------|
+| **MCP Server** | [`mission-control/packages/mcp-server/`](mission-control/packages/mcp-server/) |
+| **REST API** | [`mission-control/apps/api/`](mission-control/apps/api/) |
+| **Algorithms** | [`mission-control/apps/api/src/services/oracle/algorithms/`](mission-control/apps/api/src/services/oracle/algorithms/) |
+| **SDK Packages** | [`mission-control/packages/sdk/`](mission-control/packages/sdk/) |
+| **LangChain Tools** | [`mission-control/integrations/langchain/oraclaw_tools.py`](mission-control/integrations/langchain/oraclaw_tools.py) |
+| **Mobile App** | [`mission-control/apps/mobile/`](mission-control/apps/mobile/) |
+| **Dashboard (Next.js)** | [`web/`](web/) |
+
+---
+
 ## Links
 
 - **Live API:** https://oraclaw-api.onrender.com
