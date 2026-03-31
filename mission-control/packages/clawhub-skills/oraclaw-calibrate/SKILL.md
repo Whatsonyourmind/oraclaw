@@ -9,7 +9,7 @@ metadata:
         - ORACLAW_API_KEY
     primaryEnv: ORACLAW_API_KEY
     emoji: "📊"
-    homepage: https://oraclaw.dev/calibrate
+    homepage: https://web-olive-one-89.vercel.app/calibrate
     tags:
       - calibration
       - forecasting

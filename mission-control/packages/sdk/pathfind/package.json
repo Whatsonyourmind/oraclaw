@@ -18,7 +18,7 @@
     "type": "git",
     "url": "https://github.com/Whatsonyourmind/oraclaw"
   },
-  "homepage": "https://oraclaw.dev/pathfind",
+  "homepage": "https://web-olive-one-89.vercel.app/pathfind",
   "dependencies": {},
   "exports": {
     ".": {

@@ -34,7 +34,7 @@ export async function registerFreeTierRateLimit(fastify: FastifyInstance): Promi
 
     // RFC 9457 problem detail response
     errorResponseBuilder: (_request, context) => ({
-      type: 'https://oraclaw.dev/errors/rate-limited',
+      type: 'https://web-olive-one-89.vercel.app/errors/rate-limited',
       title: 'Free tier rate limit exceeded',
       status: 429,
       detail: 'Free tier allows 100 API calls per day. Upgrade for higher limits.',

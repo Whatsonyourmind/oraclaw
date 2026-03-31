@@ -36,7 +36,7 @@ export async function subscribeRoutes(fastify: FastifyInstance): Promise<void> {
       // 1. Require Stripe customer identity (set by Unkey auth middleware)
       if (!request.stripeCustomerId) {
         return reply.code(403).send({
-          type: 'https://oraclaw.dev/errors/no-billing-account',
+          type: 'https://web-olive-one-89.vercel.app/errors/no-billing-account',
           title: 'No billing account',
           status: 403,
           detail:
@@ -47,7 +47,7 @@ export async function subscribeRoutes(fastify: FastifyInstance): Promise<void> {
       // 2. Validate tier exists in TIER_CONFIG
       if (!tier || !(tier in TIER_CONFIG)) {
         return reply.code(400).send({
-          type: 'https://oraclaw.dev/errors/invalid-tier',
+          type: 'https://web-olive-one-89.vercel.app/errors/invalid-tier',
           title: 'Invalid tier',
           status: 400,
           detail: `Unknown tier '${tier}'. Valid paid tiers: starter, growth, scale.`,
@@ -61,7 +61,7 @@ export async function subscribeRoutes(fastify: FastifyInstance): Promise<void> {
             ? 'The free tier does not require a subscription.'
             : 'Enterprise subscriptions require a custom agreement. Contact sales.';
         return reply.code(400).send({
-          type: 'https://oraclaw.dev/errors/non-subscribable-tier',
+          type: 'https://web-olive-one-89.vercel.app/errors/non-subscribable-tier',
           title: 'Tier not available for self-service subscription',
           status: 400,
           detail: reason,
@@ -74,7 +74,7 @@ export async function subscribeRoutes(fastify: FastifyInstance): Promise<void> {
 
       if (!priceId) {
         return reply.code(400).send({
-          type: 'https://oraclaw.dev/errors/tier-not-configured',
+          type: 'https://web-olive-one-89.vercel.app/errors/tier-not-configured',
           title: 'Tier not configured',
           status: 400,
           detail: `Stripe price ID not configured for tier '${tier}'. Contact support.`,
@@ -86,8 +86,8 @@ export async function subscribeRoutes(fastify: FastifyInstance): Promise<void> {
         const checkout = await stripeService.createCheckoutSession({
           customerId: request.stripeCustomerId,
           priceId,
-          successUrl: success_url || 'https://oraclaw.dev/billing/success',
-          cancelUrl: cancel_url || 'https://oraclaw.dev/billing/cancel',
+          successUrl: success_url || 'https://web-olive-one-89.vercel.app/billing/success',
+          cancelUrl: cancel_url || 'https://web-olive-one-89.vercel.app/billing/cancel',
           metadata: { tier },
         });
 
@@ -95,7 +95,7 @@ export async function subscribeRoutes(fastify: FastifyInstance): Promise<void> {
       } catch (err: unknown) {
         request.log.error({ err }, 'Failed to create checkout session');
         return reply.code(502).send({
-          type: 'https://oraclaw.dev/errors/checkout-failed',
+          type: 'https://web-olive-one-89.vercel.app/errors/checkout-failed',
           title: 'Checkout session creation failed',
           status: 502,
           detail: 'Unable to create Stripe Checkout session. Please retry.',

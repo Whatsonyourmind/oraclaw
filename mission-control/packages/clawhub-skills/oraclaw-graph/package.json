@@ -4,9 +4,9 @@
   "description": "Network intelligence for AI agents. PageRank, community detection (Louvain), critical path, and bottleneck analysis for any graph of connected things.",
   "files": ["SKILL.md"],
   "keywords": ["graph", "network-analysis", "pagerank", "louvain", "community-detection", "critical-path"],
-  "author": "OraClaw <team@oraclaw.dev>",
+  "author": "OraClaw <team@web-olive-one-89.vercel.app>",
   "license": "MIT",
-  "homepage": "https://oraclaw.dev/graph",
+  "homepage": "https://web-olive-one-89.vercel.app/graph",
   "repository": {
     "type": "git",
     "url": "https://github.com/Whatsonyourmind/oraclaw",

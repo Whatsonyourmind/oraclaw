@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
 
-const SITE_URL = "https://oraclaw.dev";
+const SITE_URL = "https://web-olive-one-89.vercel.app";
 
 export const metadata: Metadata = {
   title: {
@@ -93,7 +93,7 @@ export default function RootLayout({
               operatingSystem: "Any",
               description:
                 "Decision intelligence API with 19 production-grade ML algorithms for optimization, simulation, prediction, and planning. Sub-25ms response times.",
-              url: "https://oraclaw.dev",
+              url: "https://web-olive-one-89.vercel.app",
               offers: [
                 {
                   "@type": "Offer",

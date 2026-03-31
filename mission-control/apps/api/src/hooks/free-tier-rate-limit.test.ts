@@ -75,7 +75,7 @@ describe('registerFreeTierRateLimit', () => {
     expect(limitedResponse.statusCode).toBe(429);
 
     const body = JSON.parse(limitedResponse.body);
-    expect(body.type).toBe('https://oraclaw.dev/errors/rate-limited');
+    expect(body.type).toBe('https://web-olive-one-89.vercel.app/errors/rate-limited');
     expect(body.title).toBe('Free tier rate limit exceeded');
     expect(body.status).toBe(429);
     expect(body.detail).toContain('100 API calls per day');

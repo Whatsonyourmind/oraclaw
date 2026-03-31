@@ -33,7 +33,7 @@ export async function registerSwagger(fastify: FastifyInstance): Promise<void> {
           description: 'Development server',
         },
         {
-          url: 'https://oraclaw.dev',
+          url: 'https://web-olive-one-89.vercel.app',
           description: 'Production server',
         },
       ],

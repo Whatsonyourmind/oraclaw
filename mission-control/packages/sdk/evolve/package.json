@@ -17,7 +17,7 @@
     "type": "git",
     "url": "https://github.com/Whatsonyourmind/oraclaw"
   },
-  "homepage": "https://oraclaw.dev/evolve",
+  "homepage": "https://web-olive-one-89.vercel.app/evolve",
   "dependencies": {},
   "exports": {
     ".": {

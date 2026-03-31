@@ -67,7 +67,7 @@ export function createAuthMiddleware(unkeyClient: Unkey) {
       // SDK / network error -- return 503, never 401
       request.log.error({ err }, 'Unkey verification failed');
       reply.code(503).send({
-        type: 'https://oraclaw.dev/errors/service-unavailable',
+        type: 'https://web-olive-one-89.vercel.app/errors/service-unavailable',
         title: 'Authentication service unavailable',
         status: 503,
         detail: 'Unable to verify API key. Please retry.',
@@ -93,7 +93,7 @@ export function createAuthMiddleware(unkeyClient: Unkey) {
       const code = data.code as string;
       const status = CODE_TO_STATUS[code] ?? 401;
       reply.code(status).send({
-        type: `https://oraclaw.dev/errors/${code.toLowerCase().replaceAll('_', '-')}`,
+        type: `https://web-olive-one-89.vercel.app/errors/${code.toLowerCase().replaceAll('_', '-')}`,
         title: code === 'RATE_LIMITED' ? 'Rate limit exceeded' : 'Unauthorized',
         status,
         detail: `Key verification failed: ${code}`,

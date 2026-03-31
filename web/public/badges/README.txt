@@ -31,11 +31,11 @@ Shields.io URLs (dynamic, hosted by shields.io):
     https://img.shields.io/badge/API-live-brightgreen?style=flat-square
 
 Markdown Usage:
-  [![Powered by OraClaw](https://img.shields.io/badge/powered%20by-OraClaw-00cc66?style=flat-square)](https://oraclaw.dev)
-  [![19 Algorithms](https://img.shields.io/badge/algorithms-19-orange?style=flat-square)](https://oraclaw.dev/algorithms)
-  [![< 25ms](https://img.shields.io/badge/latency-%3C25ms-blue?style=flat-square)](https://oraclaw.dev)
+  [![Powered by OraClaw](https://img.shields.io/badge/powered%20by-OraClaw-00cc66?style=flat-square)](https://web-olive-one-89.vercel.app)
+  [![19 Algorithms](https://img.shields.io/badge/algorithms-19-orange?style=flat-square)](https://web-olive-one-89.vercel.app/algorithms)
+  [![< 25ms](https://img.shields.io/badge/latency-%3C25ms-blue?style=flat-square)](https://web-olive-one-89.vercel.app)
 
 HTML Usage:
-  <a href="https://oraclaw.dev"><img src="https://oraclaw.dev/badges/powered-by-oraclaw.svg" alt="Powered by OraClaw" /></a>
-  <a href="https://oraclaw.dev/algorithms"><img src="https://oraclaw.dev/badges/algorithms-19.svg" alt="19 Algorithms" /></a>
-  <a href="https://oraclaw.dev"><img src="https://oraclaw.dev/badges/latency-25ms.svg" alt="< 25ms" /></a>
+  <a href="https://web-olive-one-89.vercel.app"><img src="https://web-olive-one-89.vercel.app/badges/powered-by-oraclaw.svg" alt="Powered by OraClaw" /></a>
+  <a href="https://web-olive-one-89.vercel.app/algorithms"><img src="https://web-olive-one-89.vercel.app/badges/algorithms-19.svg" alt="19 Algorithms" /></a>
+  <a href="https://web-olive-one-89.vercel.app"><img src="https://web-olive-one-89.vercel.app/badges/latency-25ms.svg" alt="< 25ms" /></a>
