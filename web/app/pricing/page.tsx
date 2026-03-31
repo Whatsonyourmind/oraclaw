@@ -4,7 +4,7 @@ import { PRICING_TIERS, FEATURE_COMPARISON } from "@/lib/pricing";
 export const metadata = {
   title: "Pricing",
   description:
-    "Simple, transparent pricing for decision intelligence. Free tier (100 calls/day), Starter $9/mo, Growth $49/mo, Scale $199/mo. All 19 algorithms included.",
+    "Simple, transparent pricing for decision intelligence. Free tier (25 calls/day), Starter $9/mo, Growth $49/mo, Scale $199/mo. All 19 algorithms included.",
   alternates: {
     canonical: "/pricing",
   },
@@ -56,19 +56,25 @@ export default function PricingPage() {
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-20">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-20">
         {PRICING_TIERS.map((tier) => (
           <div
             key={tier.key}
             className={`relative flex flex-col p-6 rounded-lg border ${
               tier.highlighted
                 ? "border-claw-500 bg-claw-500/5 glow-green"
+                : tier.key === "pay_per_call"
+                ? "border-ooda-orient/50 bg-ooda-orient/5"
                 : "border-gray-800 bg-gray-900/50"
             } card-hover`}
           >
             {tier.badge && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-claw-500 text-black text-xs font-mono font-bold px-3 py-1 rounded-full">
+                <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full ${
+                  tier.key === "pay_per_call"
+                    ? "bg-ooda-orient text-black"
+                    : "bg-claw-500 text-black"
+                }`}>
                   {tier.badge}
                 </span>
               </div>
@@ -123,6 +129,8 @@ export default function PricingPage() {
                   className={`block w-full text-center px-4 py-2.5 font-mono text-sm font-semibold rounded-lg transition-colors ${
                     tier.highlighted
                       ? "bg-claw-500 text-black hover:bg-claw-400"
+                      : tier.key === "pay_per_call"
+                      ? "bg-ooda-orient text-black hover:bg-ooda-orient/80"
                       : "bg-gray-800 text-white hover:bg-gray-700"
                   }`}
                 >
@@ -183,15 +191,26 @@ export default function PricingPage() {
                 <th className="text-left font-mono text-gray-400 py-3 px-4 min-w-[200px]">
                   Feature
                 </th>
-                {["Free", "Starter", "Growth", "Scale", "Enterprise"].map(
-                  (name) => (
+                {[
+                  { name: "Free", key: "free" },
+                  { name: "Pay-per-call", key: "pay_per_call" },
+                  { name: "Starter", key: "starter" },
+                  { name: "Growth", key: "growth" },
+                  { name: "Scale", key: "scale" },
+                  { name: "Enterprise", key: "enterprise" },
+                ].map(
+                  (col) => (
                     <th
-                      key={name}
+                      key={col.key}
                       className={`text-center font-mono py-3 px-3 min-w-[100px] ${
-                        name === "Growth" ? "text-claw-400" : "text-gray-400"
+                        col.key === "growth"
+                          ? "text-claw-400"
+                          : col.key === "pay_per_call"
+                          ? "text-ooda-orient"
+                          : "text-gray-400"
                       }`}
                     >
-                      {name}
+                      {col.name}
                     </th>
                   )
                 )}
@@ -202,7 +221,7 @@ export default function PricingPage() {
                 <>
                   <tr key={section.category}>
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="font-mono font-semibold text-white py-3 px-4 bg-gray-900/50 border-b border-gray-800"
                     >
                       {section.category}
@@ -217,9 +236,9 @@ export default function PricingPage() {
                         {feature.name}
                       </td>
                       {(
-                        ["free", "starter", "growth", "scale", "enterprise"] as const
+                        ["free", "pay_per_call", "starter", "growth", "scale", "enterprise"] as const
                       ).map((tier) => {
-                        const value = feature[tier];
+                        const value = (feature as any)[tier];
                         return (
                           <td
                             key={tier}
@@ -240,6 +259,8 @@ export default function PricingPage() {
                                 className={`text-xs font-mono ${
                                   tier === "growth"
                                     ? "text-claw-400"
+                                    : tier === "pay_per_call"
+                                    ? "text-ooda-orient"
                                     : "text-gray-400"
                                 }`}
                               >
@@ -271,7 +292,7 @@ export default function PricingPage() {
             },
             {
               q: "What happens if I exceed my rate limit?",
-              a: "You'll receive a 429 Too Many Requests response with a Retry-After header. Upgrade your plan for higher limits, or use x402 USDC per-call payments.",
+              a: "You'll receive a 429 Too Many Requests response with a Retry-After header. Upgrade your plan for higher limits, switch to pay-per-call metered billing, or use x402 USDC machine payments.",
             },
             {
               q: "Can I change plans anytime?",
@@ -282,8 +303,12 @@ export default function PricingPage() {
               a: "x402 is a machine payment protocol. AI agents can pay $0.01 per API call using USDC on Base L2. No subscription needed -- include the payment header and the call is authorized instantly.",
             },
             {
+              q: "What is pay-per-call billing?",
+              a: "Pay-per-call is Stripe metered billing with no monthly subscription fee. You only pay $0.005 (half a cent) per API call, billed at the end of each month. Perfect if you want to avoid a monthly commitment but need more than the free tier.",
+            },
+            {
               q: "Is there a free trial for paid plans?",
-              a: "The free tier is permanently free with 100 calls/day. Paid plans can be canceled anytime with no commitment.",
+              a: "The free tier is permanently free. Paid plans can be canceled anytime with no commitment. Pay-per-call has zero upfront cost -- you only pay for actual usage.",
             },
           ].map((faq) => (
             <div

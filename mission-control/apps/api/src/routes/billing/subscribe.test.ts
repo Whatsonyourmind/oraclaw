@@ -25,10 +25,18 @@ const { mockCheckoutCreate, mockTierConfig } = vi.hoisted(() => {
     free: {
       name: 'Free',
       stripePriceId: '',
-      dailyLimit: 100,
-      monthlyCallsIncluded: 3000,
+      dailyLimit: 25,
+      monthlyCallsIncluded: 750,
       unitAmountDecimal: '0',
       description: 'Free tier',
+    },
+    pay_per_call: {
+      name: 'Pay-per-call',
+      stripePriceId: 'price_pay_per_call_test',
+      dailyLimit: 1000,
+      monthlyCallsIncluded: 0,
+      unitAmountDecimal: '0.5',
+      description: 'Pay-per-call tier',
     },
     starter: {
       name: 'Starter',
@@ -132,6 +140,30 @@ describe('POST /subscribe (BILL-03b)', () => {
       expect.objectContaining({
         customerId: 'cus_test_123',
         priceId: 'price_starter_test',
+      }),
+    );
+  });
+
+  // BILL-03b5: Valid pay_per_call tier creates Checkout Session (usage-based, no base subscription)
+  it('creates Checkout Session for pay_per_call tier', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/subscribe',
+      headers: {
+        'x-test-stripe-customer-id': 'cus_test_456',
+        'x-test-tier': 'pay_per_call',
+      },
+      payload: { tier: 'pay_per_call' },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json();
+    expect(body).toHaveProperty('checkout_url');
+    expect(body).toHaveProperty('session_id');
+    expect(mockCheckoutCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerId: 'cus_test_456',
+        priceId: 'price_pay_per_call_test',
       }),
     );
   });

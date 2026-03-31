@@ -33,10 +33,18 @@ export const TIER_CONFIG: Record<string, TierConfig> = {
   free: {
     name: 'Free',
     stripePriceId: '',
-    dailyLimit: 100,
-    monthlyCallsIncluded: 3000,
+    dailyLimit: 25,
+    monthlyCallsIncluded: 750,
     unitAmountDecimal: '0',
-    description: 'Get started with 100 API calls per day. No credit card required.',
+    description: 'Get started with 25 API calls per day. No credit card required.',
+  },
+  pay_per_call: {
+    name: 'Pay-per-call',
+    stripePriceId: process.env.STRIPE_PRICE_PAY_PER_CALL || '',
+    dailyLimit: 1000,
+    monthlyCallsIncluded: 0,
+    unitAmountDecimal: '0.5',
+    description: 'No monthly commitment. Pay $0.005 per API call. Billed monthly via Stripe.',
   },
   starter: {
     name: 'Starter',
