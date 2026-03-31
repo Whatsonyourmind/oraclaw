@@ -1,0 +1,153 @@
+name: Daily Product Report
+
+on:
+  schedule:
+    # 7:00 UTC = 8:00 CET (9:00 CEST in summer)
+    - cron: '0 7 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  daily-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate Daily Report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e  # Don't exit on individual failures
+
+          DATE=$(date -u +"%Y-%m-%d")
+          REPORT=""
+
+          # ── OraClaw API Health ──
+          ORACLAW_HEALTH=$(curl -s --max-time 15 "https://oraclaw-api.onrender.com/health" 2>/dev/null || echo "UNREACHABLE")
+          if echo "$ORACLAW_HEALTH" | grep -q '"ok"'; then
+            MODE=$(echo "$ORACLAW_HEALTH" | grep -o '"mode":"[^"]*"' | cut -d'"' -f4)
+            API_STATUS="healthy (mode: ${MODE:-unknown})"
+          elif echo "$ORACLAW_HEALTH" | grep -q "UNREACHABLE"; then
+            API_STATUS="UNREACHABLE (Render may be sleeping)"
+          else
+            API_STATUS="unexpected response"
+          fi
+
+          # ── npm Downloads (all 15 packages) ──
+          PACKAGES=(
+            "bandit" "solver" "decide" "graph" "calibrate" "simulate"
+            "evolve" "bayesian" "ensemble" "risk" "pathfind" "forecast"
+            "anomaly" "cmaes" "mcp-server"
+          )
+
+          TOTAL_DL=0
+          NPM_DETAILS=""
+          for pkg in "${PACKAGES[@]}"; do
+            DL=$(curl -s --max-time 5 "https://api.npmjs.org/downloads/point/last-week/@oraclaw/${pkg}" 2>/dev/null | grep -o '"downloads":[0-9]*' | cut -d: -f2)
+            DL=${DL:-0}
+            TOTAL_DL=$((TOTAL_DL + DL))
+            if [ "$DL" -gt 0 ]; then
+              NPM_DETAILS="${NPM_DETAILS}| @oraclaw/${pkg} | ${DL} |\n"
+            fi
+          done
+
+          # ── GitHub Stats (OraClaw public) ──
+          OC_STARS=$(gh api repos/Whatsonyourmind/oraclaw --jq '.stargazers_count' 2>/dev/null || echo "?")
+          OC_FORKS=$(gh api repos/Whatsonyourmind/oraclaw --jq '.forks_count' 2>/dev/null || echo "?")
+          OC_ISSUES=$(gh api repos/Whatsonyourmind/oraclaw --jq '.open_issues_count' 2>/dev/null || echo "?")
+          OC_WATCHERS=$(gh api repos/Whatsonyourmind/oraclaw --jq '.subscribers_count' 2>/dev/null || echo "?")
+
+          # Traffic
+          OC_VIEWS=$(gh api repos/Whatsonyourmind/oraclaw/traffic/views --jq '.uniques' 2>/dev/null || echo "?")
+          OC_CLONES=$(gh api repos/Whatsonyourmind/oraclaw/traffic/clones --jq '.uniques' 2>/dev/null || echo "?")
+
+          # ── DeckForge ──
+          DF_HEALTH=$(curl -s --max-time 15 "https://deckforge-api.onrender.com/v1/health" 2>/dev/null || echo "UNREACHABLE")
+          if echo "$DF_HEALTH" | grep -qi '"ok"\|"healthy"\|"status"'; then
+            DF_API="healthy"
+          elif echo "$DF_HEALTH" | grep -q "UNREACHABLE"; then
+            DF_API="UNREACHABLE"
+          else
+            DF_API="unexpected response"
+          fi
+
+          DF_DL=$(curl -s --max-time 5 "https://api.npmjs.org/downloads/point/last-week/@lukastan/deckforge" 2>/dev/null | grep -o '"downloads":[0-9]*' | cut -d: -f2)
+          DF_DL=${DF_DL:-0}
+
+          DF_STARS=$(gh api repos/Whatsonyourmind/deckforge --jq '.stargazers_count' 2>/dev/null || echo "?")
+          DF_FORKS=$(gh api repos/Whatsonyourmind/deckforge --jq '.forks_count' 2>/dev/null || echo "?")
+          DF_VIEWS=$(gh api repos/Whatsonyourmind/deckforge/traffic/views --jq '.uniques' 2>/dev/null || echo "?")
+          DF_CLONES=$(gh api repos/Whatsonyourmind/deckforge/traffic/clones --jq '.uniques' 2>/dev/null || echo "?")
+
+          DF_LANDING=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://deckforge.dev" 2>/dev/null || echo "000")
+
+          # ── OS Multi Science ──
+          OSMS_STARS=$(gh api repos/Whatsonyourmind/OS-Multi-Science --jq '.stargazers_count' 2>/dev/null || echo "?")
+          OSMS_FORKS=$(gh api repos/Whatsonyourmind/OS-Multi-Science --jq '.forks_count' 2>/dev/null || echo "?")
+          OSMS_VIEWS=$(gh api repos/Whatsonyourmind/OS-Multi-Science/traffic/views --jq '.uniques' 2>/dev/null || echo "?")
+
+          # ── Build Issue Body ──
+          BODY=$(cat <<HEREDOC
+          ## Daily Product Report -- ${DATE}
+
+          ### OraClaw
+
+          | Metric | Value |
+          |--------|-------|
+          | API Health | ${API_STATUS} |
+          | npm Downloads (week) | ${TOTAL_DL} |
+          | GitHub Stars | ${OC_STARS} |
+          | GitHub Forks | ${OC_FORKS} |
+          | Open Issues | ${OC_ISSUES} |
+          | Watchers | ${OC_WATCHERS} |
+          | Unique Viewers (14d) | ${OC_VIEWS} |
+          | Unique Cloners (14d) | ${OC_CLONES} |
+
+          <details>
+          <summary>npm Package Breakdown</summary>
+
+          | Package | Downloads/week |
+          |---------|---------------|
+          $(echo -e "${NPM_DETAILS}")
+
+          </details>
+
+          ### DeckForge
+
+          | Metric | Value |
+          |--------|-------|
+          | API Health | ${DF_API} |
+          | npm Downloads (week) | ${DF_DL} |
+          | GitHub Stars | ${DF_STARS} |
+          | GitHub Forks | ${DF_FORKS} |
+          | Unique Viewers (14d) | ${DF_VIEWS} |
+          | Unique Cloners (14d) | ${DF_CLONES} |
+          | Landing Page (deckforge.dev) | HTTP ${DF_LANDING} |
+
+          ### OS Multi Science
+
+          | Metric | Value |
+          |--------|-------|
+          | GitHub Stars | ${OSMS_STARS} |
+          | GitHub Forks | ${OSMS_FORKS} |
+          | Unique Viewers (14d) | ${OSMS_VIEWS} |
+
+          ---
+          *Generated automatically at $(date -u +"%H:%M UTC")*
+          HEREDOC
+          )
+
+          # ── Create Issue ──
+          gh api repos/Whatsonyourmind/oraclaw/labels -f name="daily-report" -f color="0e8a16" -f description="Automated daily product report" 2>/dev/null || true
+
+          gh issue create \
+            --repo Whatsonyourmind/oraclaw \
+            --title "Daily Report -- ${DATE}" \
+            --body "${BODY}" \
+            --label "daily-report"
+
+          echo "Daily report issue created successfully"
