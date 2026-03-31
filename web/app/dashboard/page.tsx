@@ -27,8 +27,8 @@ export default function DashboardPage() {
     tier: "Free",
     callsToday: 0,
     callsThisMonth: 0,
-    dailyLimit: 100,
-    monthlyLimit: 3000,
+    dailyLimit: 25,
+    monthlyLimit: 750,
   };
 
   const handleRequestKey = async (e: React.FormEvent) => {
@@ -279,6 +279,28 @@ const result = await bandit({
         </div>
       </div>
 
+      {/* Pay-per-call Option */}
+      <div className="p-6 rounded-lg border border-ooda-orient/30 bg-ooda-orient/5 mb-10">
+        <div className="flex items-center gap-2 mb-3">
+          <svg className="w-5 h-5 text-ooda-orient" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <h2 className="text-lg font-mono font-semibold text-white">
+            Pay-per-call Billing
+          </h2>
+        </div>
+        <p className="text-sm text-gray-400 mb-3">
+          No monthly subscription needed. Pay just <span className="text-ooda-orient font-mono font-semibold">$0.005 per call</span> (half a cent), billed monthly via Stripe.
+          Perfect for variable workloads or getting started without commitment.
+        </p>
+        <Link
+          href="/pricing"
+          className="inline-block px-4 py-2 bg-ooda-orient text-black font-mono text-sm font-semibold rounded-lg hover:bg-ooda-orient/80 transition-colors"
+        >
+          Switch to Pay-per-call
+        </Link>
+      </div>
+
       {/* Subscription Management */}
       <div className="p-6 rounded-lg border border-gray-800 bg-gray-900/50">
         <h2 className="text-lg font-mono font-semibold text-white mb-4">
@@ -286,7 +308,8 @@ const result = await bandit({
         </h2>
         <p className="text-sm text-gray-400 mb-4">
           Manage your subscription, update payment methods, view invoices, and
-          change plans through the Stripe Customer Portal.
+          change plans through the Stripe Customer Portal. Pay-per-call usage is
+          also visible in your Stripe dashboard.
         </p>
         <div className="flex flex-wrap gap-3">
           <a

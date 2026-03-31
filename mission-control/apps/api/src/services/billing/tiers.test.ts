@@ -8,7 +8,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 describe('TIER_CONFIG', () => {
-  const TIER_KEYS = ['free', 'starter', 'growth', 'scale', 'enterprise'] as const;
+  const TIER_KEYS = ['free', 'pay_per_call', 'starter', 'growth', 'scale', 'enterprise'] as const;
   const REQUIRED_FIELDS = [
     'name',
     'stripePriceId',
@@ -23,6 +23,7 @@ describe('TIER_CONFIG', () => {
 
   beforeEach(async () => {
     // Set env vars for paid tier Stripe price IDs
+    process.env.STRIPE_PRICE_PAY_PER_CALL = 'price_pay_per_call_test';
     process.env.STRIPE_PRICE_STARTER = 'price_starter_test';
     process.env.STRIPE_PRICE_GROWTH = 'price_growth_test';
     process.env.STRIPE_PRICE_SCALE = 'price_scale_test';
@@ -35,19 +36,20 @@ describe('TIER_CONFIG', () => {
   });
 
   afterEach(() => {
+    delete process.env.STRIPE_PRICE_PAY_PER_CALL;
     delete process.env.STRIPE_PRICE_STARTER;
     delete process.env.STRIPE_PRICE_GROWTH;
     delete process.env.STRIPE_PRICE_SCALE;
     delete process.env.STRIPE_PRICE_ENTERPRISE;
   });
 
-  // BILL-03a: All 5 tiers exist
-  it('exports all 5 tier keys: free, starter, growth, scale, enterprise', () => {
+  // BILL-03a: All 6 tiers exist
+  it('exports all 6 tier keys: free, pay_per_call, starter, growth, scale, enterprise', () => {
     const keys = Object.keys(TIER_CONFIG);
     for (const tier of TIER_KEYS) {
       expect(keys).toContain(tier);
     }
-    expect(keys).toHaveLength(5);
+    expect(keys).toHaveLength(6);
   });
 
   // BILL-03a: Each tier has required fields
@@ -59,12 +61,25 @@ describe('TIER_CONFIG', () => {
   });
 
   // BILL-03a3: Free tier specifics
-  it('free tier has dailyLimit=100 and empty stripePriceId', () => {
+  it('free tier has dailyLimit=25 and empty stripePriceId', () => {
     const free = TIER_CONFIG.free;
-    expect(free.dailyLimit).toBe(100);
+    expect(free.dailyLimit).toBe(25);
     expect(free.stripePriceId).toBe('');
-    expect(free.monthlyCallsIncluded).toBe(3000);
+    expect(free.monthlyCallsIncluded).toBe(750);
     expect(free.unitAmountDecimal).toBe('0');
+  });
+
+  // BILL-03a4: Pay-per-call tier specifics
+  it('pay_per_call tier has dailyLimit=1000, monthlyCallsIncluded=0, unitAmountDecimal=0.5', () => {
+    const payPerCall = TIER_CONFIG.pay_per_call;
+    expect(payPerCall.dailyLimit).toBe(1000);
+    expect(payPerCall.monthlyCallsIncluded).toBe(0);
+    expect(payPerCall.unitAmountDecimal).toBe('0.5');
+    expect(payPerCall.name).toBe('Pay-per-call');
+  });
+
+  it('pay_per_call tier reads stripePriceId from STRIPE_PRICE_PAY_PER_CALL env', () => {
+    expect(TIER_CONFIG.pay_per_call.stripePriceId).toBe('price_pay_per_call_test');
   });
 
   // BILL-03a2: Paid tiers source stripePriceId from env vars

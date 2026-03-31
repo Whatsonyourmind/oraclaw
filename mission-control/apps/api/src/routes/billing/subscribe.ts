@@ -50,7 +50,7 @@ export async function subscribeRoutes(fastify: FastifyInstance): Promise<void> {
           type: 'https://web-olive-one-89.vercel.app/errors/invalid-tier',
           title: 'Invalid tier',
           status: 400,
-          detail: `Unknown tier '${tier}'. Valid paid tiers: starter, growth, scale.`,
+          detail: `Unknown tier '${tier}'. Valid paid tiers: pay_per_call, starter, growth, scale.`,
         });
       }
 

@@ -16,9 +16,9 @@ const features = [
     icon: "cpu",
   },
   {
-    title: "Dual Billing Paths",
+    title: "Three Billing Paths",
     description:
-      "Pay with Stripe API keys for traditional metered billing, or use x402 USDC machine payments for autonomous AI agents. Free tier included (100 calls/day).",
+      "Stripe subscriptions for predictable usage, pay-per-call metering at $0.005/call with no monthly fee, or x402 USDC machine payments for autonomous AI agents. Free tier included (25 calls/day).",
     icon: "wallet",
   },
   {
@@ -92,7 +92,7 @@ export default function HomePage() {
               </Link>
             </div>
             <p className="text-xs text-gray-600 mt-4 font-mono">
-              Free tier: 100 calls/day. No credit card. No API key required.
+              Free tier: 25 calls/day. No credit card. No API key required.
             </p>
           </div>
 
@@ -257,19 +257,25 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           {displayTiers.map((tier) => (
             <div
               key={tier.key}
               className={`relative flex flex-col p-6 rounded-lg border ${
                 tier.highlighted
                   ? "border-claw-500 bg-claw-500/5 glow-green"
+                  : tier.key === "pay_per_call"
+                  ? "border-ooda-orient/50 bg-ooda-orient/5"
                   : "border-gray-800 bg-gray-900/50"
               } card-hover`}
             >
               {tier.badge && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="bg-claw-500 text-black text-xs font-mono font-bold px-3 py-1 rounded-full">
+                  <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full ${
+                    tier.key === "pay_per_call"
+                      ? "bg-ooda-orient text-black"
+                      : "bg-claw-500 text-black"
+                  }`}>
                     {tier.badge}
                   </span>
                 </div>
@@ -311,6 +317,8 @@ export default function HomePage() {
                   className={`block w-full text-center px-4 py-2.5 font-mono text-sm font-semibold rounded-lg transition-colors ${
                     tier.highlighted
                       ? "bg-claw-500 text-black hover:bg-claw-400"
+                      : tier.key === "pay_per_call"
+                      ? "bg-ooda-orient text-black hover:bg-ooda-orient/80"
                       : "bg-gray-800 text-white hover:bg-gray-700"
                   }`}
                 >
@@ -338,7 +346,7 @@ export default function HomePage() {
             Start making better decisions
           </h2>
           <p className="text-gray-400 mb-8 max-w-lg mx-auto">
-            Free tier includes 100 calls per day. No credit card required. No
+            Free tier includes 25 calls per day. No credit card required. No
             API key needed.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
