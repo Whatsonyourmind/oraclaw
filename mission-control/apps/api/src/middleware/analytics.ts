@@ -50,27 +50,39 @@ export function createAnalyticsHook() {
 
     const duration = Date.now() - ((request as any).startTime || Date.now());
 
-    // Fire-and-forget: emit analytics event without blocking the response.
-    // The .catch() ensures errors are logged but never bubble up.
-    db.query(
-      `INSERT INTO oracle_analytics_events (event_type, event_category, entity_id, ip_address, user_agent, duration_ms, payload, metadata)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [
-        'api_request',
-        request.method,
-        request.url,
-        request.ip,
-        request.headers['user-agent'] || 'unknown',
-        duration,
-        JSON.stringify({ statusCode: reply.statusCode }),
-        JSON.stringify({
-          tier: (request as any).tier || 'free',
-          billingPath: (request as any).billingPath || 'free',
-          keyId: (request as any).keyId || null,
-        }),
-      ],
-    ).catch((err) => {
-      request.log.warn({ err }, 'analytics insert failed');
-    });
+    const event = {
+      method: request.method,
+      url: request.url,
+      status: reply.statusCode,
+      duration_ms: duration,
+      tier: (request as any).tier || 'free',
+      billingPath: (request as any).billingPath || 'free',
+      keyId: (request as any).keyId || null,
+      ip: request.ip,
+      ua: (request.headers['user-agent'] || 'unknown').slice(0, 120),
+    };
+
+    // Always log to stdout (captured by Render/Docker logs)
+    request.log.info({ analytics: event }, 'api_request');
+
+    // Also persist to DB if connected (fire-and-forget)
+    if (db.isConnected()) {
+      db.query(
+        `INSERT INTO oracle_analytics_events (event_type, event_category, entity_id, ip_address, user_agent, duration_ms, payload, metadata)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [
+          'api_request',
+          event.method,
+          event.url,
+          event.ip,
+          event.ua,
+          event.duration_ms,
+          JSON.stringify({ statusCode: event.status }),
+          JSON.stringify({ tier: event.tier, billingPath: event.billingPath, keyId: event.keyId }),
+        ],
+      ).catch((err) => {
+        request.log.warn({ err }, 'analytics db insert failed');
+      });
+    }
   };
 }
