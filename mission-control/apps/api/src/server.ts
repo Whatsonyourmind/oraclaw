@@ -30,6 +30,9 @@ import { subscribeRoutes } from "./routes/billing/subscribe";
 import { portalRoutes } from "./routes/billing/portal";
 import { webhookRoutes } from "./routes/billing/webhook";
 
+// Auth routes (self-service signup)
+import { signupRoutes } from "./routes/auth/signup";
+
 // AI discovery route
 import { llmsTxtRoute } from "./routes/llms-txt";
 
@@ -47,6 +50,9 @@ import { createX402SettleHook } from "./hooks/x402-settle";
 
 // RFC 9457 Problem Details
 import { sendProblem, ProblemTypes } from "./utils/problem-details";
+
+// Stripe product auto-provisioning
+import { provisionStripeProducts } from "./services/billing/provision";
 
 // ── Graceful service initialization ─────────────────────────
 
@@ -102,7 +108,7 @@ async function initX402(logger: { info: (...a: unknown[]) => void; warn: (...a: 
     const facilitatorUrl = process.env.X402_FACILITATOR_URL || "https://x402.org/facilitator";
     const facilitatorClient = new HTTPFacilitatorClient({ url: facilitatorUrl });
     const server = new x402ResourceServer(facilitatorClient);
-    const network = (process.env.X402_NETWORK || "eip155:84532") as `${string}:${string}`;
+    const network = (process.env.X402_NETWORK || "eip155:8453") as `${string}:${string}`;
     server.register(network, new ExactEvmScheme());
     await server.initialize();
     logger.info("[BOOT] x402 payment system initialized");
@@ -146,11 +152,17 @@ async function main() {
 
   const unkeyClient = initUnkey();
   const stripeClient = initStripe();
+
+  // Auto-provision Stripe products/prices if not set via env vars
+  if (stripeClient) {
+    await provisionStripeProducts(stripeClient, app.log);
+  }
+
   const x402Server = await initX402(app.log);
 
   const walletAddress = process.env.RECEIVING_WALLET_ADDRESS;
   const x402PricePerCall = process.env.X402_PRICE_PER_CALL || "$0.001";
-  const x402Network = process.env.X402_NETWORK || "eip155:84532";
+  const x402Network = process.env.X402_NETWORK || "eip155:8453";
 
   // ── Hook 1: x402 payment verification (preHandler) ──────
   // Runs BEFORE Unkey auth. If valid x402 payment, sets billingPath='x402' and skips auth.
@@ -249,6 +261,46 @@ async function main() {
 
   app.addHook("onResponse", createAnalyticsHook());
 
+  // ── Hook 6: Usage _meta injection (onSend) ──────────────
+  // Injects tier/quota info into every JSON response body.
+  // Nudges free/pay-per-call users to upgrade when approaching limits.
+
+  app.addHook("onSend", async (request, reply, payload) => {
+    if (!request.url.startsWith("/api/v1/") || typeof payload !== "string") return payload;
+    const ct = reply.getHeader("content-type");
+    if (!ct || !String(ct).includes("application/json")) return payload;
+    // Skip billing/auth/health routes
+    if (request.url.includes("/billing/") || request.url.includes("/auth/") || request.url.endsWith("/health") || request.url.endsWith("/pricing")) return payload;
+
+    try {
+      const data = JSON.parse(payload);
+      const remaining = request.rateLimitRemaining ?? Number(reply.getHeader("x-ratelimit-remaining"));
+      const limit = request.rateLimitLimit ?? Number(reply.getHeader("x-ratelimit-limit"));
+      const tier = request.tier || "free";
+
+      data._meta = {
+        tier,
+        ...(Number.isFinite(remaining) && { calls_remaining: remaining }),
+        ...(Number.isFinite(limit) && { calls_limit: limit }),
+      };
+
+      // Upgrade nudge when at 80%+ usage
+      if (Number.isFinite(remaining) && Number.isFinite(limit) && limit > 0) {
+        const usage = 1 - remaining / limit;
+        if (usage >= 0.8 && (tier === "free" || tier === "pay_per_call")) {
+          data._meta.upgrade_url = "https://oraclaw-api.onrender.com/api/v1/pricing";
+          data._meta.upgrade_hint = tier === "free"
+            ? "Sign up at POST /api/v1/auth/signup for 1,000 calls/day"
+            : "Subscribe at POST /api/v1/billing/subscribe for higher limits";
+        }
+      }
+
+      return JSON.stringify(data);
+    } catch {
+      return payload;
+    }
+  });
+
   // ── Routes ──────────────────────────────────────────────
 
   // Public API routes (all 14+ algorithm endpoints)
@@ -256,6 +308,9 @@ async function main() {
 
   // Batch endpoint
   await app.register(batchRoute);
+
+  // Auth routes (self-service signup)
+  await app.register(signupRoutes, { prefix: "/api/v1/auth" });
 
   // Billing routes (subscribe + portal + webhook)
   await app.register(subscribeRoutes, { prefix: "/api/v1/billing" });

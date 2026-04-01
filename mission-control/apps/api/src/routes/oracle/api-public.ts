@@ -867,35 +867,49 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── Pricing / Docs Endpoint ────────────────────────
 
   fastify.get("/api/v1/pricing", async () => ({
+    signup: "POST /api/v1/auth/signup with {\"email\":\"you@example.com\"} to get an API key instantly",
     tiers: {
-      free: { price: "$0", calls_per_month: 3000, algorithms: "all", support: "community" },
-      starter: { price: "$99/mo", calls_per_month: 50000, algorithms: "all", support: "email" },
-      growth: { price: "$499/mo", calls_per_month: 500000, algorithms: "all", support: "priority" },
-      scale: { price: "$2,499/mo", calls_per_month: 5000000, algorithms: "all", support: "dedicated" },
-      enterprise: { price: "custom", calls_per_month: "unlimited", algorithms: "all + custom", support: "white-glove" },
-    },
-    machine_payments: {
-      protocol: "x402 / Stripe MPP",
-      currency: "USDC on Base",
-      per_call: {
-        bandit: "$0.01",
-        contextual_bandit: "$0.02",
-        constraints: "$0.10",
-        schedule: "$0.10",
-        graph: "$0.05",
-        convergence: "$0.02",
-        calibration: "$0.01",
-        montecarlo: "$0.05",
-        evolve: "$0.10",
-        bayesian: "$0.02",
-        ensemble: "$0.05",
-        scenario: "$0.08",
-        pathfind: "$0.03",
-        forecast: "$0.05",
-        anomaly: "$0.02",
-        cmaes: "$0.10",
-        portfolio_risk: "$0.10",
+      free: {
+        price: "$0",
+        calls_per_day: 25,
+        calls_per_month: 750,
+        auth: "No API key needed (IP-based rate limiting)",
+        algorithms: "all 17",
+      },
+      pay_per_call: {
+        price: "$0.005/call",
+        calls_per_day: 1000,
+        billing: "Metered — billed monthly via Stripe",
+        auth: "API key required (signup to get one)",
+        algorithms: "all 17",
+      },
+      starter: {
+        price: "$9/mo",
+        calls_per_month: 50000,
+        calls_per_day: 1667,
+        algorithms: "all 17",
+        support: "email",
+      },
+      growth: {
+        price: "$49/mo",
+        calls_per_month: 500000,
+        calls_per_day: 16667,
+        algorithms: "all 17",
+        support: "priority",
+      },
+      scale: {
+        price: "$199/mo",
+        calls_per_month: 5000000,
+        calls_per_day: 166667,
+        algorithms: "all 17",
+        support: "dedicated",
       },
     },
+    machine_payments: {
+      protocol: "x402 (USDC on Base mainnet)",
+      how: "Send payment proof in X-PAYMENT header — no API key or signup needed",
+      per_call: "$0.001 (all algorithms)",
+    },
+    upgrade: "POST /api/v1/billing/subscribe with {\"tier\":\"starter\"} (requires API key auth)",
   }));
 }
