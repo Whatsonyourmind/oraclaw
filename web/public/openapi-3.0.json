@@ -1,0 +1,1039 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "OraClaw Decision Intelligence API",
+    "description": "19 production-grade ML algorithms for optimization, simulation, prediction, and planning. Sub-25ms response times. Free tier: 25 calls/day.",
+    "version": "2.3.0",
+    "contact": {
+      "name": "OraClaw",
+      "url": "https://github.com/Whatsonyourmind/oraclaw"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://oraclaw-api.onrender.com",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:3001",
+      "description": "Development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Optimize",
+      "description": "Bandits, genetic algorithms, CMA-ES"
+    },
+    {
+      "name": "Simulate",
+      "description": "Monte Carlo simulation, scenario planning"
+    },
+    {
+      "name": "Solve",
+      "description": "Constraint optimization (LP/MIP), scheduling"
+    },
+    {
+      "name": "Analyze",
+      "description": "Decision graphs, portfolio risk"
+    },
+    {
+      "name": "Predict",
+      "description": "Bayesian inference, ensemble, forecasting"
+    },
+    {
+      "name": "Detect",
+      "description": "Anomaly detection"
+    },
+    {
+      "name": "Score",
+      "description": "Convergence and calibration scoring"
+    },
+    {
+      "name": "Plan",
+      "description": "A* pathfinding"
+    }
+  ],
+  "paths": {
+    "/api/v1/optimize/bandit": {
+      "post": {
+        "tags": [
+          "Optimize"
+        ],
+        "summary": "Multi-Armed Bandit",
+        "description": "UCB1, Thompson Sampling, and Epsilon-Greedy algorithms for explore/exploit decisions. Maximizes cumulative reward across options with unknown payoffs.",
+        "operationId": "optimizeBandit",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "arms"
+                ],
+                "properties": {
+                  "arms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "name"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "pulls": {
+                          "type": "integer",
+                          "default": 0
+                        },
+                        "totalReward": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    }
+                  },
+                  "algorithm": {
+                    "type": "string",
+                    "enum": [
+                      "ucb1",
+                      "thompson",
+                      "epsilon-greedy"
+                    ],
+                    "default": "ucb1"
+                  },
+                  "config": {
+                    "type": "object",
+                    "properties": {
+                      "explorationConstant": {
+                        "type": "number"
+                      },
+                      "rewardDecay": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "arms": [
+                  {
+                    "id": "A",
+                    "name": "Option A",
+                    "pulls": 10,
+                    "totalReward": 7
+                  },
+                  {
+                    "id": "B",
+                    "name": "Option B",
+                    "pulls": 10,
+                    "totalReward": 5
+                  },
+                  {
+                    "id": "C",
+                    "name": "Option C",
+                    "pulls": 2,
+                    "totalReward": 1.8
+                  }
+                ],
+                "algorithm": "ucb1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bandit selection result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "selected": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "score": {
+                      "type": "number"
+                    },
+                    "algorithm": {
+                      "type": "string"
+                    },
+                    "exploitation": {
+                      "type": "number"
+                    },
+                    "exploration": {
+                      "type": "number"
+                    },
+                    "regret": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/optimize/contextual-bandit": {
+      "post": {
+        "tags": [
+          "Optimize"
+        ],
+        "summary": "Contextual Bandit (LinUCB)",
+        "description": "Context-aware decision making using linear upper confidence bound with feature vectors.",
+        "operationId": "optimizeContextualBandit",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "arms",
+                  "context"
+                ],
+                "properties": {
+                  "arms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "context": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "history": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "alpha": {
+                    "type": "number",
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contextual selection result"
+          }
+        }
+      }
+    },
+    "/api/v1/optimize/evolve": {
+      "post": {
+        "tags": [
+          "Optimize"
+        ],
+        "summary": "Genetic Algorithm",
+        "description": "Multi-objective evolutionary optimization with Pareto frontier. Supports tournament, roulette, and rank selection.",
+        "operationId": "optimizeEvolve",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "geneLength",
+                  "populationSize",
+                  "maxGenerations"
+                ],
+                "properties": {
+                  "geneLength": {
+                    "type": "integer"
+                  },
+                  "populationSize": {
+                    "type": "integer",
+                    "maximum": 500
+                  },
+                  "maxGenerations": {
+                    "type": "integer",
+                    "maximum": 500
+                  },
+                  "bounds": {
+                    "type": "object"
+                  },
+                  "fitnessWeights": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evolution result with best chromosome and Pareto frontier"
+          }
+        }
+      }
+    },
+    "/api/v1/optimize/cmaes": {
+      "post": {
+        "tags": [
+          "Optimize"
+        ],
+        "summary": "CMA-ES",
+        "description": "Covariance Matrix Adaptation Evolution Strategy for derivative-free continuous optimization.",
+        "operationId": "optimizeCmaes",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "dimension"
+                ],
+                "properties": {
+                  "dimension": {
+                    "type": "integer"
+                  },
+                  "initialMean": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "initialSigma": {
+                    "type": "number"
+                  },
+                  "maxIterations": {
+                    "type": "integer",
+                    "maximum": 5000
+                  },
+                  "objectiveWeights": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Optimization result with best solution and fitness"
+          }
+        }
+      }
+    },
+    "/api/v1/simulate/montecarlo": {
+      "post": {
+        "tags": [
+          "Simulate"
+        ],
+        "summary": "Monte Carlo Simulation",
+        "description": "Run probabilistic simulations with configurable distributions (normal, lognormal, uniform, triangular, beta, exponential).",
+        "operationId": "simulateMonteCarlo",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "simulations",
+                  "distribution",
+                  "params"
+                ],
+                "properties": {
+                  "simulations": {
+                    "type": "integer",
+                    "maximum": 2000
+                  },
+                  "distribution": {
+                    "type": "string",
+                    "enum": [
+                      "normal",
+                      "lognormal",
+                      "uniform",
+                      "triangular",
+                      "beta",
+                      "exponential"
+                    ]
+                  },
+                  "params": {
+                    "type": "object"
+                  }
+                }
+              },
+              "example": {
+                "simulations": 1000,
+                "distribution": "normal",
+                "params": {
+                  "mean": 100,
+                  "stddev": 15
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Simulation results with statistics and histogram"
+          }
+        }
+      }
+    },
+    "/api/v1/simulate/scenario": {
+      "post": {
+        "tags": [
+          "Simulate"
+        ],
+        "summary": "Scenario Planning",
+        "description": "What-if analysis comparing multiple scenarios against a base case.",
+        "operationId": "simulateScenario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "baseCase",
+                  "scenarios"
+                ],
+                "properties": {
+                  "baseCase": {
+                    "type": "object"
+                  },
+                  "scenarios": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Scenario comparison results"
+          }
+        }
+      }
+    },
+    "/api/v1/solve/constraints": {
+      "post": {
+        "tags": [
+          "Solve"
+        ],
+        "summary": "Constraint Optimizer (LP/MIP)",
+        "description": "Linear and mixed-integer programming using production HiGHS solver (WASM).",
+        "operationId": "solveConstraints",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "objective",
+                  "constraints"
+                ],
+                "properties": {
+                  "objective": {
+                    "type": "object",
+                    "properties": {
+                      "coefficients": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      },
+                      "direction": {
+                        "type": "string",
+                        "enum": [
+                          "maximize",
+                          "minimize"
+                        ]
+                      }
+                    }
+                  },
+                  "constraints": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "bounds": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Optimization result with variable values and objective"
+          }
+        }
+      }
+    },
+    "/api/v1/solve/schedule": {
+      "post": {
+        "tags": [
+          "Solve"
+        ],
+        "summary": "Schedule Optimizer",
+        "description": "Optimal task-to-slot assignment with constraint satisfaction.",
+        "operationId": "solveSchedule",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "tasks",
+                  "slots"
+                ],
+                "properties": {
+                  "tasks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "slots": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Schedule assignments and utilization"
+          }
+        }
+      }
+    },
+    "/api/v1/analyze/graph": {
+      "post": {
+        "tags": [
+          "Analyze"
+        ],
+        "summary": "Decision Graph",
+        "description": "PageRank, Louvain community detection, and shortest path analysis using graphology.",
+        "operationId": "analyzeGraph",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nodes",
+                  "edges"
+                ],
+                "properties": {
+                  "nodes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "edges": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "sourceGoal": {
+                    "type": "string"
+                  },
+                  "targetGoal": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Graph analysis with PageRank, communities, shortest path"
+          }
+        }
+      }
+    },
+    "/api/v1/analyze/risk": {
+      "post": {
+        "tags": [
+          "Analyze"
+        ],
+        "summary": "Portfolio Risk (VaR/CVaR)",
+        "description": "Value at Risk and Conditional VaR for portfolio risk assessment.",
+        "operationId": "analyzeRisk",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "weights",
+                  "returns",
+                  "confidence"
+                ],
+                "properties": {
+                  "weights": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "returns": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "confidence": {
+                    "type": "number"
+                  },
+                  "horizonDays": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Risk metrics including VaR, CVaR, volatility"
+          }
+        }
+      }
+    },
+    "/api/v1/predict/bayesian": {
+      "post": {
+        "tags": [
+          "Predict"
+        ],
+        "summary": "Bayesian Inference",
+        "description": "Bayesian belief updating with configurable priors and evidence factors.",
+        "operationId": "predictBayesian",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "prior",
+                  "evidence"
+                ],
+                "properties": {
+                  "prior": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "factor": {
+                          "type": "string"
+                        },
+                        "weight": {
+                          "type": "number"
+                        },
+                        "value": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "prior": 0.3,
+                "evidence": [
+                  {
+                    "factor": "positive_test",
+                    "weight": 0.9,
+                    "value": 0.05
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Posterior probability and calibration metrics"
+          }
+        }
+      }
+    },
+    "/api/v1/predict/ensemble": {
+      "post": {
+        "tags": [
+          "Predict"
+        ],
+        "summary": "Ensemble Model",
+        "description": "Combine multiple model predictions using weighted voting, stacking, or Bayesian model averaging.",
+        "operationId": "predictEnsemble",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "predictions"
+                ],
+                "properties": {
+                  "predictions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "weighted-voting",
+                      "stacking",
+                      "bayesian-averaging"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ensemble consensus with confidence and weights"
+          }
+        }
+      }
+    },
+    "/api/v1/predict/forecast": {
+      "post": {
+        "tags": [
+          "Predict"
+        ],
+        "summary": "Time Series Forecast",
+        "description": "ARIMA and Holt-Winters forecasting with confidence intervals.",
+        "operationId": "predictForecast",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data",
+                  "steps"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "steps": {
+                    "type": "integer"
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "arima",
+                      "holt-winters"
+                    ]
+                  },
+                  "seasonLength": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Forecast values with confidence intervals"
+          }
+        }
+      }
+    },
+    "/api/v1/detect/anomaly": {
+      "post": {
+        "tags": [
+          "Detect"
+        ],
+        "summary": "Anomaly Detection",
+        "description": "Statistical anomaly detection using Z-Score and IQR methods.",
+        "operationId": "detectAnomaly",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "zscore",
+                      "iqr"
+                    ],
+                    "default": "zscore"
+                  },
+                  "threshold": {
+                    "type": "number"
+                  }
+                }
+              },
+              "example": {
+                "data": [
+                  10,
+                  12,
+                  11,
+                  13,
+                  50,
+                  12,
+                  11,
+                  10
+                ],
+                "method": "zscore",
+                "threshold": 2
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Detected anomalies with statistics"
+          }
+        }
+      }
+    },
+    "/api/v1/score/convergence": {
+      "post": {
+        "tags": [
+          "Score"
+        ],
+        "summary": "Convergence Scoring",
+        "description": "Multi-source signal agreement via Hellinger distance.",
+        "operationId": "scoreConvergence",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "sources"
+                ],
+                "properties": {
+                  "sources": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "config": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Convergence score and pairwise distances"
+          }
+        }
+      }
+    },
+    "/api/v1/score/calibration": {
+      "post": {
+        "tags": [
+          "Score"
+        ],
+        "summary": "Calibration Scoring",
+        "description": "Brier score and log score for evaluating prediction calibration.",
+        "operationId": "scoreCalibration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "predictions",
+                  "outcomes"
+                ],
+                "properties": {
+                  "predictions": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "outcomes": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Brier score, log score, and calibration metrics"
+          }
+        }
+      }
+    },
+    "/api/v1/plan/pathfind": {
+      "post": {
+        "tags": [
+          "Plan"
+        ],
+        "summary": "A* Pathfinding",
+        "description": "A* shortest path with K-shortest alternatives using Yen's algorithm. Supports cost, time, and risk heuristics.",
+        "operationId": "planPathfind",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nodes",
+                  "edges",
+                  "start",
+                  "end"
+                ],
+                "properties": {
+                  "nodes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "edges": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "start": {
+                    "type": "string"
+                  },
+                  "end": {
+                    "type": "string"
+                  },
+                  "heuristic": {
+                    "type": "string",
+                    "enum": [
+                      "zero",
+                      "time",
+                      "cost",
+                      "risk",
+                      "weighted"
+                    ]
+                  },
+                  "kPaths": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Shortest path with cost breakdown and alternatives"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "description": "Bearer <your-api-key> from Unkey. Not required for free tier (25 calls/day)."
+      }
+    }
+  }
+}
