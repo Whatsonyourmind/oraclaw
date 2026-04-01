@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { CurlCommand } from "./CurlCommand";
+import { McpConfig } from "./McpConfig";
 
 interface TryItFormProps {
   algorithmId: string;
@@ -8,6 +10,8 @@ interface TryItFormProps {
   endpoint: string;
   defaultInput: Record<string, unknown>;
   description: string;
+  externalInput?: Record<string, unknown> | null;
+  externalInputKey?: number;
 }
 
 const API_BASE =
@@ -19,8 +23,17 @@ export function TryItForm({
   endpoint,
   defaultInput,
   description,
+  externalInput,
+  externalInputKey,
 }: TryItFormProps) {
   const [input, setInput] = useState(JSON.stringify(defaultInput, null, 2));
+
+  // Update input when externalInput changes (from scenario buttons)
+  useEffect(() => {
+    if (externalInput) {
+      setInput(JSON.stringify(externalInput, null, 2));
+    }
+  }, [externalInput, externalInputKey]);
   const [output, setOutput] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -158,6 +171,12 @@ export function TryItForm({
           </div>
         </div>
       </div>
+
+      {/* cURL Command */}
+      <CurlCommand endpoint={endpoint} inputJson={input} />
+
+      {/* MCP Config */}
+      <McpConfig />
     </div>
   );
 }

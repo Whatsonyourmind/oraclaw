@@ -70,6 +70,7 @@ const navLinks = [
   { href: "/demo", label: "Live Demo" },
   { href: "/algorithms", label: "Algorithms" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/blog", label: "Blog" },
   { href: "/docs", label: "API Docs" },
   { href: "/try/bandit", label: "Try It" },
 ];

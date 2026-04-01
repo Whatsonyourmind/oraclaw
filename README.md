@@ -168,6 +168,16 @@ curl -X POST https://oraclaw-api.onrender.com/api/v1/detect/anomaly \
 
 ---
 
+## Building with OraClaw?
+
+We'd love to hear what you're working on. Share your use case, ask questions, or request features:
+
+- [Tell us what you're building](https://github.com/Whatsonyourmind/oraclaw/discussions/1)
+- [Report an issue](https://github.com/Whatsonyourmind/oraclaw/issues)
+- [Join the conversation on Moltbook](https://www.moltbook.com/u/oraclaw)
+
+---
+
 ## Links
 
 - **Live API:** https://oraclaw-api.onrender.com

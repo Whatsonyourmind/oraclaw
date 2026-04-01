@@ -5,12 +5,14 @@
  * Gracefully degrades when env vars are missing (freemium mode).
  *
  * Hook execution order for /api/v1/* requests:
+ *   0. Analytics timer (onRequest) -- stamps startTime for duration tracking
  *   1. @fastify/rate-limit (onRequest) -- free tier IP limiting
  *   2. x402 payment (preHandler) -- checks PAYMENT-SIGNATURE, sets billingPath='x402'
  *   3. Unkey auth (preHandler) -- skips if billingPath already set
  *   4. Rate limit headers (onSend) -- X-RateLimit-* response headers
  *   5. Stripe meter (onResponse) -- only fires when billingPath='stripe'
  *   6. x402 settlement (onResponse) -- only fires when billingPath='x402' and 2xx
+ *   7. Analytics event (onResponse) -- fire-and-forget insert to oracle_analytics_events
  */
 
 import Fastify from "fastify";
@@ -33,6 +35,9 @@ import { llmsTxtRoute } from "./routes/llms-txt";
 
 // Auth middleware
 import { createAuthMiddleware, rateLimitHeadersHook } from "./middleware/auth";
+
+// Analytics middleware
+import { createAnalyticsTimerHook, createAnalyticsHook } from "./middleware/analytics";
 
 // Hooks
 import { createMeterUsageHook } from "./hooks/meter-usage";
@@ -127,6 +132,11 @@ async function main() {
 
   await app.register(compress, { global: true });
   await app.register(cors, { origin: true, credentials: true });
+
+  // ── Hook 0: Analytics timer (onRequest) ─────────────────
+  // Stamps startTime on every request for duration tracking in the analytics hook.
+
+  app.addHook("onRequest", createAnalyticsTimerHook());
 
   // ── Free-tier rate limiting (must be before routes) ─────
 
@@ -233,6 +243,11 @@ async function main() {
       }
     });
   }
+
+  // ── Hook 7: Analytics event tracking (onResponse) ───────
+  // Fire-and-forget insert to oracle_analytics_events for all /api/v1/ requests.
+
+  app.addHook("onResponse", createAnalyticsHook());
 
   // ── Routes ──────────────────────────────────────────────
 
