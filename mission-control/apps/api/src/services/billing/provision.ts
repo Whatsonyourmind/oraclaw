@@ -132,12 +132,65 @@ async function findOrCreateTierPrice(
 }
 
 /**
+ * Find or create webhook endpoint for subscription lifecycle events.
+ * On creation, captures the signing secret and sets it in process.env
+ * so the webhook route can verify signatures immediately.
+ */
+async function provisionWebhook(stripe: Stripe, logger: Logger): Promise<void> {
+  const webhookUrl = 'https://oraclaw-api.onrender.com/api/v1/billing/webhook';
+  const enabledEvents: Stripe.WebhookEndpointCreateParams.EnabledEvent[] = [
+    'customer.subscription.created',
+    'customer.subscription.updated',
+    'customer.subscription.deleted',
+    'customer.subscription.trial_will_end',
+    'invoice.paid',
+    'invoice.payment_failed',
+    'payment_method.attached',
+    'payment_method.detached',
+  ];
+
+  // Already configured via env var
+  if (process.env.STRIPE_WEBHOOK_SECRET) {
+    logger.info('[PROVISION] Webhook secret set via env — skipping webhook setup');
+    return;
+  }
+
+  try {
+    // Check if webhook endpoint already exists for our URL
+    const existing = await stripe.webhookEndpoints.list({ limit: 100 });
+    const found = existing.data.find(wh => wh.url === webhookUrl && wh.status === 'enabled');
+
+    if (found) {
+      logger.warn('[PROVISION] Webhook endpoint exists but STRIPE_WEBHOOK_SECRET not set — set it on Render to enable signature verification');
+      return;
+    }
+
+    // Create new webhook endpoint
+    const webhook = await stripe.webhookEndpoints.create({
+      url: webhookUrl,
+      enabled_events: enabledEvents,
+      description: 'OraClaw API — subscription lifecycle events',
+    });
+
+    // Set secret in-memory so webhook handler works immediately
+    process.env.STRIPE_WEBHOOK_SECRET = webhook.secret!;
+
+    logger.info(`[PROVISION] Webhook endpoint created: ${webhook.id}`);
+    logger.info(`[PROVISION] ⚠ IMPORTANT: Set this env var on Render to persist across deploys:`);
+    logger.info(`[PROVISION]   STRIPE_WEBHOOK_SECRET=${webhook.secret}`);
+  } catch (err) {
+    logger.warn({ err }, '[PROVISION] Webhook setup failed — set STRIPE_WEBHOOK_SECRET manually');
+  }
+}
+
+/**
  * Auto-provision Stripe products and prices for all paid tiers.
  *
  * - If STRIPE_PRICE_* env vars are set, uses those directly.
  * - Otherwise searches for existing products tagged with oraclaw_tier metadata.
  * - Creates products/prices that don't exist yet.
  * - Updates TIER_CONFIG in-place with discovered/created price IDs.
+ * - Creates webhook endpoint if missing.
  */
 export async function provisionStripeProducts(
   stripe: Stripe,
@@ -182,4 +235,7 @@ export async function provisionStripeProducts(
       .filter(([, v]) => v.stripePriceId)
       .map(([k, v]) => [k, v.stripePriceId]),
   ));
+
+  // Provision webhook endpoint
+  await provisionWebhook(stripe, logger);
 }
