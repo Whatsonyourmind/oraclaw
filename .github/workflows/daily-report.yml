@@ -10,7 +10,7 @@ on:
 
 permissions:
   issues: write
-  contents: read
+  contents: write
 
 jobs:
   daily-report:
@@ -78,9 +78,19 @@ jobs:
           OC_ISSUES=$(gh api repos/Whatsonyourmind/oraclaw --jq '.open_issues_count' 2>/dev/null || echo "?")
           OC_WATCHERS=$(gh api repos/Whatsonyourmind/oraclaw --jq '.subscribers_count' 2>/dev/null || echo "?")
 
-          # Traffic
-          OC_VIEWS=$(gh api repos/Whatsonyourmind/oraclaw/traffic/views --jq '.uniques' 2>/dev/null || echo "?")
-          OC_CLONES=$(gh api repos/Whatsonyourmind/oraclaw/traffic/clones --jq '.uniques' 2>/dev/null || echo "?")
+          # Traffic (requires contents:write for push access)
+          OC_VIEWS_RAW=$(gh api repos/Whatsonyourmind/oraclaw/traffic/views 2>/dev/null || echo "")
+          if echo "$OC_VIEWS_RAW" | grep -q '"uniques"'; then
+            OC_VIEWS=$(echo "$OC_VIEWS_RAW" | grep -o '"uniques":[0-9]*' | head -1 | cut -d: -f2)
+          else
+            OC_VIEWS="N/A"
+          fi
+          OC_CLONES_RAW=$(gh api repos/Whatsonyourmind/oraclaw/traffic/clones 2>/dev/null || echo "")
+          if echo "$OC_CLONES_RAW" | grep -q '"uniques"'; then
+            OC_CLONES=$(echo "$OC_CLONES_RAW" | grep -o '"uniques":[0-9]*' | head -1 | cut -d: -f2)
+          else
+            OC_CLONES="N/A"
+          fi
 
           # ── DeckForge ──
           DF_HEALTH=$(curl -s --max-time 15 "https://deckforge-api.onrender.com/v1/health" 2>/dev/null || echo "UNREACHABLE")
@@ -97,15 +107,31 @@ jobs:
 
           DF_STARS=$(gh api repos/Whatsonyourmind/deckforge --jq '.stargazers_count' 2>/dev/null || echo "?")
           DF_FORKS=$(gh api repos/Whatsonyourmind/deckforge --jq '.forks_count' 2>/dev/null || echo "?")
-          DF_VIEWS=$(gh api repos/Whatsonyourmind/deckforge/traffic/views --jq '.uniques' 2>/dev/null || echo "?")
-          DF_CLONES=$(gh api repos/Whatsonyourmind/deckforge/traffic/clones --jq '.uniques' 2>/dev/null || echo "?")
+          DF_VIEWS_RAW=$(gh api repos/Whatsonyourmind/deckforge/traffic/views 2>/dev/null || echo "")
+          if echo "$DF_VIEWS_RAW" | grep -q '"uniques"'; then
+            DF_VIEWS=$(echo "$DF_VIEWS_RAW" | grep -o '"uniques":[0-9]*' | head -1 | cut -d: -f2)
+          else
+            DF_VIEWS="N/A"
+          fi
+          DF_CLONES_RAW=$(gh api repos/Whatsonyourmind/deckforge/traffic/clones 2>/dev/null || echo "")
+          if echo "$DF_CLONES_RAW" | grep -q '"uniques"'; then
+            DF_CLONES=$(echo "$DF_CLONES_RAW" | grep -o '"uniques":[0-9]*' | head -1 | cut -d: -f2)
+          else
+            DF_CLONES="N/A"
+          fi
 
-          DF_LANDING=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://deckforge.dev" 2>/dev/null || echo "000")
+          DF_LANDING=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "https://deckforge.dev" 2>/dev/null)
+          DF_LANDING=${DF_LANDING:-000}
 
           # ── OS Multi Science ──
           OSMS_STARS=$(gh api repos/Whatsonyourmind/OS-Multi-Science --jq '.stargazers_count' 2>/dev/null || echo "?")
           OSMS_FORKS=$(gh api repos/Whatsonyourmind/OS-Multi-Science --jq '.forks_count' 2>/dev/null || echo "?")
-          OSMS_VIEWS=$(gh api repos/Whatsonyourmind/OS-Multi-Science/traffic/views --jq '.uniques' 2>/dev/null || echo "?")
+          OSMS_VIEWS_RAW=$(gh api repos/Whatsonyourmind/OS-Multi-Science/traffic/views 2>/dev/null || echo "")
+          if echo "$OSMS_VIEWS_RAW" | grep -q '"uniques"'; then
+            OSMS_VIEWS=$(echo "$OSMS_VIEWS_RAW" | grep -o '"uniques":[0-9]*' | head -1 | cut -d: -f2)
+          else
+            OSMS_VIEWS="N/A"
+          fi
 
           # ── Build Issue Body ──
           {
