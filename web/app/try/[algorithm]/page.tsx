@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { TryItForm } from "@/components/TryItForm";
+import { PlaygroundSection } from "@/components/PlaygroundSection";
 import { getAlgorithmById, ALGORITHMS, CATEGORY_COLORS } from "@/lib/algorithms";
 import { ALGORITHM_EXAMPLES } from "@/lib/examples";
+import { ALGORITHM_SCENARIOS } from "@/lib/scenarios";
 
 interface PageProps {
   params: Promise<{ algorithm: string }>;
@@ -34,6 +35,8 @@ export default async function TryAlgorithmPage({ params }: PageProps) {
   if (!algo || !example) {
     notFound();
   }
+
+  const scenarios = ALGORITHM_SCENARIOS[algorithm] || [];
 
   // Get other algorithms for the sidebar
   const otherAlgorithms = ALGORITHMS.filter((a) => a.id !== algorithm);
@@ -74,13 +77,14 @@ export default async function TryAlgorithmPage({ params }: PageProps) {
             <span>Complexity: <span className="text-gray-400">{algo.complexity}</span></span>
           </div>
 
-          {/* Try It Form */}
-          <TryItForm
+          {/* Playground: Scenarios + Try It Form + cURL + MCP */}
+          <PlaygroundSection
             algorithmId={algo.id}
             algorithmName={algo.name}
             endpoint={algo.endpoint}
             defaultInput={example.input}
             description={example.description}
+            scenarios={scenarios}
           />
 
           {/* Input/Output Schema */}

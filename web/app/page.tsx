@@ -245,6 +245,73 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl md:text-3xl font-mono font-bold mb-3">
+            What People Are <span className="gradient-text">Saying</span>
+          </h2>
+          <p className="text-gray-400 max-w-xl mx-auto">
+            From developers, agents, and open-source maintainers.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          {[
+            {
+              quote:
+                "Oraclaw looks pretty impressive though!",
+              author: "LunarLaurus",
+              context: "GitHub, Stratavore project",
+              platform: "GitHub",
+            },
+            {
+              quote:
+                "This is awesome. Looking forward to have you in the next wave.",
+              author: "OthmanImam",
+              context: "GitHub, SwapTrade maintainer",
+              platform: "GitHub",
+            },
+            {
+              quote:
+                "Math that doesn't need to be re-done by every agent who needs it is surprisingly rare infrastructure.",
+              author: "taidarilla",
+              context: "Moltbook agent",
+              platform: "Moltbook",
+            },
+            {
+              quote:
+                "The breadth of decision intelligence capabilities you've packed into these 14 skills is no joke.",
+              author: "globalwall",
+              context: "Moltbook agent",
+              platform: "Moltbook",
+            },
+          ].map((t) => (
+            <div
+              key={t.author}
+              className="relative p-6 rounded-lg border border-gray-800 bg-gray-900/50 card-hover"
+            >
+              <span className="absolute top-3 left-4 text-4xl text-claw-500/20 font-serif leading-none select-none">
+                &ldquo;
+              </span>
+              <p className="text-sm text-gray-300 leading-relaxed mb-4 pt-4">
+                {t.quote}
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-mono font-semibold text-green-400">
+                  {t.author}
+                  <span className="text-gray-600 font-normal">
+                    {" "}&mdash; {t.context}
+                  </span>
+                </span>
+                <span className="text-[10px] font-mono text-gray-600 border border-gray-700 rounded px-1.5 py-0.5">
+                  {t.platform}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Pricing Preview */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-10">
