@@ -1,0 +1,66 @@
+{
+  "name": "oraclaw-mcp-server",
+  "display_name": "OraClaw Decision Intelligence",
+  "description": "17 decision intelligence algorithms as MCP tools for AI agents. Bandits (UCB1, Thompson, LinUCB), LP/MIP solver (HiGHS), Monte Carlo simulation, Bayesian inference, graph analytics (PageRank, Louvain), genetic algorithms, CMA-ES, anomaly detection, time series forecasting, ensemble models, and more. All under 25ms, deterministic, zero LLM cost.",
+  "version": "1.0.1",
+  "author": "Whatsonyourmind",
+  "license": "MIT",
+  "repository": "https://github.com/Whatsonyourmind/oraclaw",
+  "npm_package": "@oraclaw/mcp-server",
+  "install": {
+    "command": "npx",
+    "args": ["-y", "@oraclaw/mcp-server"]
+  },
+  "tools": [
+    {
+      "name": "optimize_bandit",
+      "description": "Multi-armed bandit selection (UCB1, Thompson Sampling, epsilon-Greedy). Picks the best option given historical performance data."
+    },
+    {
+      "name": "optimize_contextual",
+      "description": "Contextual bandit (LinUCB). Context-aware option selection using feature vectors."
+    },
+    {
+      "name": "optimize_cmaes",
+      "description": "CMA-ES continuous optimization. Finds optimal parameter values for arbitrary objective functions."
+    },
+    {
+      "name": "solve_constraints",
+      "description": "LP/MIP constraint solver (HiGHS). Finds optimal solutions to linear and mixed-integer programming problems."
+    },
+    {
+      "name": "solve_schedule",
+      "description": "Task scheduling optimizer. Assigns tasks to time slots respecting deadlines, priorities, and energy constraints."
+    },
+    {
+      "name": "analyze_graph",
+      "description": "Graph analytics — PageRank, Louvain community detection, shortest path. Analyzes network structure and importance."
+    },
+    {
+      "name": "analyze_risk",
+      "description": "Portfolio VaR/CVaR risk analysis. Estimates financial risk using correlation matrices and Monte Carlo simulation."
+    },
+    {
+      "name": "score_convergence",
+      "description": "Multi-source convergence scoring via Hellinger distance. Measures agreement across multiple probability estimates."
+    },
+    {
+      "name": "predict_forecast",
+      "description": "Time series forecasting (Holt-Winters). Predicts future values from historical data with trend and seasonality."
+    },
+    {
+      "name": "detect_anomaly",
+      "description": "Anomaly detection (Z-score, IQR). Flags outliers in data using statistical methods."
+    },
+    {
+      "name": "plan_pathfind",
+      "description": "A* pathfinding with K-shortest paths (Yen's algorithm). Finds optimal and alternative paths through graphs."
+    },
+    {
+      "name": "simulate_montecarlo",
+      "description": "Monte Carlo simulation with 6 distribution types. Estimates outcome probabilities through random sampling."
+    }
+  ],
+  "categories": ["optimization", "decision-intelligence", "mathematics", "data-science"],
+  "tags": ["bandits", "optimization", "monte-carlo", "bayesian", "graph-analytics", "lp-solver", "scheduling", "forecasting", "anomaly-detection"]
+}
