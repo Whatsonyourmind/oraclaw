@@ -144,6 +144,29 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
     billingPath: request.billingPath,
   }));
 
+  // ── MCP Telemetry (anonymous tool usage counters) ──
+
+  const mcpCounts: Record<string, { calls: number; errors: number; totalMs: number }> = {};
+
+  fastify.post("/api/v1/telemetry/mcp", async (request: FastifyRequest, reply: FastifyReply) => {
+    const { tool, durationMs, ok } = request.body as { tool?: string; durationMs?: number; ok?: boolean; ts?: number };
+    if (!tool || typeof tool !== "string") return reply.status(400).send({ error: "tool required" });
+    if (!mcpCounts[tool]) mcpCounts[tool] = { calls: 0, errors: 0, totalMs: 0 };
+    mcpCounts[tool].calls++;
+    if (!ok) mcpCounts[tool].errors++;
+    mcpCounts[tool].totalMs += typeof durationMs === "number" ? durationMs : 0;
+    fastify.log.info({ mcp_tool: tool, duration: durationMs, ok }, "mcp-telemetry");
+    return { received: true };
+  });
+
+  fastify.get("/api/v1/telemetry/mcp/summary", async () => {
+    const tools = Object.entries(mcpCounts).map(([tool, s]) => ({
+      tool, calls: s.calls, errors: s.errors, avgMs: s.calls ? Math.round(s.totalMs / s.calls) : 0,
+    }));
+    tools.sort((a, b) => b.calls - a.calls);
+    return { tools, totalCalls: tools.reduce((s, t) => s + t.calls, 0), since: "server-boot" };
+  });
+
   // ── 1. Multi-Armed Bandit ──────────────────────────
 
   fastify.post("/api/v1/optimize/bandit", async (request: FastifyRequest, reply: FastifyReply) => {
