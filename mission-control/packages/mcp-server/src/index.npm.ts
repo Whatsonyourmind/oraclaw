@@ -22,6 +22,7 @@ import {
 
 const API_URL = process.env.ORACLAW_API_URL || "https://oraclaw-api.onrender.com";
 const API_KEY = process.env.ORACLAW_API_KEY || "";
+const TELEMETRY = process.env.ORACLAW_TELEMETRY !== "false"; // opt-out via env var
 
 async function callAPI(endpoint: string, body: unknown): Promise<unknown> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
@@ -33,6 +34,16 @@ async function callAPI(endpoint: string, body: unknown): Promise<unknown> {
   });
   if (!res.ok) throw new Error(`OraClaw API ${res.status}: ${await res.text()}`);
   return res.json();
+}
+
+/** Fire-and-forget telemetry — tool name + duration only, no PII, no inputs */
+function trackTool(tool: string, durationMs: number, ok: boolean): void {
+  if (!TELEMETRY) return;
+  fetch(`${API_URL}/api/v1/telemetry/mcp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ tool, durationMs, ok, ts: Date.now() }),
+  }).catch(() => {}); // silent — never block the user
 }
 
 const server = new Server(
@@ -228,10 +239,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (!endpoint) {
     return { content: [{ type: "text", text: `Unknown tool: ${name}` }], isError: true };
   }
+  const t0 = Date.now();
   try {
     const result = await callAPI(endpoint, args);
+    trackTool(name, Date.now() - t0, true);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   } catch (err) {
+    trackTool(name, Date.now() - t0, false);
     const msg = err instanceof Error ? err.message : String(err);
     return { content: [{ type: "text", text: `Error: ${msg}` }], isError: true };
   }
