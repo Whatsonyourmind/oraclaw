@@ -1,17 +1,17 @@
 # OraClaw Lead Pipeline
 
-**Last updated:** 2026-04-05
+**Last updated:** 2026-04-05 (outreach posted to juliosuas, hideya, heisenberg)
 **Single source of truth** -- update after every lead interaction.
 
 ## Tier 1: HOT (Active Usage or Deep Multi-Turn)
 
 | Lead | Platform | Last Contact | Beta Key | API Calls | Next Action |
 |------|----------|-------------|----------|-----------|-------------|
-| **juliosuas** | GitHub #13 | Apr 3 | No | 0 | Offer beta key -- only confirmed @oraclaw/bandit install |
-| **radoxtech** | GitHub #503-537 | Apr 4 | No | 0 | Reply on #536/#537, offer beta key |
-| **hideya** | GitHub #51 | Apr 4 | No | 0 | Check for reply, offer collaboration + beta key |
-| **vstash (@stffns)** | GitHub #89 | Apr 3 | No | 0 | Ask about IDF implementation, offer beta key |
-| **heisenberg (@kamilpajak)** | GitHub #50 | Apr 4 | No | 0 | Ask about Brier score data, offer beta key |
+| **juliosuas** | GitHub #13 | **Apr 5** | Issued | 0 | Awaiting reply — offered beta key + MCP server |
+| **radoxtech** | GitHub #503-537 | Apr 4 | Issued | 0 | Post outreach tomorrow (Apr 6) — 3/day limit reached |
+| **hideya** | GitHub #51 | **Apr 5** | Issued | 0 | Awaiting reply — offered collaboration PR + beta key |
+| **vstash (@stffns)** | GitHub #89 | Apr 3 | Issued | 0 | Post outreach tomorrow (Apr 6) |
+| **heisenberg (@kamilpajak)** | GitHub #50 | **Apr 5** | Issued | 0 | Awaiting reply — offered calibration API |
 
 ## Tier 2: WARM (Positive Engagement, No Install Yet)
 
