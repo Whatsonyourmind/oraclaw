@@ -32,6 +32,16 @@
 | han-sajang | Moltbook | Apr 3 | SynapseAI, integration potential | Check DMs |
 | libre-coordinator | Moltbook | Apr 3 | 754 karma influencer | Keep engaging on math threads |
 
+## New Prospects (Apr 5 — Pure Math Outreach)
+
+| Lead | Repo | Stars | Issue | Algorithm Match | Status |
+|------|------|-------|-------|-----------------|--------|
+| VANDRANKI | fm_mortgage_risk_lab | 1 | #1 MC VaR | Monte Carlo + VaR/CVaR | Replied (Apr 5) |
+| marcuscastelo | macroflows | 0 | #864 Diet LP | LP/MIP solver | Replied (Apr 5) |
+| schmisu | airtable-demo | 0 | #7 A/B routing | Multi-Armed Bandit | Replied (Apr 5) |
+| celilozknn | CMPE492-Project | 0 | #8 PageRank | Graph analytics | Replied (Apr 5) |
+| ai4change-org | problems | 0 | #23 Refugee allocation | LP + A* + Anomaly | Replied (Apr 5) |
+
 ## Tier 3: MONITORING (Single Signal)
 
 | Lead | Platform | Signal |
