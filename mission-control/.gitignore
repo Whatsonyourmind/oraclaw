@@ -4,3 +4,4 @@ keystore.json
 .keystore-password
 *.key
 .env.local
+beta-keys.json

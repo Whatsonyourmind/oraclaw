@@ -891,47 +891,59 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
 
   fastify.get("/api/v1/pricing", async () => ({
     signup: "POST /api/v1/auth/signup with {\"email\":\"you@example.com\"} to get an API key instantly",
+    tools: {
+      free: {
+        count: 8,
+        list: ["optimize_bandit", "optimize_contextual", "solve_schedule", "score_convergence", "predict_forecast", "detect_anomaly", "plan_pathfind", "simulate_montecarlo"],
+        access: "No API key needed (25 calls/day, IP-based rate limiting)",
+      },
+      premium: {
+        count: 4,
+        list: ["solve_constraints (LP/MIP/QP)", "analyze_graph (PageRank/Louvain)", "optimize_cmaes (CMA-ES)", "analyze_risk (VaR/CVaR)"],
+        access: "Requires API key — sign up free at POST /api/v1/auth/signup",
+      },
+    },
     tiers: {
       free: {
         price: "$0",
         calls_per_day: 25,
         calls_per_month: 750,
+        tools: "8 free tools only",
         auth: "No API key needed (IP-based rate limiting)",
-        algorithms: "all 17",
       },
       pay_per_call: {
         price: "$0.005/call",
         calls_per_day: 1000,
+        tools: "All 12 tools (free + premium)",
         billing: "Metered — billed monthly via Stripe",
         auth: "API key required (signup to get one)",
-        algorithms: "all 17",
       },
       starter: {
         price: "$9/mo",
         calls_per_month: 50000,
         calls_per_day: 1667,
-        algorithms: "all 17",
+        tools: "All 12 tools",
         support: "email",
       },
       growth: {
         price: "$49/mo",
         calls_per_month: 500000,
         calls_per_day: 16667,
-        algorithms: "all 17",
+        tools: "All 12 tools",
         support: "priority",
       },
       scale: {
         price: "$199/mo",
         calls_per_month: 5000000,
         calls_per_day: 166667,
-        algorithms: "all 17",
+        tools: "All 12 tools",
         support: "dedicated",
       },
     },
     machine_payments: {
       protocol: "x402 (USDC on Base mainnet)",
       how: "Send payment proof in X-PAYMENT header — no API key or signup needed",
-      per_call: "$0.001 (all algorithms)",
+      per_call: "$0.001 (all 12 tools)",
     },
     upgrade: "POST /api/v1/billing/subscribe with {\"tier\":\"starter\"} (requires API key auth)",
   }));

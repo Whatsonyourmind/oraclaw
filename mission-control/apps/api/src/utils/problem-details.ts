@@ -42,6 +42,7 @@ export const ProblemTypes = {
   NON_SUBSCRIBABLE_TIER: 'https://web-olive-one-89.vercel.app/errors/non-subscribable-tier',
   TIER_NOT_CONFIGURED: 'https://web-olive-one-89.vercel.app/errors/tier-not-configured',
   PAYMENT_REQUIRED: 'https://web-olive-one-89.vercel.app/errors/payment-required',
+  PREMIUM_REQUIRED: 'https://web-olive-one-89.vercel.app/errors/premium-required',
 } as const;
 
 /**
