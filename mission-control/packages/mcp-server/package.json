@@ -1,8 +1,8 @@
 {
   "name": "@oraclaw/mcp-server",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "mcpName": "io.github.Whatsonyourmind/oraclaw",
-  "description": "OraClaw Decision Intelligence — 8 free + 4 premium MCP tools for AI agents. Bandits, scheduling, forecasting free. LP solver, graph analytics, CMA-ES, portfolio risk require API key.",
+  "description": "OraClaw Decision Intelligence — 6 free + 6 premium MCP tools for AI agents. Bandits, Monte Carlo, scheduling free. Forecasting, anomaly detection, LP solver, graph analytics require API key.",
   "type": "module",
   "main": "dist/index.npm.js",
   "bin": {

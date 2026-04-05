@@ -893,13 +893,13 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
     signup: "POST /api/v1/auth/signup with {\"email\":\"you@example.com\"} to get an API key instantly",
     tools: {
       free: {
-        count: 8,
-        list: ["optimize_bandit", "optimize_contextual", "solve_schedule", "score_convergence", "predict_forecast", "detect_anomaly", "plan_pathfind", "simulate_montecarlo"],
+        count: 6,
+        list: ["optimize_bandit", "optimize_contextual", "solve_schedule", "score_convergence", "plan_pathfind", "simulate_montecarlo"],
         access: "No API key needed (25 calls/day, IP-based rate limiting)",
       },
       premium: {
-        count: 4,
-        list: ["solve_constraints (LP/MIP/QP)", "analyze_graph (PageRank/Louvain)", "optimize_cmaes (CMA-ES)", "analyze_risk (VaR/CVaR)"],
+        count: 6,
+        list: ["solve_constraints (LP/MIP/QP)", "analyze_graph (PageRank/Louvain)", "optimize_cmaes (CMA-ES)", "analyze_risk (VaR/CVaR)", "detect_anomaly (Z-score/IQR)", "predict_forecast (ARIMA/Holt-Winters)"],
         access: "Requires API key — sign up free at POST /api/v1/auth/signup",
       },
     },
@@ -908,7 +908,7 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
         price: "$0",
         calls_per_day: 25,
         calls_per_month: 750,
-        tools: "8 free tools only",
+        tools: "6 free tools only",
         auth: "No API key needed (IP-based rate limiting)",
       },
       pay_per_call: {
