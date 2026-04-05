@@ -58,7 +58,7 @@ function trackTool(tool: string, durationMs: number, ok: boolean): void {
 }
 
 const server = new Server(
-  { name: "oraclaw", version: "1.1.0" },
+  { name: "oraclaw", version: "1.1.1" },
   { capabilities: { tools: {} } }
 );
 
@@ -168,7 +168,7 @@ const TOOLS = [
   },
   {
     name: "predict_forecast",
-    description: "Time series forecasting (ARIMA / Holt-Winters). Predict future values with confidence intervals.",
+    description: "[Premium — API key required] Time series forecasting (ARIMA / Holt-Winters). Predict future values with confidence intervals.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -181,7 +181,7 @@ const TOOLS = [
   },
   {
     name: "detect_anomaly",
-    description: "Anomaly/outlier detection (Z-score / IQR). Sub-millisecond.",
+    description: "[Premium — API key required] Anomaly/outlier detection (Z-score / IQR). Sub-millisecond.",
     inputSchema: {
       type: "object" as const,
       properties: {
