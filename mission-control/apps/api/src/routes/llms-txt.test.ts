@@ -59,14 +59,14 @@ describe('GET /llms.txt', () => {
     expect(hasBlockquote).toBe(true);
   });
 
-  // Test 4: Contains "## Endpoints" section
-  it('contains "## Endpoints" section', async () => {
+  // Test 4: Contains tool sections
+  it('contains "## Free Tools" section', async () => {
     const response = await app.inject({
       method: 'GET',
       url: '/llms.txt',
     });
 
-    expect(response.body).toContain('## Endpoints');
+    expect(response.body).toContain('## Free Tools');
   });
 
   // Test 5: Contains "## Authentication" section
@@ -89,13 +89,27 @@ describe('GET /llms.txt', () => {
     expect(response.body).toContain('25 calls/day');
   });
 
-  // Test 7: Contains "/docs" reference
-  it('contains "/docs" reference pointing to playground', async () => {
+  // Test 7: Contains pricing reference
+  it('contains pricing endpoint reference', async () => {
     const response = await app.inject({
       method: 'GET',
       url: '/llms.txt',
     });
 
-    expect(response.body).toContain('/docs');
+    expect(response.body).toContain('/api/v1/pricing');
+  });
+
+  // Test 8: Server card endpoint returns JSON
+  it('GET /.well-known/mcp/server-card.json returns 200 with tools', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/.well-known/mcp/server-card.json',
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['content-type']).toContain('application/json');
+    const data = JSON.parse(response.body);
+    expect(data.name).toBe('oraclaw');
+    expect(data.tools).toHaveLength(12);
   });
 });
