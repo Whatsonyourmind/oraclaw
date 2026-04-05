@@ -33,8 +33,8 @@ async function callAPI(endpoint: string, body: unknown): Promise<unknown> {
     body: JSON.stringify(body),
   });
   if (res.status === 403) {
-    const err = await res.json().catch(() => ({}));
-    throw new PremiumToolError(err.tool || endpoint, err.free_tools || []);
+    const body = await res.json().catch(() => ({})) as Record<string, unknown>;
+    throw new PremiumToolError((body.tool as string) || endpoint, (body.free_tools as string[]) || []);
   }
   if (!res.ok) throw new Error(`OraClaw API ${res.status}: ${await res.text()}`);
   return res.json();
