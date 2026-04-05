@@ -51,6 +51,9 @@ import { createX402SettleHook } from "./hooks/x402-settle";
 // RFC 9457 Problem Details
 import { sendProblem, ProblemTypes } from "./utils/problem-details";
 
+// Premium tool gating
+import { PREMIUM_ENDPOINTS, FREE_TOOLS } from "./services/billing/tiers";
+
 // Stripe product auto-provisioning
 import { provisionStripeProducts } from "./services/billing/provision";
 
@@ -199,6 +202,25 @@ async function main() {
       }
     });
   }
+
+  // ── Hook 2.5: Premium tool gating (preHandler) ──────────
+  // Returns 403 for premium tools when on free tier.
+  // Any authenticated tier (pay_per_call, starter, growth, scale, enterprise, x402) gets access.
+
+  app.addHook("preHandler", async (request, reply) => {
+    if (PREMIUM_ENDPOINTS.has(request.url.split('?')[0]) && request.tier === "free") {
+      const toolName = request.url.split('/').pop()?.split('?')[0] || 'unknown';
+      return reply.code(403).type('application/problem+json').send({
+        type: 'https://web-olive-one-89.vercel.app/errors/premium-required',
+        title: 'Premium tool — API key required',
+        status: 403,
+        detail: 'This tool requires an OraClaw API key. Sign up free at POST /api/v1/auth/signup to get instant access.',
+        signup_url: 'https://oraclaw-api.onrender.com/api/v1/auth/signup',
+        tool: toolName,
+        free_tools: FREE_TOOLS,
+      });
+    }
+  });
 
   // ── Hook 3: Rate limit headers on all responses (onSend) ─
 

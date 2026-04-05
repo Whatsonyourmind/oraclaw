@@ -79,3 +79,24 @@ export const TIER_CONFIG: Record<string, TierConfig> = {
     description: 'Custom limits, dedicated support, and SLA. Contact sales.',
   },
 };
+
+/**
+ * Premium tools require an API key (any paid tier or pay_per_call).
+ * Free tier (unauthenticated IP-based) gets 403 on these endpoints.
+ */
+export const PREMIUM_ENDPOINTS = new Set([
+  '/api/v1/solve/constraints',    // LP/MIP/QP (HiGHS) — unique as MCP
+  '/api/v1/analyze/graph',        // PageRank/Louvain — unique as MCP
+  '/api/v1/optimize/cmaes',       // CMA-ES continuous optimization
+  '/api/v1/analyze/risk',         // VaR/CVaR portfolio risk
+]);
+
+export const FREE_TOOLS = [
+  'optimize_bandit', 'optimize_contextual', 'solve_schedule',
+  'score_convergence', 'predict_forecast', 'detect_anomaly',
+  'plan_pathfind', 'simulate_montecarlo',
+];
+
+export const PREMIUM_TOOLS = [
+  'solve_constraints', 'analyze_graph', 'optimize_cmaes', 'analyze_risk',
+];

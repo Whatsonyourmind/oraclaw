@@ -32,8 +32,19 @@ async function callAPI(endpoint: string, body: unknown): Promise<unknown> {
     headers,
     body: JSON.stringify(body),
   });
+  if (res.status === 403) {
+    const err = await res.json().catch(() => ({}));
+    throw new PremiumToolError(err.tool || endpoint, err.free_tools || []);
+  }
   if (!res.ok) throw new Error(`OraClaw API ${res.status}: ${await res.text()}`);
   return res.json();
+}
+
+class PremiumToolError extends Error {
+  constructor(public tool: string, public freeTools: string[]) {
+    super(`Premium tool: ${tool}`);
+    this.name = 'PremiumToolError';
+  }
 }
 
 /** Fire-and-forget telemetry — tool name + duration only, no PII, no inputs */
@@ -47,7 +58,7 @@ function trackTool(tool: string, durationMs: number, ok: boolean): void {
 }
 
 const server = new Server(
-  { name: "oraclaw", version: "1.0.0" },
+  { name: "oraclaw", version: "1.1.0" },
   { capabilities: { tools: {} } }
 );
 
@@ -81,7 +92,7 @@ const TOOLS = [
   },
   {
     name: "optimize_cmaes",
-    description: "CMA-ES continuous optimization. Tune parameters, calibrate models. 10-100x more efficient than grid search.",
+    description: "[Premium — API key required] CMA-ES continuous optimization. Tune parameters, calibrate models. 10-100x more efficient than grid search.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -95,7 +106,7 @@ const TOOLS = [
   },
   {
     name: "solve_constraints",
-    description: "LP/MIP/QP optimization (HiGHS). Budget allocation, scheduling, resource planning. Provably optimal.",
+    description: "[Premium — API key required] LP/MIP/QP optimization (HiGHS). Budget allocation, scheduling, resource planning. Provably optimal.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -121,7 +132,7 @@ const TOOLS = [
   },
   {
     name: "analyze_graph",
-    description: "Graph analytics: PageRank, Louvain communities, shortest path, bottleneck detection.",
+    description: "[Premium — API key required] Graph analytics: PageRank, Louvain communities, shortest path, bottleneck detection.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -133,7 +144,7 @@ const TOOLS = [
   },
   {
     name: "analyze_risk",
-    description: "Portfolio risk: VaR/CVaR with correlation matrices. Monte Carlo simulation.",
+    description: "[Premium — API key required] Portfolio risk: VaR/CVaR with correlation matrices. Monte Carlo simulation.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -246,6 +257,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   } catch (err) {
     trackTool(name, Date.now() - t0, false);
+    if (err instanceof PremiumToolError) {
+      return {
+        content: [{
+          type: "text",
+          text: [
+            `Premium tool — API key required`,
+            ``,
+            `"${name}" requires an OraClaw API key (free signup).`,
+            ``,
+            `To unlock all 12 tools:`,
+            `1. Run: curl -X POST ${API_URL}/api/v1/auth/signup -H "Content-Type: application/json" -d '{"email":"you@example.com"}'`,
+            `2. Set ORACLAW_API_KEY in your MCP config`,
+            ``,
+            `Free tools available now: ${err.freeTools.join(', ')}`,
+          ].join('\n'),
+        }],
+      };
+    }
     const msg = err instanceof Error ? err.message : String(err);
     return { content: [{ type: "text", text: `Error: ${msg}` }], isError: true };
   }
