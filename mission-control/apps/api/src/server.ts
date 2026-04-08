@@ -18,6 +18,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import compress from "@fastify/compress";
+import helmet from "@fastify/helmet";
 
 // Public API routes
 import publicApiRoutes from "./routes/oracle/api-public";
@@ -138,6 +139,22 @@ async function main() {
   });
 
   // ── Core plugins ────────────────────────────────────────
+
+  // @fastify/helmet — security headers with API-tuned CSP.
+  // Must be registered BEFORE routes so the onSend hook is active for every
+  // response. The CSP is intentionally strict for an API (no browser assets,
+  // no inline scripts) — the Scalar playground at /docs ships its own static
+  // HTML shell that only loads from 'self'.
+  await app.register(helmet, {
+    global: true,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+      },
+    },
+    // API is never rendered in a browser frame — lock it down to DENY.
+    frameguard: { action: "deny" },
+  });
 
   await app.register(compress, { global: true });
   await app.register(cors, { origin: true, credentials: true });
