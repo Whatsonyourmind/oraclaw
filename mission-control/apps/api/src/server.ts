@@ -15,6 +15,14 @@
  *   7. Analytics event (onResponse) -- fire-and-forget insert to oracle_analytics_events
  */
 
+// ── OpenTelemetry bootstrap (must load before Fastify & route modules) ──
+// We fire the SDK as a top-level side effect so NodeSDK's require-in-the-middle
+// hook can patch instrumentation targets before the rest of the import graph
+// is evaluated. Failures are swallowed inside startOtel() — observability must
+// never crash the API.
+import { startOtel, buildLoggerOptions } from "./observability/otel";
+const otelHandlePromise = startOtel();
+
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import compress from "@fastify/compress";
@@ -126,16 +134,22 @@ async function initX402(logger: { info: (...a: unknown[]) => void; warn: (...a: 
 // ── Main ────────────────────────────────────────────────────
 
 async function main() {
-  const isProd = process.env.NODE_ENV === "production";
+  // Wait for the OTEL SDK to finish booting (or bail) so its instrumentation
+  // is installed before Fastify wires HTTP handlers.
+  await otelHandlePromise;
 
   const app = Fastify({
-    logger: isProd
-      ? { level: "info" }
-      : true,
+    logger: buildLoggerOptions(),
     requestTimeout: 30_000,
     keepAliveTimeout: 72_000,
     connectionTimeout: 10_000,
     bodyLimit: 10 * 1024 * 1024, // 10MB for batch requests
+    genReqId: (req) => {
+      // Prefer an upstream X-Request-Id for cross-service correlation.
+      const hdr = req.headers["x-request-id"];
+      if (typeof hdr === "string" && hdr.length > 0) return hdr;
+      return `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+    },
   });
 
   // ── Core plugins ────────────────────────────────────────
@@ -400,6 +414,10 @@ async function main() {
   const shutdown = async (signal: string) => {
     app.log.info(`Received ${signal}, shutting down gracefully...`);
     await app.close();
+    const otelHandle = await otelHandlePromise;
+    if (otelHandle) {
+      await otelHandle.shutdown();
+    }
     process.exit(0);
   };
   process.on("SIGTERM", () => shutdown("SIGTERM"));
