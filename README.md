@@ -1,16 +1,39 @@
 # OraClaw
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-1%2C072_passing-brightgreen)](mission-control)
+[![Tests](https://img.shields.io/badge/tests-1%2C077_passing-brightgreen)](mission-control)
 [![MCP](https://img.shields.io/badge/MCP-12_tools-green)](https://modelcontextprotocol.io)
 [![Algorithms](https://img.shields.io/badge/algorithms-19-orange)](web/lib/algorithms.ts)
 [![Latency](https://img.shields.io/badge/latency-%3C25ms-blue)](mission-control/scripts/benchmark-all.ts)
 [![npm](https://img.shields.io/badge/npm-%40oraclaw-blue)](https://www.npmjs.com/org/oraclaw)
 [![API Status](https://img.shields.io/badge/API-live-brightgreen)](https://oraclaw-api.onrender.com)
+[![Implementations](https://img.shields.io/badge/field_implementations-12-brightgreen)](CHANGELOG.md)
 
 **MCP Optimization Tools for AI Agents** -- 12 tools, 19 algorithms, sub-25ms. Zero LLM cost.
 
 Your AI agent can't do math. OraClaw gives it deterministic optimization, simulation, forecasting, and risk analysis through the Model Context Protocol. Every tool returns structured JSON, runs in under 25ms, and costs nothing to compute.
+
+---
+
+## Validation
+
+OraClaw's math has been independently implemented in **12 open-source projects** across AI agent orchestration, time-series tracking, vector search, MIP optimization, and production ML systems -- all within the first 8 days after public launch.
+
+**Selected field implementations** (see [`CHANGELOG.md`](CHANGELOG.md) for the full list):
+
+- [`chernistry/bernstein`](https://github.com/chernistry/bernstein) -- 84⭐ agent orchestration framework. LinUCB contextual router with α=0.3, shadow-evaluation path, interpretable decision reasons. Shipped in `codex/issue-367-linucb-router` 1h40m after the spec correction.
+- [`stxkxs/nanohype`](https://github.com/nanohype/nanohype) -- contextual bandit routing, pluggable strategy registry (hash / sliding-TTL / semantic), cost anomaly detection, LinUCB on roadmap. *"Your input shaped a lot of what actually shipped."*
+- [`rfivesix/hypertrack`](https://github.com/rfivesix/hypertrack) -- Bayesian/Kalman-style adaptive calorie estimator with phase-aware kcal/kg ramp. Shipped in 0.8.0-beta. *"At this point I think the mathematical model is in a very strong place."*
+- [`AlanHuang99/pyrollmatch`](https://github.com/AlanHuang99/pyrollmatch) -- entropy balancing (Hainmueller 2012) with moment constraints + `max_weight` cap. Shipped in v0.1.3.
+- [`stffns/vstash`](https://github.com/stffns/vstash) -- IDF-sigmoid relevance weighting. Shipped in v0.17.0.
+
+**Marketplace distribution:**
+
+- ✓ [`punkpeye/awesome-mcp-servers`](https://github.com/punkpeye/awesome-mcp-servers) (84K⭐) -- merged
+- ✓ [`TensorBlock/awesome-mcp-servers`](https://github.com/TensorBlock/awesome-mcp-servers) -- merged
+- ✓ MCP Registry, Glama (AAA rating), PulseMCP, Smithery, toolsdk-ai -- listed
+
+**Maintainer relationships** (warm technical correspondence): Qdrant, Milvus, NetworkX, Apache DataFusion, DuckDB, pymc-labs.
 
 ---
 
