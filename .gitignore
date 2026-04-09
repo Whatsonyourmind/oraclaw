@@ -20,3 +20,16 @@ mission-control/apps/api/src/services/oracle/algorithms/*.ts
 mission-control/apps/api/src/routes/oracle/api-public.ts
 mission-control/packages/mcp-server/src/index.ts
 .env.npm-recovery
+
+# Marketing, monetization, planning — private repo only (oraclaw-core)
+# See Handler-private/ working tree for these files.
+launch/
+tasks/
+ralph/
+docs/superpowers/
+CHANGELOG-internal.md
+MARKET_ASSESSMENT.md
+GROWTH_PLAN.md
+mcp-publisher.exe
+mcp-publisher.tar.gz
+*.mcpregistry_*_token
