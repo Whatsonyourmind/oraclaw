@@ -1,17 +1,39 @@
 # OraClaw Lead Pipeline
 
-**Last updated:** 2026-04-05 (outreach posted to juliosuas, hideya, heisenberg)
+**Last updated:** 2026-04-08 EOD (post-audit: fork check + registry PR audit + hideya reactivation rules)
 **Single source of truth** -- update after every lead interaction.
+
+## Related docs (read before engaging)
+
+- [`REGISTRY-PR-STATUS.md`](REGISTRY-PR-STATUS.md) — all outbound marketplace PR status, check before opening new ones
+- [`REACTIVATION-TRIGGERS.md`](REACTIVATION-TRIGGERS.md) — paused leads and their specific re-engagement triggers (do NOT drip-feed updates)
+- [`OPERATING-RULES.md`](OPERATING-RULES.md) — banned repos, daily limits, rules that override strategy
+- [`BETA-KEYS.md`](BETA-KEYS.md) — issued beta keys (gitignored content, do not post in public)
+
+## Repo inbound signals (check weekly)
+
+| Signal | State Apr 8 | Notes |
+|---|---|---|
+| Stars | 7 | Flat baseline |
+| Forks | **2** | `hideya/oraclaw` (Mar 27, testing clone, no changes of their own), `hardspoon/oraclaw` (Apr 4, 1,134-repo bulk-forker, almost certainly automated) |
+| Subscribers | 0 | No one watching for release updates |
+| Open issues (non-bot) | 0 | **ZERO inbound bug reports in 14 days** — strongest evidence telemetry=0 is real, not a measurement gap |
+| Traffic (14d) | 1,272 clones / 272 unique IPs, 346 views / 97 unique | ~40x clone-to-star ratio → almost certainly bot/registry scraping, not user traffic |
+| PRs (inbound, both repos) | 0 | No community contribution yet |
 
 ## Tier 1: HOT (Active Usage or Deep Multi-Turn)
 
 | Lead | Platform | Last Contact | Beta Key | API Calls | Next Action |
 |------|----------|-------------|----------|-----------|-------------|
-| **juliosuas** | GitHub #13 | **Apr 5** | Issued | 0 | Awaiting reply — offered beta key + MCP server |
-| **radoxtech** | GitHub #503-537 | Apr 4 | Issued | 0 | Post outreach tomorrow (Apr 6) — 3/day limit reached |
-| **hideya** | GitHub #51 | **Apr 5** | Issued | 0 | Awaiting reply — offered collaboration PR + beta key |
-| **vstash (@stffns)** | GitHub #89 | Apr 3 | Issued | 0 | Post outreach tomorrow (Apr 6) |
-| **heisenberg (@kamilpajak)** | GitHub #50 | **Apr 5** | Issued | 0 | Awaiting reply — offered calibration API |
+| **juliosuas** | GitHub #13 | Apr 5 | Issued | 0 | Follow up Apr 9 if still silent (4 days out) |
+| ~~**radoxtech**~~ | GitHub diricode#537 | Apr 6 | Issued | 0 | **DECLINED (security concerns).** Closed gracefully. Do NOT re-engage. Mass-close notifications are noise. |
+| **hideya** | GitHub langchain-mcp-tools-py#51 | Apr 6 | Issued | 0 | **PAUSED — wait for trigger.** See [REACTIVATION-TRIGGERS.md](REACTIVATION-TRIGGERS.md#hideya--langchain-mcp-tools-py-maintainer). Earliest re-engagement: patent filing OR arXiv preprint. Do not drip-feed updates. |
+| **vstash (@stffns)** | GitHub vstash#89 | Apr 5 | Issued | 0 | **11th IMPLEMENTATION** (IDF-sigmoid weighting in v0.17.0). Awaiting reply on convergence scoring offer. |
+| **heisenberg (@kamilpajak)** | GitHub heisenberg#50 | Apr 5 | Issued | 0 | Awaiting reply |
+| **rfivesix (hypertrack)** | GitHub hypertrack#210 | Apr 8 | — | 0 | **12th IMPLEMENTATION** — phase-aware kcal/kg ramp shipped in 0.8.0-beta. Active multi-turn collab, model "in a very strong place" per maintainer Apr 8. |
+| **stxkxs (nanohype)** | GitHub nanohype#16 | Apr 7 | — | 0 | **11th IMPLEMENTATION** — contextual bandit routing, strategy registry, cost anomaly, LinUCB roadmap all shipped. "Your input shaped a lot of what shipped." Closed positively, monitor. |
+| **KaiBuildsx (Moltbook)** | Moltbook d37e32fa | Apr 7 | — | — | **11th IMPLEMENTATION** — Bayesian-prior-for-memory-files as (observation, weight, n) tuples. Closed positively. |
+| **AlanHuang99 (pyrollmatch)** | GitHub pyrollmatch#5 | Apr 8 | — | 0 | **11th ship IMPLEMENTATION** — entropy balancing (`method="ebal"`) in v0.1.3. Just replied with CBPS+IPW implementation sketch for v0.1.4. |
 
 ## Tier 2: WARM (Positive Engagement, No Install Yet)
 

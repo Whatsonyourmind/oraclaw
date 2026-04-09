@@ -25,6 +25,7 @@ import { forecast, holtWinters } from "../../services/oracle/algorithms/timeSeri
 import { detectAnomaliesZScore, detectAnomaliesIQR } from "../../services/oracle/algorithms/anomalyDetector";
 import { optimizeCMAES, type CMAESConfig } from "../../services/oracle/algorithms/cmaes";
 import { portfolioVaR } from "../../services/oracle/algorithms/correlationMatrix";
+import { createUsageTracker } from "../../services/usageTracker";
 
 // ── Zod Schemas ──────────────────────────────────────────
 
@@ -110,6 +111,42 @@ const ForecastInputSchema = z.object({
 
 export default async function publicApiRoutes(fastify: FastifyInstance) {
 
+  // ── Usage Tracker (global observability) ──────────
+  //
+  // Records every /api/v1/* request (authenticated or free) into an
+  // in-memory aggregated snapshot. Exposed via /api/v1/admin/usage for
+  // operator monitoring. Persists to disk periodically so within-session
+  // state survives short hiccups; not a replacement for a real analytics
+  // pipeline.
+
+  const usageTracker = createUsageTracker({
+    logger: { info: (msg, label) => fastify.log.info(msg, label), warn: (msg, label) => fastify.log.warn(msg, label) },
+  });
+  await usageTracker.load();
+  usageTracker.startPersistLoop();
+
+  fastify.addHook("onResponse", async (request, reply) => {
+    const url = request.url ?? "";
+    // Only track /api/v1/* routes; skip websockets, static assets, health
+    // probes, and the usage endpoint itself (avoid self-reference loops).
+    if (!url.startsWith("/api/v1/")) return;
+    if (url.startsWith("/api/v1/admin/usage")) return;
+    if (url.startsWith("/api/v1/health")) return;
+    if (url.startsWith("/api/v1/telemetry/")) return;
+    usageTracker.record({
+      tier: request.tier ?? "unknown",
+      keyId: request.keyId,
+      billingPath: request.billingPath ?? "unknown",
+      route: url,
+      status: reply.statusCode,
+    });
+  });
+
+  fastify.addHook("onClose", async () => {
+    usageTracker.stopPersistLoop();
+    await usageTracker.persist();
+  });
+
   // ── Health ─────────────────────────────────────────
 
   fastify.get("/api/v1/health", async () => ({
@@ -143,6 +180,33 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
     tier: request.tier,
     billingPath: request.billingPath,
   }));
+
+  // ── Admin Usage Dashboard ──────────────────────────
+  //
+  // Aggregated observability snapshot. Gated by ADMIN_KEY env var —
+  // requests must supply `X-Admin-Key` header matching the env value.
+  // If ADMIN_KEY is not set at boot, the endpoint returns 503 rather
+  // than exposing data to anonymous callers.
+  //
+  // Returned shape: see UsageSnapshot in services/usageTracker.ts.
+
+  fastify.get("/api/v1/admin/usage", async (request, reply) => {
+    const configured = process.env.ADMIN_KEY;
+    if (!configured) {
+      return reply.code(503).send({
+        error: "admin_not_configured",
+        detail: "ADMIN_KEY env var not set; admin endpoint disabled",
+      });
+    }
+    const supplied = request.headers["x-admin-key"];
+    if (supplied !== configured) {
+      return reply.code(401).send({
+        error: "unauthorized",
+        detail: "missing or invalid X-Admin-Key header",
+      });
+    }
+    return usageTracker.getSnapshot();
+  });
 
   // ── MCP Telemetry (anonymous tool usage counters) ──
 
