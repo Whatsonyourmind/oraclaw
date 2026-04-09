@@ -7,7 +7,7 @@ The algorithm implementations are not open-source.
 - **SDK**: `npm install @oraclaw/bandit`
 - **API**: https://oraclaw-api.onrender.com/api/v1/health
 
-20 algorithms, 12 MCP tools, sub-5ms, zero LLM cost.
+21 algorithms, 12 MCP tools, sub-5ms, zero LLM cost.
 
 ## Algorithm Catalog
 
@@ -30,6 +30,7 @@ The algorithm implementations are not open-source.
 | 15 | Decision Graph | `decisionGraph.ts` | Graph | PageRank, Louvain |
 | 16 | Anomaly Detector | `anomalyDetector.ts` | Detection | Z-score + IQR |
 | 17 | Time Series (Holt-Winters) | `timeSeries.ts` | Forecasting | Triple exponential smoothing |
+| 21 | Hierarchical Risk Parity | `hrp.ts` | Portfolio | López de Prado 2016 — clustering + inverse-variance bisection |
 
 > Helper services (not standalone algorithms): `convergenceScoring`, `correlationMatrix`.
 > Items are numbered by first-class public API endpoint, not by file count.
@@ -57,3 +58,41 @@ gives tighter finite-sample regret bounds in theory; Thompson Sampling
 tends to win on real datasets (Chapelle & Li, NeurIPS 2011) and naturally
 diversifies exploration without a tunable UCB bonus. Serving both lets
 callers pick the exploration strategy that fits their reward landscape.
+
+### Hierarchical Risk Parity (new, 21st algorithm)
+
+Portfolio-construction algorithm that allocates capital across N assets
+by exploiting the hierarchical structure of their correlation matrix
+rather than inverting the covariance matrix (Markowitz, 1952). HRP is
+numerically stable on ill-conditioned covariance matrices, needs no
+expected-return estimate, and produces diversified weights even when
+assets are highly collinear — all situations where classical mean-
+variance optimisation breaks down.
+
+**Reference**: Marcos López de Prado, "Building Diversified Portfolios
+that Outperform Out-of-Sample", Journal of Portfolio Management (2016).
+
+**Pipeline (three stages):**
+
+1. **Tree clustering** — Compute the correlation matrix `C`, convert to
+   the distance metric `d(i,j) = sqrt(0.5 * (1 - C(i,j)))` (a proper
+   metric on the unit sphere), run single-linkage agglomerative
+   clustering.
+2. **Quasi-diagonalisation** — DFS-reorder assets so correlated ones sit
+   next to each other, concentrating mass on the diagonal of `C`.
+3. **Recursive bisection** — At each split, allocate capital inversely
+   proportional to cluster variance using the inverse-variance portfolio
+   on each side.
+
+**HTTP endpoints** (`hrp.route.ts`):
+
+| Method | Path | Body | Purpose |
+|--------|------|------|---------|
+| POST | `/v1/hrp/allocate` | `{ returns, assetIds }` | Full HRP pipeline → weights + cluster tree + quasi-diag order |
+
+**Why HRP alongside CMA-ES and the portfolio-risk helpers?** HRP is the
+only algorithm in OraClaw that produces a full weight vector from raw
+returns with zero tuning and zero matrix inversion. CMA-ES solves
+continuous black-box problems but needs a caller-supplied objective;
+HRP is a direct "give me a portfolio" primitive. Together they cover
+the gap between hand-rolled optimisation and off-the-shelf allocation.
