@@ -28,6 +28,7 @@ import { googleIntegrationRoutes } from './integrations/google';
 import { githubIntegrationRoutes } from './integrations/github';
 import publicApiRoutes from './api-public';
 import { thompsonSamplingRoutes } from '../algorithms/thompson-sampling.route';
+import { hrpRoutes } from '../algorithms/hrp.route';
 
 // In-memory state for demo (would be persisted in production)
 const oracleStateStore = new Map<string, OracleState>();
@@ -77,6 +78,7 @@ export async function oracleRoutes(fastify: FastifyInstance) {
   await githubIntegrationRoutes(fastify);
   await publicApiRoutes(fastify);
   await thompsonSamplingRoutes(fastify);
+  await hrpRoutes(fastify);
 
   // ==========================================
   // ORACLE ORCHESTRATION ROUTES
