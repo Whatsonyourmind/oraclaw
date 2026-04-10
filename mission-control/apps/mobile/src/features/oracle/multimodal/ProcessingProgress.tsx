@@ -373,7 +373,7 @@ export const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
           <ProcessingStage
             label="Generate"
             isActive={data.status === 'generating_signals' || data.progress >= 80}
-            isComplete={data.status === 'completed'}
+            isComplete={(data.status as string) === 'completed'}
           />
         </View>
       )}

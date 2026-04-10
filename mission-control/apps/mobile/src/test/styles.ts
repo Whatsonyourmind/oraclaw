@@ -222,6 +222,8 @@ export const styles = StyleSheet.create({
   actionButton: { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, paddingVertical: 14, borderRadius: 8, gap: 8 },
   actionButtonPrimary: { backgroundColor: '#00FF88' },
   actionButtonTextPrimary: { color: '#000000', fontSize: 16, fontWeight: 'bold' as const },
+  actionButtonSecondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: '#00FF88' },
+  actionButtonTextSecondary: { color: '#00FF88', fontSize: 16, fontWeight: 'bold' as const },
   missionStatus: { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, paddingVertical: 15, gap: 8 },
   missionStatusText: { color: '#00FF88', fontSize: 12, fontWeight: 'bold' as const, letterSpacing: 1 },
 

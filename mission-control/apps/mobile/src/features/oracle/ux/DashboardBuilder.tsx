@@ -1142,7 +1142,7 @@ const DraggableWidget: React.FC<DraggableWidgetProps> = ({
       { translateX: translateX.value },
       { translateY: translateY.value },
       { scale: scale.value },
-    ],
+    ] as any,
     zIndex: zIndex.value,
   }));
 

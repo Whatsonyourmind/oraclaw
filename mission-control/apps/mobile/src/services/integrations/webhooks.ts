@@ -668,8 +668,6 @@ export const webhookService = new WebhookService();
 export {
   WebhookService,
   STORAGE_KEYS as WEBHOOK_STORAGE_KEYS,
-  ZAPIER_APP_DEFINITION,
-  IFTTT_SERVICE_DEFINITION,
 };
 
 export default webhookService;

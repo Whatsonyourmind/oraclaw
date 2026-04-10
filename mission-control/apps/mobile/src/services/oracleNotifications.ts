@@ -16,7 +16,7 @@ export const NOTIFICATION_CHANNELS = {
   SYSTEM: 'oracle-system',
 } as const;
 
-const CHANNEL_CONFIGS: Record<string, Notifications.AndroidNotificationChannelInput> = {
+const CHANNEL_CONFIGS: Record<string, Notifications.NotificationChannelInput> = {
   [NOTIFICATION_CHANNELS.SIGNALS_CRITICAL]: {
     name: 'Critical Signals',
     importance: Notifications.AndroidImportance.HIGH,
@@ -66,6 +66,8 @@ const CHANNEL_CONFIGS: Record<string, Notifications.AndroidNotificationChannelIn
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
   }),
@@ -154,7 +156,7 @@ function setupNotificationListeners(): void {
  * Handle notification tap/interaction
  */
 function handleNotificationResponse(response: Notifications.NotificationResponse): void {
-  const payload = response.notification.request.content.data as NotificationPayload | undefined;
+  const payload = response.notification.request.content.data as unknown as NotificationPayload | undefined;
 
   if (!payload) {
     console.warn('[ORACLE Notifications] No payload in notification');
@@ -241,7 +243,7 @@ export async function notifySignal(signal: Partial<Signal>): Promise<string | nu
   }
 
   // Determine channel based on urgency
-  let channelId = NOTIFICATION_CHANNELS.SIGNALS_MEDIUM;
+  let channelId: string = NOTIFICATION_CHANNELS.SIGNALS_MEDIUM;
   let priority = Notifications.AndroidNotificationPriority.DEFAULT;
 
   if (signal.urgency === 'critical') {
@@ -262,7 +264,7 @@ export async function notifySignal(signal: Partial<Signal>): Promise<string | nu
         data: {
           type: 'signal',
           id: signal.id,
-        } as NotificationPayload,
+        } as unknown as Record<string, unknown>,
         sound: signal.urgency === 'critical' ? 'signal.wav' : undefined,
         badge: 1,
         ...(Platform.OS === 'android' && {
@@ -300,7 +302,7 @@ export async function notifySignals(signals: Partial<Signal>[]): Promise<void> {
       content: {
         title: `${other.length} new signals detected`,
         body: other.map(s => s.title).slice(0, 3).join(', ') + (other.length > 3 ? '...' : ''),
-        data: { type: 'signal', id: 'summary' } as NotificationPayload,
+        data: { type: 'signal', id: 'summary' } as unknown as Record<string, unknown>,
         ...(Platform.OS === 'android' && {
           channelId: NOTIFICATION_CHANNELS.SIGNALS_MEDIUM,
         }),
@@ -334,7 +336,7 @@ export async function notifyGhostAction(action: Partial<GhostAction>): Promise<s
         data: {
           type: 'ghost_action',
           id: action.id,
-        } as NotificationPayload,
+        } as unknown as Record<string, unknown>,
         ...(Platform.OS === 'android' && {
           channelId: NOTIFICATION_CHANNELS.GHOST_ACTIONS,
         }),
@@ -368,7 +370,7 @@ export async function notifyCopilot(message: string, stepId?: string): Promise<s
         data: {
           type: 'copilot',
           id: stepId || 'guidance',
-        } as NotificationPayload,
+        } as unknown as Record<string, unknown>,
         ...(Platform.OS === 'android' && {
           channelId: NOTIFICATION_CHANNELS.COPILOT,
           priority: Notifications.AndroidNotificationPriority.LOW,
@@ -402,12 +404,13 @@ export async function scheduleNotification(
       content: {
         title,
         body,
-        data: payload || { type: 'system', id: 'scheduled' },
+        data: (payload || { type: 'system', id: 'scheduled' }) as unknown as Record<string, unknown>,
         ...(Platform.OS === 'android' && {
           channelId: NOTIFICATION_CHANNELS.SYSTEM,
         }),
       },
       trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: triggerAt,
       },
     });

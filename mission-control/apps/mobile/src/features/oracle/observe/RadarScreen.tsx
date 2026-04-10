@@ -46,10 +46,17 @@ export const RadarScreen: React.FC = () => {
     signals,
     clusters,
     isScanning,
-    lastScanTime,
-    startScan,
-    setFilter,
+    lastScanAt: lastScanTime,
+    scan: startScan,
+    updateFilters,
   } = useRadarStore();
+  const setFilter = (filter: string | Record<string, any>) => {
+    if (typeof filter === 'string') {
+      updateFilters({ search: filter });
+    } else {
+      updateFilters(filter as any);
+    }
+  };
 
   const activeSignals = useRadarSelectors.activeSignals();
   const signalsByUrgency = useRadarSelectors.signalsByUrgency();

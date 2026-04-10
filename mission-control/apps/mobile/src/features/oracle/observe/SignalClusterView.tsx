@@ -58,8 +58,8 @@ export const SignalClusterView: React.FC<SignalClusterViewProps> = ({
     outputRange: ['0deg', '180deg'],
   });
 
-  const urgencyColor = getUrgencyColor(cluster.urgency);
-  const impactColor = getUrgencyColor(cluster.impact === 'high' ? 'high' : cluster.impact === 'medium' ? 'medium' : 'low');
+  const urgencyColor = getUrgencyColor(cluster.combined_urgency || 'medium');
+  const impactColor = getUrgencyColor(cluster.combined_impact === 'high' ? 'high' : cluster.combined_impact === 'medium' ? 'medium' : 'low');
 
   return (
     <View style={styles.container}>
@@ -102,7 +102,7 @@ export const SignalClusterView: React.FC<SignalClusterViewProps> = ({
               <Text style={styles.metricLabel}>Urgency</Text>
               <View style={[styles.metricBadge, { backgroundColor: urgencyColor }]}>
                 <Text style={styles.metricBadgeText}>
-                  {cluster.urgency?.toUpperCase() || 'MEDIUM'}
+                  {cluster.combined_urgency?.toUpperCase() || 'MEDIUM'}
                 </Text>
               </View>
             </View>
@@ -110,7 +110,7 @@ export const SignalClusterView: React.FC<SignalClusterViewProps> = ({
               <Text style={styles.metricLabel}>Impact</Text>
               <View style={[styles.metricBadge, { backgroundColor: impactColor }]}>
                 <Text style={styles.metricBadgeText}>
-                  {cluster.impact?.toUpperCase() || 'MEDIUM'}
+                  {cluster.combined_impact?.toUpperCase() || 'MEDIUM'}
                 </Text>
               </View>
             </View>

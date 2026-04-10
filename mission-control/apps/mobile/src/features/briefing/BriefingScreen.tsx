@@ -193,7 +193,7 @@ export const BriefingScreen: React.FC<BriefingScreenProps> = ({
                 <Ionicons name="people-outline" size={18} color="#FFA500" />
                 <View style={styles.delegationContent}>
                   <Text style={styles.delegationTask}>{delegation.task}</Text>
-                  <Text style={styles.delegationTo}>A: {delegation.to_who}</Text>
+                  <Text style={styles.delegationTo}>A: {delegation.delegate_to}</Text>
                 </View>
                 <View style={styles.delegationConfidence}>
                   <Text style={styles.confidenceBadgeText}>

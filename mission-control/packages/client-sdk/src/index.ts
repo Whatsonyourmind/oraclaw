@@ -20,8 +20,8 @@ class MissionControlAPI {
     this.baseURL = API_BASE_URL;
   }
 
-  private async request<T>(
-    endpoint: string, 
+  async request<T>(
+    endpoint: string,
     options: RequestInit = {}
   ): Promise<APIResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;

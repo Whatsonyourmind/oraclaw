@@ -28,6 +28,12 @@ interface RadarState {
   signalFilters: SignalFilters;
   scanError: string | null;
 
+  // Aliases used by components
+  lastScanTime?: Date;
+  startScan?: () => Promise<void>;
+  setFilter?: (filter: string | Record<string, any>) => void;
+  investigateSignal?: (signalId: string) => Promise<void>;
+
   // Actions
   scan: () => Promise<void>;
   dismissSignal: (signalId: string) => void;
@@ -56,6 +62,18 @@ export const useRadarStore = create<RadarState>()(
   persist(
     (set, get) => ({
       ...initialState,
+
+      // Computed aliases for components
+      get lastScanTime() { const t = get().lastScanAt; return t ? new Date(t) : undefined; },
+      startScan: async () => { await get().scan(); },
+      setFilter: (filter: string | Record<string, any>) => {
+        if (typeof filter === 'string') {
+          get().updateFilters({ search: filter });
+        } else {
+          get().updateFilters(filter as Partial<SignalFilters>);
+        }
+      },
+      investigateSignal: async (signalId: string) => { get().acknowledgeSignal(signalId); },
 
       scan: async () => {
         set({ isScanning: true, scanError: null });

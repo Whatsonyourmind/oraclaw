@@ -279,10 +279,6 @@ export const styles = StyleSheet.create({
   },
 
   // Layout
-  container: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
   content: {
     flex: 1,
     padding: 20,
@@ -361,4 +357,9 @@ export const styles = StyleSheet.create({
   controlButtonText: { color: '#FFFFFF', fontSize: 12, marginTop: 4 },
   confidenceWarning: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, padding: 10, backgroundColor: 'rgba(255, 165, 0, 0.1)', borderRadius: 6, margin: 10 },
   confidenceWarningText: { color: '#FFA500', fontSize: 12, flex: 1 },
+  actionButtonSelected: { backgroundColor: '#FFFFFF', borderColor: '#FFFFFF' },
+  actionButtonTextSelected: { color: '#000000' },
+  controlButtonSecondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: '#00FF88', borderRadius: 8, paddingHorizontal: 20, paddingVertical: 10 },
+  controlButtonTextSecondary: { color: '#00FF88', fontSize: 12, marginTop: 4 },
+  controlButtonDisabled: { opacity: 0.4 },
 });

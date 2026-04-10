@@ -602,6 +602,12 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 2,
   },
+  processingDots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
   processingText: {
     fontSize: 16,
     color: '#888',

@@ -79,8 +79,9 @@ export const SimulationResultsView: React.FC<SimulationResultsViewProps> = ({
     }
 
     // Use distribution data if available
-    const dist = simulation.distribution as number[];
-    if (Array.isArray(dist) && dist.length > 0) {
+    const distData = simulation.distribution;
+    if (Array.isArray(distData) && distData.length > 0) {
+      const dist = distData.map((d) => d.count);
       const maxVal = Math.max(...dist);
       return dist.slice(0, BAR_COUNT).map((v) => v / maxVal);
     }

@@ -155,8 +155,10 @@ export const OracleDashboard: React.FC = () => {
 
   // Get stats from individual stores
   const activeSignals = useRadarSelectors.activeSignals();
-  const riskCount = useOrientSelectors.riskCount();
-  const opportunityCount = useOrientSelectors.opportunityCount();
+  const risks = useOrientSelectors.risks();
+  const opportunities = useOrientSelectors.opportunities();
+  const riskCount = risks.length;
+  const opportunityCount = opportunities.length;
   const pendingDecisions = useDecideSelectors.pendingDecisions();
   const planProgress = useActSelectors.planProgress();
 
@@ -343,7 +345,7 @@ export const OracleDashboard: React.FC = () => {
           phase="act"
           isActive={currentPhase === 'act'}
           stats={[
-            { label: 'Progress', value: Math.round(planProgress * 100) },
+            { label: 'Progress', value: Math.round((planProgress?.percentage ?? 0) * 100) },
             { label: 'Actions', value: loopStats.totalActionsExecuted },
           ]}
           onPress={() => handlePhasePress('act')}
