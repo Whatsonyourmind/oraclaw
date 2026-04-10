@@ -26,20 +26,24 @@ export const ExecutionCopilotScreen: React.FC = () => {
   const [viewMode, setViewMode] = useState<'focus' | 'list'>('focus');
 
   const {
-    currentPlan,
-    steps,
-    copilotSuggestions,
+    activePlan: currentPlan,
+    currentStep,
+    copilotState,
     isExecuting,
-    getCopilotGuidance,
     completeStep,
     reportBlocker,
   } = useActStore();
 
-  const currentStep = useActSelectors.currentStep();
-  const completedSteps = useActSelectors.completedSteps();
-  const blockedSteps = useActSelectors.blockedSteps();
+  const steps = currentPlan?.steps || [];
+  const copilotSuggestions = copilotState?.suggestions || [];
+  const completedSteps = steps.filter((s: ExecutionStep) => s.status === 'completed');
+  const blockedSteps = steps.filter((s: ExecutionStep) => s.status === 'blocked');
   const planProgress = useActSelectors.planProgress();
-  const copilotState = useActSelectors.copilotState();
+
+  const getCopilotGuidance = async (planId: string) => {
+    // Refresh copilot by accessing the store method
+    await useActStore.getState().refreshCopilot();
+  };
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -60,7 +64,7 @@ export const ExecutionCopilotScreen: React.FC = () => {
   };
 
   const handleReportBlocker = async (step: ExecutionStep, description: string) => {
-    await reportBlocker(step.id, description);
+    await reportBlocker(step.id, description, 'medium');
   };
 
   return (
@@ -91,7 +95,7 @@ export const ExecutionCopilotScreen: React.FC = () => {
         {/* Health Dashboard */}
         <HealthDashboard
           plan={currentPlan}
-          progress={planProgress}
+          progress={planProgress?.percentage ?? 0}
           completedCount={completedSteps.length}
           totalCount={steps.length}
           blockedCount={blockedSteps.length}
@@ -121,13 +125,13 @@ export const ExecutionCopilotScreen: React.FC = () => {
                   style={[
                     styles.progressFill,
                     {
-                      width: `${planProgress * 100}%`,
+                      width: `${(planProgress?.percentage ?? 0) * 100}%`,
                     },
                   ]}
                 />
               </View>
               <Text style={styles.progressText}>
-                {Math.round(planProgress * 100)}% Complete
+                {Math.round((planProgress?.percentage ?? 0) * 100)}% Complete
               </Text>
             </View>
 
@@ -181,10 +185,10 @@ export const ExecutionCopilotScreen: React.FC = () => {
                 </View>
                 <View style={styles.suggestionContent}>
                   <Text style={styles.suggestionText}>{suggestion.content}</Text>
-                  {suggestion.action && (
+                  {suggestion.suggested_action && (
                     <TouchableOpacity style={styles.suggestionAction}>
                       <Text style={styles.suggestionActionText}>
-                        {suggestion.action}
+                        {suggestion.suggested_action}
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -239,7 +243,7 @@ export const ExecutionCopilotScreen: React.FC = () => {
           <CurrentStepFocus
             step={currentStep}
             copilotGuidance={
-              copilotSuggestions.find((s) => s.step_id === currentStep?.id)?.content
+              copilotSuggestions.find((s) => s.type === 'guidance')?.content
             }
             onComplete={handleCompleteStep}
             onReportBlocker={handleReportBlocker}

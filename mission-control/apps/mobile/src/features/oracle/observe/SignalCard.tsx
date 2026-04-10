@@ -20,7 +20,7 @@ interface SignalCardProps {
   onPress?: () => void;
 }
 
-const SIGNAL_ICONS: Record<SignalType, string> = {
+const SIGNAL_ICONS: Partial<Record<SignalType, string>> = {
   calendar_conflict: 'calendar-outline',
   deadline_approaching: 'alarm-outline',
   pattern_anomaly: 'trending-up-outline',
@@ -28,12 +28,23 @@ const SIGNAL_ICONS: Record<SignalType, string> = {
   resource_shortage: 'battery-half-outline',
   stakeholder_signal: 'people-outline',
   external_event: 'globe-outline',
+  deadline: 'alarm-outline',
+  conflict: 'warning-outline',
+  opportunity: 'sunny-outline',
+  risk: 'shield-outline',
+  anomaly: 'alert-circle-outline',
+  pattern: 'analytics-outline',
+  dependency: 'git-branch-outline',
+  resource: 'construct-outline',
+  email: 'mail-outline',
+  task: 'checkbox-outline',
+  external: 'globe-outline',
 };
 
 export const SignalCard: React.FC<SignalCardProps> = ({ signal, onPress }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
-  const { dismissSignal, investigateSignal } = useRadarStore();
+  const { dismissSignal, acknowledgeSignal: investigateSignal } = useRadarStore();
 
   useEffect(() => {
     Animated.parallel([

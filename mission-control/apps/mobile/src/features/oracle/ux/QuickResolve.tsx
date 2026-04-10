@@ -800,7 +800,7 @@ const SwipeableResolutionCard: React.FC<SwipeableResolutionCardProps> = ({
     transform: [
       { translateX: translateX.value },
       { scale: scale.value },
-    ],
+    ] as any,
   }));
 
   const actionIndicatorStyle = useAnimatedStyle(() => ({

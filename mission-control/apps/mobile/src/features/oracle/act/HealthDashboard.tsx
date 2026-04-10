@@ -35,8 +35,8 @@ export const HealthDashboard: React.FC<HealthDashboardProps> = ({
   const healthAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  const healthScore = plan?.health_score ?? copilotState?.health_assessment?.score ?? 0.7;
-  const onTrack = copilotState?.health_assessment?.on_track ?? progress >= 0.8;
+  const healthScore = plan?.health_score ?? copilotState?.health_assessment?.score ?? (copilotState?.health_assessment?.overall === 'healthy' ? 1.0 : copilotState?.health_assessment?.overall === 'at_risk' ? 0.5 : 0.3) as number;
+  const onTrack = copilotState?.health_assessment?.on_track ?? (copilotState?.health_assessment ? copilotState.health_assessment.overall === 'healthy' : progress >= 0.8);
 
   useEffect(() => {
     Animated.parallel([
@@ -193,11 +193,11 @@ export const HealthDashboard: React.FC<HealthDashboardProps> = ({
         </View>
 
         {/* Time estimate if available */}
-        {copilotState?.predictions?.estimated_completion && (
+        {copilotState?.predictions?.estimated_delay_hours != null && (
           <View style={styles.timeEstimate}>
             <Ionicons name="time-outline" size={14} color="#888888" />
             <Text style={styles.timeEstimateText}>
-              Est. completion: {copilotState.predictions.estimated_completion}
+              Est. delay: {copilotState.predictions.estimated_delay_hours}h
             </Text>
           </View>
         )}

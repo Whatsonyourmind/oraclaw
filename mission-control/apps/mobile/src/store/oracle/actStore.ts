@@ -8,6 +8,7 @@ import type {
   ExecutionPlan,
   ExecutionStep,
   CopilotState,
+  CopilotSuggestion,
   Lesson,
   ExecutionOutcome,
   PlanStatus,
@@ -24,6 +25,12 @@ interface ActState {
   outcomes: ExecutionOutcome[];
   isExecuting: boolean;
   error: string | null;
+
+  // Aliases used by components
+  currentPlan?: ExecutionPlan | null;
+  steps?: ExecutionStep[];
+  copilotSuggestions?: CopilotSuggestion[];
+  getCopilotGuidance?: (stepId: string) => CopilotSuggestion | undefined;
 
   // Actions
   startPlan: (planId: string) => Promise<void>;
@@ -60,6 +67,14 @@ export const useActStore = create<ActState>()(
   persist(
     (set, get) => ({
       ...initialState,
+
+      // Computed aliases for components
+      get currentPlan() { return get().activePlan; },
+      get steps() { return get().activePlan?.steps || []; },
+      get copilotSuggestions() { return get().copilotState?.suggestions || []; },
+      getCopilotGuidance: (stepId: string) => {
+        return get().copilotState?.suggestions?.find(s => s.type === 'guidance');
+      },
 
       startPlan: async (planId) => {
         const plan = get().plans.find((p) => p.id === planId);
@@ -332,4 +347,20 @@ export const useActSelectors = {
           }
         : null
     ),
+
+  currentStep: () =>
+    useActStore((state) => state.currentStep),
+
+  completedSteps: () =>
+    useActStore((state) =>
+      (state.activePlan?.steps || []).filter((s) => s.status === 'completed')
+    ),
+
+  blockedSteps: () =>
+    useActStore((state) =>
+      (state.activePlan?.steps || []).filter((s) => s.status === 'blocked')
+    ),
+
+  copilotState: () =>
+    useActStore((state) => state.copilotState),
 };

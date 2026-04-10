@@ -68,9 +68,9 @@ export const CriticalPathDiagram: React.FC<CriticalPathDiagramProps> = ({
     }
 
     if (criticalPath.critical_nodes && Array.isArray(criticalPath.critical_nodes)) {
-      return criticalPath.critical_nodes.map((node: string, index: number) => ({
-        id: `node-${index}`,
-        name: node,
+      return criticalPath.critical_nodes.map((node, index: number) => ({
+        id: node.id || `node-${index}`,
+        name: node.name || `Node ${index + 1}`,
         duration: 1,
         start: index,
         isCritical: true,
@@ -260,10 +260,10 @@ export const CriticalPathDiagram: React.FC<CriticalPathDiagramProps> = ({
       {criticalPath.bottlenecks && criticalPath.bottlenecks.length > 0 && (
         <View style={styles.bottlenecksSection}>
           <Text style={styles.sectionLabel}>BOTTLENECKS</Text>
-          {criticalPath.bottlenecks.map((bottleneck: string, index: number) => (
+          {criticalPath.bottlenecks.map((bottleneck, index: number) => (
             <View key={index} style={styles.bottleneckItem}>
               <Ionicons name="alert-circle" size={14} color="#FFA500" />
-              <Text style={styles.bottleneckText}>{bottleneck}</Text>
+              <Text style={styles.bottleneckText}>{bottleneck.reason} ({bottleneck.severity})</Text>
             </View>
           ))}
         </View>
@@ -273,10 +273,10 @@ export const CriticalPathDiagram: React.FC<CriticalPathDiagramProps> = ({
       {criticalPath.parallel_tracks && criticalPath.parallel_tracks.length > 0 && (
         <View style={styles.parallelSection}>
           <Text style={styles.sectionLabel}>PARALLEL TRACKS</Text>
-          {criticalPath.parallel_tracks.map((track: string, index: number) => (
+          {criticalPath.parallel_tracks.map((track, index: number) => (
             <View key={index} style={styles.parallelItem}>
               <Ionicons name="git-branch" size={14} color="#00BFFF" />
-              <Text style={styles.parallelText}>{track}</Text>
+              <Text style={styles.parallelText}>{track.track_id}: {track.steps.join(' > ')}</Text>
             </View>
           ))}
         </View>

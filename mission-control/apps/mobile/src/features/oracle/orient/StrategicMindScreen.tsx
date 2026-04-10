@@ -33,16 +33,18 @@ export const StrategicMindScreen: React.FC = () => {
   const [showMatrix, setShowMatrix] = useState(false);
 
   const {
-    currentContext,
+    activeContext: currentContext,
     horizons,
     assessments,
     isGenerating,
-    generateContext,
+    generateOrientation: generateContext,
   } = useOrientStore();
 
-  const keyFactors = useOrientSelectors.keyFactors();
-  const riskCount = useOrientSelectors.riskCount();
-  const opportunityCount = useOrientSelectors.opportunityCount();
+  const risks = useOrientSelectors.risks();
+  const opportunities = useOrientSelectors.opportunities();
+  const riskCount = risks.length;
+  const opportunityCount = opportunities.length;
+  const keyFactors = currentContext?.key_factors || [];
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -56,7 +58,7 @@ export const StrategicMindScreen: React.FC = () => {
     await generateContext([]);
   };
 
-  const selectedHorizonData = horizons.find((h) => h.horizon_type === selectedHorizon);
+  const selectedHorizonData = horizons[selectedHorizon];
 
   return (
     <View style={[oracleStyles.container, { paddingTop: insets.top }]}>
@@ -116,7 +118,7 @@ export const StrategicMindScreen: React.FC = () => {
                   {keyFactors.slice(0, 4).map((factor, index) => (
                     <View key={index} style={styles.factorItem}>
                       <View style={[styles.factorDot, { backgroundColor: ORACLE_COLORS.orient }]} />
-                      <Text style={styles.factorText}>{factor}</Text>
+                      <Text style={styles.factorText}>{factor.factor}</Text>
                     </View>
                   ))}
                 </View>
@@ -129,7 +131,7 @@ export const StrategicMindScreen: React.FC = () => {
                   {currentContext.recommendations.slice(0, 3).map((rec, index) => (
                     <View key={index} style={styles.recommendationItem}>
                       <Ionicons name="arrow-forward-circle" size={16} color={ORACLE_COLORS.orient} />
-                      <Text style={styles.recommendationText}>{rec}</Text>
+                      <Text style={styles.recommendationText}>{rec.action}</Text>
                     </View>
                   ))}
                 </View>

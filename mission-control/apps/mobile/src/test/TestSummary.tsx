@@ -68,7 +68,7 @@ export const TestSummary: React.FC<TestSummaryProps> = ({
         </View>
 
         <View style={styles.statCard}>
-          <Ionicons name="percent-outline" size={24} color="#FFA500" />
+          <Ionicons name="analytics-outline" size={24} color="#FFA500" />
           <Text style={styles.statNumber}>{successRate}%</Text>
           <Text style={styles.statLabel}>SUCCESS</Text>
         </View>

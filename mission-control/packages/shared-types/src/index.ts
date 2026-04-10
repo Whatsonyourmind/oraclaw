@@ -45,6 +45,45 @@ export interface Action {
   due_date?: string;
   metadata: Record<string, any>;
   created_at: string;
+  // Optional fields used by store
+  completed_at?: string;
+}
+
+export interface DelegationOpportunity {
+  task?: string;
+  delegate_to?: string;
+  to_who?: string;
+  reason?: string;
+  confidence?: number;
+}
+
+export interface Priority {
+  title: string;
+  urgency: 'high' | 'medium' | 'low';
+  confidence: number;
+  description?: string;
+}
+
+export interface TimeWindow {
+  start: string;
+  end: string;
+  purpose: string;
+  type?: string;
+}
+
+export interface RecommendedAction {
+  description: string;
+  effort: 'low' | 'medium' | 'high';
+  confidence: number;
+  category?: string;
+}
+
+export interface FollowUp {
+  type: 'email' | 'task' | 'reminder';
+  recipient?: string;
+  content: string;
+  confidence: number;
+  due_date?: string;
 }
 
 export interface Briefing {
@@ -68,6 +107,8 @@ export interface Briefing {
     confidence: number;
   }>;
   created_at: string;
+  // Optional fields used by components
+  delegation_opportunities?: DelegationOpportunity[];
 }
 
 export interface Meeting {
@@ -117,10 +158,10 @@ export interface APIResponse<T = any> {
 // OBSERVE MODULE INTERFACES
 // ============================================================================
 
-export type SignalType = 'deadline' | 'conflict' | 'opportunity' | 'risk' | 'anomaly' | 'pattern' | 'dependency' | 'resource';
+export type SignalType = 'deadline' | 'conflict' | 'opportunity' | 'risk' | 'anomaly' | 'pattern' | 'dependency' | 'resource' | 'calendar_conflict' | 'deadline_approaching' | 'pattern_anomaly' | 'opportunity_window' | 'resource_shortage' | 'stakeholder_signal' | 'external_event' | 'email' | 'task' | 'external';
 export type UrgencyLevel = 'critical' | 'high' | 'medium' | 'low';
 export type ImpactLevel = 'critical' | 'high' | 'medium' | 'low';
-export type SignalStatus = 'active' | 'acknowledged' | 'dismissed' | 'resolved';
+export type SignalStatus = 'active' | 'acknowledged' | 'dismissed' | 'resolved' | 'processed';
 
 export interface Signal {
   id: string;
@@ -140,6 +181,11 @@ export interface Signal {
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;
+  // Optional fields used by integrations and components
+  source?: string;
+  summary?: string;
+  type?: SignalType;
+  detected_at?: string;
 }
 
 export interface SignalCluster {
@@ -155,6 +201,12 @@ export interface SignalCluster {
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;
+  // Optional fields used by components
+  signal_ids?: string[];
+  urgency?: number;
+  impact?: number;
+  name?: string;
+  theme?: string;
 }
 
 export type AnomalyPatternType = 'deviation' | 'spike' | 'trend' | 'absence' | 'correlation' | 'custom';
@@ -277,6 +329,9 @@ export interface StrategicHorizon {
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;
+  // Optional fields used by components
+  summary?: string;
+  key_actions?: string[];
 }
 
 export type CorrelationType = 'causal' | 'temporal' | 'semantic' | 'dependency' | 'conflict' | 'synergy';
@@ -365,6 +420,9 @@ export interface Decision {
   created_at: string;
   updated_at: string;
   decided_at?: string;
+  // Optional fields used by components
+  owner?: string;
+  context?: Record<string, any>;
 }
 
 export interface DecisionOption {
@@ -415,6 +473,7 @@ export interface SimulationResult {
   results: Record<string, any>;
   mean_outcome: number;
   std_deviation: number;
+  mean?: number;
   percentiles: {
     p5: number;
     p25: number;
@@ -432,6 +491,21 @@ export interface SimulationResult {
   execution_time_ms: number;
   metadata: Record<string, any>;
   created_at: string;
+}
+
+export interface PathStep {
+  id: string;
+  name: string;
+  duration?: number;
+  dependencies?: string[];
+  status?: string;
+}
+
+export interface CriticalNode {
+  id: string;
+  name: string;
+  type?: string;
+  importance?: number;
 }
 
 export interface CriticalPath {
@@ -471,6 +545,10 @@ export interface CriticalPath {
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;
+  // Optional fields used by components
+  path_steps?: PathStep[];
+  critical_nodes?: CriticalNode[];
+  total_duration?: number;
 }
 
 export type StakeholderInputType = 'approval' | 'opinion' | 'constraint' | 'requirement' | 'veto';
@@ -552,6 +630,12 @@ export interface ExecutionStep {
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;
+  // Optional fields used by calendar integrations and components
+  estimated_duration?: string;
+  instructions?: string[];
+  blocker_description?: string;
+  scheduled_start?: string;
+  estimated_minutes?: number;
 }
 
 export type ProgressUpdateType = 'status_change' | 'note' | 'blocker' | 'milestone' | 'adjustment' | 'completion';
@@ -587,15 +671,61 @@ export interface CopilotState {
   suggestions: CopilotSuggestion[];
   health_assessment: {
     overall: 'healthy' | 'at_risk' | 'critical';
+    score?: number;
+    on_track?: boolean;
     issues: string[];
     positives: string[];
   };
   predictions: {
     completion_likelihood: number;
     estimated_delay_hours?: number;
+    estimated_completion?: string;
     risk_factors: string[];
   };
   last_updated: string;
+}
+
+// ============================================================================
+// OODA STORE STATE INTERFACES
+// Used by mobile Zustand stores and components
+// ============================================================================
+
+export interface ActState {
+  currentPlan?: ExecutionPlan;
+  steps?: ExecutionStep[];
+  copilotSuggestions?: CopilotSuggestion[];
+  getCopilotGuidance?: (stepId: string) => CopilotSuggestion;
+  // Computed properties used by components
+  currentStep?: ExecutionStep;
+  completedSteps?: ExecutionStep[];
+  blockedSteps?: ExecutionStep[];
+  copilotState?: CopilotState;
+}
+
+export interface DecideState {
+  currentDecision?: Decision;
+  options?: DecisionOption[];
+  isAnalyzing?: boolean;
+  analyzeDecision?: (decisionId: string) => Promise<void>;
+  // Computed properties used by components
+  optionsWithSimulations?: Array<DecisionOption & { simulation?: SimulationResult }>;
+  bestOption?: DecisionOption;
+}
+
+export interface RadarState {
+  lastScanTime?: Date;
+  startScan?: () => Promise<void>;
+  setFilter?: (filter: string) => void;
+  investigateSignal?: (signalId: string) => Promise<void>;
+}
+
+export interface OrientState {
+  currentContext?: StrategicContext;
+  generateContext?: () => Promise<void>;
+  // Computed properties used by components
+  keyFactors?: Array<{ factor: string; importance: number; trend?: string }>;
+  riskCount?: number;
+  opportunityCount?: number;
 }
 
 export type OutcomeType = 'success' | 'partial_success' | 'failure' | 'cancelled' | 'pivoted';
@@ -2504,7 +2634,7 @@ export interface AIPersonality {
   sample_responses: Array<{ prompt: string; response: string }>;
   // A/B testing
   ab_test_group?: string;
-  ab_test_metrics: Record<string, any>;
+  ab_test_metrics?: Record<string, any>;
   // Visibility
   is_default: boolean;
   is_public: boolean;

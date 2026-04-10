@@ -2,6 +2,7 @@
  * BriefingTimeline Component
  * Timeline view of events and tasks with progress indicators
  */
+import type { JSX } from 'react';
 import React, { useRef, useEffect } from 'react';
 import {
   View,

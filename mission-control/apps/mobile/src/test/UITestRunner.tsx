@@ -25,7 +25,7 @@ export const UITestRunner: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<'runner' | 'camera' | 'overlay' | 'briefing' | 'debrief'>('runner');
   
   const { createMission, setCurrentMission, setBriefing, setMeeting } = useMissionStore();
-  const { hasCurrentMission } = useMissionSelectors();
+  const hasCurrentMission = useMissionSelectors.hasCurrentMission();
 
   // Test data
   const mockIntelOverlay = {
@@ -173,7 +173,7 @@ export const UITestRunner: React.FC = () => {
     // Test 7: State Management
     await runTest('State Management', async () => {
       const mission = createMission('State Test Mission');
-      const hasMission = hasCurrentMission();
+      const hasMission = hasCurrentMission;
       return hasMission && mission.status === 'active';
     });
 

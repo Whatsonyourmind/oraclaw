@@ -444,7 +444,7 @@ import { useRef, useEffect, useCallback } from 'react';
 export function useRequestBatcher(
   config: Partial<BatcherConfig> & Pick<BatcherConfig, 'apiBaseUrl' | 'getAuthToken'>
 ): RequestBatcher {
-  const batcherRef = useRef<RequestBatcher>();
+  const batcherRef = useRef<RequestBatcher | undefined>(undefined);
 
   if (!batcherRef.current) {
     batcherRef.current = new RequestBatcher(config);

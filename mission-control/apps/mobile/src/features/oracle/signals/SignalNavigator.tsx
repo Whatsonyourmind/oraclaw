@@ -144,7 +144,7 @@ export const SignalNavigator: React.FC<SignalNavigatorProps> = ({
 
     // Apply status filter
     if (filter.status.length > 0) {
-      result = result.filter((s) => filter.status.includes(s.status));
+      result = result.filter((s) => (filter.status as string[]).includes(s.status));
     }
 
     // Apply source filter

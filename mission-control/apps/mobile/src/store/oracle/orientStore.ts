@@ -23,6 +23,10 @@ interface OrientState {
   isRefreshing: boolean;
   error: string | null;
 
+  // Aliases used by components
+  currentContext?: StrategicContext | null;
+  generateContext?: (signalIds?: string[]) => Promise<void>;
+
   // Actions
   generateOrientation: (signalIds?: string[]) => Promise<void>;
   selectHorizon: (horizon: HorizonType) => void;
@@ -58,6 +62,10 @@ export const useOrientStore = create<OrientState>()(
   persist(
     (set, get) => ({
       ...initialState,
+
+      // Computed aliases for components
+      get currentContext() { return get().activeContext; },
+      generateContext: async (signalIds?: string[]) => { await get().generateOrientation(signalIds); },
 
       generateOrientation: async (signalIds) => {
         set({ isGenerating: true, error: null });
@@ -182,4 +190,19 @@ export const useOrientSelectors = {
 
       return summary;
     }),
+
+  keyFactors: () =>
+    useOrientStore((state) =>
+      state.activeContext?.key_factors || []
+    ),
+
+  riskCount: () =>
+    useOrientStore((state) =>
+      state.assessments.filter((a) => a.assessment_type === 'risk').length
+    ),
+
+  opportunityCount: () =>
+    useOrientStore((state) =>
+      state.assessments.filter((a) => a.assessment_type === 'opportunity').length
+    ),
 };

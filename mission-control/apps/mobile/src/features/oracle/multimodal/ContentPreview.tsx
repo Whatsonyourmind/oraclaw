@@ -22,6 +22,7 @@ import {
   ScrollView,
   Image,
   Linking,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ORACLE_COLORS, ORACLE_TIMING, getUrgencyColor, getImpactColor } from '../theme';

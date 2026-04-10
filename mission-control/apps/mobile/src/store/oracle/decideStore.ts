@@ -24,6 +24,12 @@ interface DecideState {
   comparisonOptionIds: string[];
   error: string | null;
 
+  // Aliases used by components
+  currentDecision?: Decision | null;
+  options?: DecisionOption[];
+  isAnalyzing?: boolean;
+  analyzeDecision?: (decisionId: string) => Promise<void>;
+
   // Actions
   createDecision: (title: string, description?: string) => Promise<Decision>;
   generateOptions: (decisionId: string) => Promise<void>;
@@ -58,6 +64,14 @@ export const useDecideStore = create<DecideState>()(
   persist(
     (set, get) => ({
       ...initialState,
+
+      // Computed aliases for components
+      get currentDecision() { return get().activeDecision; },
+      get options() { return get().activeOptions; },
+      get isAnalyzing() { return get().isSimulating; },
+      analyzeDecision: async (decisionId: string) => {
+        await get().generateOptions(decisionId);
+      },
 
       createDecision: async (title, description) => {
         const decision: Decision = {
@@ -244,5 +258,21 @@ export const useDecideSelectors = {
         ...option,
         simulation: state.simulations[option.id] || null,
       }))
+    ),
+
+  optionsWithSimulations: () =>
+    useDecideStore((state) =>
+      state.activeOptions.map((option) => ({
+        ...option,
+        simulation: state.simulations[option.id] || null,
+      }))
+    ),
+
+  bestOption: () =>
+    useDecideStore((state) =>
+      state.activeOptions.find((o) => o.is_recommended) ||
+      state.activeOptions.reduce<DecisionOption | undefined>((best, current) =>
+        !best || (current.score ?? 0) > (best.score ?? 0) ? current : best,
+      undefined)
     ),
 };

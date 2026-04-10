@@ -3,12 +3,15 @@ import { View, Text, TouchableOpacity, ScrollView, Animated } from 'react-native
 import { Audio } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Meeting, Decision, FollowUp } from '@mission-control/shared-types';
+import { Meeting } from '@mission-control/shared-types';
 import { styles } from './styles';
+
+type MeetingDecision = Meeting['decisions'][number];
+type MeetingFollowUp = Meeting['follow_ups'][number];
 
 interface MeetingDebriefProps {
   meeting: Meeting;
-  onFollowUpSelect: (followUp: FollowUp) => void;
+  onFollowUpSelect: (followUp: MeetingFollowUp) => void;
   onSaveDossier: () => void;
   onClose: () => void;
 }
@@ -20,7 +23,7 @@ export const MeetingDebrief: React.FC<MeetingDebriefProps> = ({
   onClose,
 }) => {
   const insets = useSafeAreaInsets();
-  const [sound, setSound] = useState<Sound | null>(null);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackPosition, setPlaybackPosition] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -111,7 +114,7 @@ export const MeetingDebrief: React.FC<MeetingDebriefProps> = ({
     return '#FF4444';
   };
 
-  const DecisionCard: React.FC<{ decision: Decision; index: number }> = ({ decision, index }) => (
+  const DecisionCard: React.FC<{ decision: MeetingDecision; index: number }> = ({ decision, index }) => (
     <Animated.View 
       style={[
         styles.decisionCard,
@@ -153,7 +156,7 @@ export const MeetingDebrief: React.FC<MeetingDebriefProps> = ({
     </Animated.View>
   );
 
-  const FollowUpCard: React.FC<{ followUp: FollowUp }> = ({ followUp }) => {
+  const FollowUpCard: React.FC<{ followUp: MeetingFollowUp }> = ({ followUp }) => {
     const icons = {
       email: 'mail-outline',
       task: 'checkmark-circle-outline',
@@ -167,7 +170,7 @@ export const MeetingDebrief: React.FC<MeetingDebriefProps> = ({
       >
         <View style={styles.followUpHeader}>
           <Ionicons 
-            name={icons[followUp.type as keyof typeof icons] || 'document-outline'} 
+            name={(icons[followUp.type as keyof typeof icons] || 'document-outline') as any}
             size={20} 
             color="#00FF88" 
           />

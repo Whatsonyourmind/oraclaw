@@ -27,18 +27,18 @@ export const DecisionEngineScreen: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<DecisionOption | null>(null);
 
   const {
-    currentDecision,
-    options,
+    activeDecision: currentDecision,
+    activeOptions: options,
     simulations,
     criticalPath,
-    isAnalyzing,
-    analyzeDecision,
+    isSimulating: isAnalyzing,
+    runSimulation,
     selectOption,
   } = useDecideStore();
 
   const pendingDecisions = useDecideSelectors.pendingDecisions();
-  const optionsWithSimulations = useDecideSelectors.optionsWithSimulations();
-  const bestOption = useDecideSelectors.bestOption();
+  const optionsWithSimulations = useDecideSelectors.optionWithSimulation();
+  const bestOption = useDecideSelectors.recommendedOption();
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -48,6 +48,8 @@ export const DecisionEngineScreen: React.FC = () => {
     }).start();
   }, []);
 
+  const analyzeDecision = useDecideStore.getState().generateOptions;
+
   const handleAnalyze = async () => {
     if (currentDecision) {
       await analyzeDecision(currentDecision.id);
@@ -55,18 +57,20 @@ export const DecisionEngineScreen: React.FC = () => {
   };
 
   const handleSelectOption = (option: DecisionOption) => {
-    selectOption(option.id);
+    if (currentDecision) {
+      selectOption(currentDecision.id, option.id);
+    }
   };
 
   const getOptionStatusIcon = (option: DecisionOption): string => {
-    const simulation = simulations.find((s) => s.option_id === option.id);
+    const simulation = simulations[option.id];
     if (simulation) return 'checkmark-circle';
     if (isAnalyzing) return 'sync';
     return 'ellipse-outline';
   };
 
   const getOptionStatusColor = (option: DecisionOption): string => {
-    const simulation = simulations.find((s) => s.option_id === option.id);
+    const simulation = simulations[option.id];
     if (simulation) return ORACLE_COLORS.decide;
     return '#666666';
   };
@@ -118,10 +122,10 @@ export const DecisionEngineScreen: React.FC = () => {
             )}
 
             {/* Decision Context */}
-            {currentDecision.context && (
+            {currentDecision.decision_rationale && (
               <View style={styles.contextSection}>
                 <Text style={styles.sectionLabel}>CONTEXT</Text>
-                <Text style={styles.contextText}>{currentDecision.context}</Text>
+                <Text style={styles.contextText}>{currentDecision.decision_rationale}</Text>
               </View>
             )}
 
@@ -261,7 +265,7 @@ export const DecisionEngineScreen: React.FC = () => {
         {selectedOption && (
           <SimulationResultsView
             option={selectedOption}
-            simulation={simulations.find((s) => s.option_id === selectedOption.id)}
+            simulation={simulations[selectedOption.id]}
             onClose={() => setSelectedOption(null)}
           />
         )}
@@ -300,7 +304,7 @@ export const DecisionEngineScreen: React.FC = () => {
       {showComparison && (
         <OptionComparisonView
           options={options}
-          simulations={simulations}
+          simulations={Object.values(simulations)}
           onClose={() => setShowComparison(false)}
           onSelect={handleSelectOption}
         />
