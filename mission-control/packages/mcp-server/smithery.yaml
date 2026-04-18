@@ -1,0 +1,17 @@
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required: []
+    properties:
+      ORACLAW_API_KEY:
+        type: string
+        title: OraClaw API Key
+        description: Optional. Required only for premium tools (forecasting, anomaly detection, LP solver, graph analytics). Free tier (6 tools) works without a key. Get one at https://oraclaw-api.onrender.com.
+  exampleConfig: {}
+  commandFunction: |-
+    (config) => ({
+      command: "npx",
+      args: ["-y", "@oraclaw/mcp-server"],
+      env: config.ORACLAW_API_KEY ? { ORACLAW_API_KEY: config.ORACLAW_API_KEY } : {}
+    })
