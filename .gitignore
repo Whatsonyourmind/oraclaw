@@ -14,6 +14,7 @@ keystore.json
 Thumbs.db
 coverage/
 *.tsbuildinfo
+*.difypkg
 
 # Proprietary algorithm source (private repo: private core repo)
 mission-control/apps/api/src/services/oracle/algorithms/*.ts
