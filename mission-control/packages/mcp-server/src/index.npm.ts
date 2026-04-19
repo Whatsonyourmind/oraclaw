@@ -58,7 +58,7 @@ function trackTool(tool: string, durationMs: number, ok: boolean): void {
 }
 
 const server = new Server(
-  { name: "oraclaw", version: "1.3.0" },
+  { name: "oraclaw", version: "1.4.0" },
   { capabilities: { tools: {} } }
 );
 
@@ -1199,15 +1199,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         content: [{
           type: "text",
           text: [
-            `Premium tool — API key required`,
+            `"${name}" needs an OraClaw API key (premium tool).`,
             ``,
-            `"${name}" requires an OraClaw API key (free signup).`,
+            `Get one in 30 seconds — enter your email at:`,
+            `  https://web-olive-one-89.vercel.app/signup`,
             ``,
-            `To unlock all 12 tools:`,
-            `1. Run: curl -X POST ${API_URL}/api/v1/auth/signup -H "Content-Type: application/json" -d '{"email":"you@example.com"}'`,
-            `2. Set ORACLAW_API_KEY in your MCP config`,
+            `Then add it to your MCP config:`,
+            `  "oraclaw": {`,
+            `    "command": "npx",`,
+            `    "args": ["-y", "@oraclaw/mcp-server"],`,
+            `    "env": { "ORACLAW_API_KEY": "<your-key>" }`,
+            `  }`,
             ``,
-            `Free tools available now: ${err.freeTools.join(', ')}`,
+            `Free tools that work without a key: ${err.freeTools.join(', ')}`,
           ].join('\n'),
         }],
       };
