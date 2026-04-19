@@ -58,7 +58,7 @@ function trackTool(tool: string, durationMs: number, ok: boolean): void {
 }
 
 const server = new Server(
-  { name: "oraclaw", version: "1.2.0" },
+  { name: "oraclaw", version: "1.3.0" },
   { capabilities: { tools: {} } }
 );
 
@@ -806,6 +806,351 @@ const TOOLS = [
       openWorldHint: true,
     },
   },
+
+  {
+    name: "score_calibration",
+    description:
+      "Score how well-calibrated a set of probability predictions are against observed binary outcomes using Brier score " +
+      "and log score. Use to evaluate forecaster accuracy, model calibration, prediction-market fairness. Lower Brier/log " +
+      "score = better. predictions[i] is the probability assigned to event i; outcomes[i] is 1 if it happened, 0 otherwise. " +
+      "For comparing multiple forecasters' agreement, use score_convergence instead. Free.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        predictions: {
+          type: "array",
+          items: { type: "number", minimum: 0, maximum: 1 },
+          minItems: 1,
+          description: "Predicted probabilities in [0,1].",
+        },
+        outcomes: {
+          type: "array",
+          items: { type: "number", enum: [0, 1] },
+          minItems: 1,
+          description: "Binary realised outcomes. Must be the same length as predictions.",
+        },
+      },
+      required: ["predictions", "outcomes"],
+    },
+    outputSchema: {
+      type: "object" as const,
+      properties: {
+        brier_score: { type: "number", description: "Mean squared error between probability and outcome (lower is better)." },
+        log_score: { type: "number", description: "Negative log-likelihood (lower is better; -inf possible if a 0-prob event happens)." },
+        n_predictions: { type: "integer" },
+        mean_prediction: { type: "number" },
+        mean_outcome: { type: "number" },
+      },
+      required: ["brier_score", "log_score", "n_predictions"],
+    },
+    annotations: {
+      title: "Calibration Scoring (Brier + Log)",
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
+  },
+
+  {
+    name: "predict_bayesian",
+    description:
+      "Update a prior probability with weighted evidence using a Beta-Bayesian posterior. " +
+      "Use for incremental belief revision: starting from a baseline probability, fold in new signals (each with a value " +
+      "in [0,1] and a weight) and get an updated posterior plus calibration score. Suited to fraud-risk scoring, A/B test " +
+      "stopping decisions, diagnostic probability stacking. For combining N independent model predictions, use predict_ensemble. " +
+      "For full distribution sampling, use simulate_montecarlo. Free.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        prior: {
+          type: "number",
+          minimum: 0,
+          maximum: 1,
+          description: "Prior probability of the event (0..1). Used to seed Beta(prior*10, (1-prior)*10).",
+        },
+        evidence: {
+          type: "array",
+          minItems: 1,
+          description: "Pieces of evidence to fold in.",
+          items: {
+            type: "object",
+            properties: {
+              factor: { type: "string", description: "Identifier / label for this signal." },
+              weight: { type: "number", description: "How heavily this signal counts." },
+              value: { type: "number", minimum: 0, maximum: 1, description: "Signal value in [0,1]." },
+            },
+            required: ["factor", "weight", "value"],
+          },
+        },
+      },
+      required: ["prior", "evidence"],
+    },
+    outputSchema: {
+      type: "object" as const,
+      properties: {
+        posterior: { type: "number", minimum: 0, maximum: 1, description: "Updated probability after folding in evidence." },
+        priorProbability: { type: "number" },
+        factors: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              value: { type: "number" },
+              weight: { type: "number" },
+              direction: { type: "string", enum: ["positive", "negative"] },
+            },
+          },
+        },
+        posteriorMean: { type: "number" },
+        posteriorVariance: { type: "number" },
+        calibrationScore: { type: "number", description: "1 - sqrt(variance); higher = sharper posterior." },
+      },
+      required: ["posterior", "posteriorMean", "posteriorVariance"],
+    },
+    annotations: {
+      title: "Bayesian Belief Update (Beta posterior)",
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
+  },
+
+  {
+    name: "predict_ensemble",
+    description:
+      "Combine N model predictions into a single consensus value using weighted voting, stacking, or Bayesian model averaging. " +
+      "Returns the consensus, decomposed uncertainty (epistemic vs aleatoric), agreement score, weight share per model, and " +
+      "Shannon entropy of the weight distribution. Use to fuse outputs from heterogeneous predictors (statistical + ML + " +
+      "human forecasters). For fusing source-agreement on a probability of one event, use score_convergence. Free.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        predictions: {
+          type: "array",
+          minItems: 2,
+          description: "Predictions from each model (at least 2).",
+          items: {
+            type: "object",
+            properties: {
+              modelId: { type: "string", description: "Stable model identifier." },
+              prediction: { type: "number", description: "Point prediction (any numeric scale)." },
+              confidence: { type: "number", minimum: 0, maximum: 1, description: "Model-reported confidence [0,1]." },
+              historicalAccuracy: { type: "number", minimum: 0, maximum: 1, description: "Optional. Overrides confidence for weighting." },
+            },
+            required: ["modelId", "prediction", "confidence"],
+          },
+        },
+        method: {
+          type: "string",
+          enum: ["weighted-voting", "stacking", "bayesian-averaging"],
+          description: "Combination method (default: weighted-voting).",
+        },
+      },
+      required: ["predictions"],
+    },
+    outputSchema: {
+      type: "object" as const,
+      properties: {
+        consensus: { type: "number", description: "Combined point prediction." },
+        confidence: { type: "number", minimum: 0, maximum: 1, description: "Aggregate confidence." },
+        weights: { type: "object", additionalProperties: { type: "number" }, description: "modelId → weight used." },
+        entropy: { type: "number", description: "Shannon entropy of the weight distribution (higher = more diversified)." },
+        agreement: { type: "number", description: "Cross-model agreement score (1=all agree, 0=disagree)." },
+        uncertainty: {
+          type: "object",
+          properties: {
+            epistemic: { type: "number", description: "Model uncertainty (reducible with more data)." },
+            aleatoric: { type: "number", description: "Irreducible noise." },
+            total: { type: "number" },
+            confidenceInterval: {
+              type: "object",
+              properties: { lower: { type: "number" }, upper: { type: "number" } },
+            },
+          },
+        },
+        modelContributions: {
+          type: "object",
+          additionalProperties: {
+            type: "object",
+            properties: { weight: { type: "number" }, prediction: { type: "number" }, contribution: { type: "number" } },
+          },
+        },
+        method: { type: "string" },
+      },
+      required: ["consensus", "confidence", "method"],
+    },
+    annotations: {
+      title: "Ensemble Multi-Model Consensus",
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
+  },
+
+  {
+    name: "optimize_evolve",
+    description:
+      "Genetic algorithm for combinatorial / discrete optimization with optional Pareto frontier for multi-objective problems. " +
+      "Use when the search space is discrete or mixed (binary feature selection, integer allocation, permutation problems like TSP), " +
+      "or when you want to explore multiple non-dominated solutions. For continuous black-box parameters, use optimize_cmaes — " +
+      "it converges faster on smooth objectives. Stochastic: same input gives different best chromosome each run. Free.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        geneLength: { type: "integer", minimum: 1, description: "Number of genes (variables) per chromosome." },
+        bounds: {
+          type: "object",
+          properties: {
+            min: { type: "number", description: "Per-gene lower bound." },
+            max: { type: "number", description: "Per-gene upper bound." },
+            type: {
+              type: "string",
+              enum: ["binary", "integer", "real", "permutation"],
+              description: "Default: real.",
+            },
+          },
+        },
+        fitnessWeights: {
+          type: "array",
+          items: { type: "number" },
+          description: "Per-gene weights in the default linear fitness sum. Length should equal geneLength.",
+        },
+        populationSize: { type: "integer", minimum: 2, maximum: 500, description: "Default: 100, capped at 500." },
+        maxGenerations: { type: "integer", minimum: 1, maximum: 500, description: "Default: 100, capped at 500." },
+        mutationRate: { type: "number", minimum: 0, maximum: 1, description: "Per-gene mutation probability (default: 0.01)." },
+        crossoverRate: { type: "number", minimum: 0, maximum: 1, description: "Crossover probability (default: 0.8)." },
+        selectionMethod: { type: "string", enum: ["tournament", "roulette", "rank"], description: "Default: tournament." },
+        crossoverMethod: { type: "string", enum: ["single-point", "two-point", "uniform"], description: "Default: single-point." },
+      },
+      required: ["geneLength"],
+    },
+    outputSchema: {
+      type: "object" as const,
+      properties: {
+        bestChromosome: {
+          type: "object",
+          properties: {
+            genes: { type: "array", items: { type: "number" } },
+            fitness: { type: "number" },
+          },
+          required: ["genes", "fitness"],
+        },
+        paretoFrontier: {
+          type: "array",
+          description: "Non-dominated solutions (multi-objective only).",
+          items: {
+            type: "object",
+            properties: {
+              genes: { type: "array", items: { type: "number" } },
+              fitness: { type: "number" },
+            },
+          },
+        },
+        convergenceGeneration: { type: "integer", description: "Generation at which best fitness stopped improving." },
+        totalGenerations: { type: "integer" },
+        executionTimeMs: { type: "number" },
+        fitnessHistory: { type: "array", items: { type: "number" }, description: "Last 20 generations' best fitness." },
+      },
+      required: ["bestChromosome", "totalGenerations"],
+    },
+    annotations: {
+      title: "Genetic Algorithm (discrete + multi-objective)",
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
+  },
+
+  {
+    name: "simulate_scenario",
+    description:
+      "Compare named what-if scenarios against a base case, returning per-scenario outcome delta plus a sensitivity ranking " +
+      "showing which input variables move the outcome most across scenarios. Use for budget sensitivity analysis, deal " +
+      "what-ifs, capacity planning under multiple demand assumptions. The default outcome metric is the sum of input variables — " +
+      "supply scenarios that vary individual drivers to isolate their impact. For random sampling from a distribution, use " +
+      "simulate_montecarlo. Free.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        baseCase: {
+          type: "object",
+          additionalProperties: { type: "number" },
+          description: "Variable name → baseline value.",
+        },
+        scenarios: {
+          type: "array",
+          minItems: 1,
+          description: "Named what-if scenarios. Each overrides any subset of baseCase variables.",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              variables: { type: "object", additionalProperties: { type: "number" } },
+            },
+            required: ["name", "variables"],
+          },
+        },
+      },
+      required: ["baseCase", "scenarios"],
+    },
+    outputSchema: {
+      type: "object" as const,
+      properties: {
+        baseCase: {
+          type: "object",
+          properties: {
+            outcome: { type: "number" },
+            variables: { type: "object", additionalProperties: { type: "number" } },
+          },
+        },
+        results: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              scenario: { type: "string" },
+              outcome: { type: "number" },
+              delta: { type: "number", description: "outcome − baseCase.outcome" },
+              deltaPercent: { type: "number" },
+              variables: {
+                type: "object",
+                additionalProperties: {
+                  type: "object",
+                  properties: {
+                    value: { type: "number" },
+                    change: { type: "number" },
+                    changePercent: { type: "number" },
+                  },
+                },
+              },
+            },
+          },
+        },
+        sensitivityRanking: {
+          type: "array",
+          description: "Variables ranked by total absolute swing across scenarios.",
+          items: {
+            type: "object",
+            properties: { variable: { type: "string" }, totalSwing: { type: "number" } },
+          },
+        },
+        scenarioCount: { type: "integer" },
+      },
+      required: ["baseCase", "results", "scenarioCount"],
+    },
+    annotations: {
+      title: "What-If Scenario Comparison + Sensitivity",
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
+  },
 ];
 
 // ── Endpoint mapping ──────────────────────────────────
@@ -814,15 +1159,20 @@ const ENDPOINTS: Record<string, string> = {
   optimize_bandit: "/api/v1/optimize/bandit",
   optimize_contextual: "/api/v1/optimize/contextual-bandit",
   optimize_cmaes: "/api/v1/optimize/cmaes",
+  optimize_evolve: "/api/v1/optimize/evolve",
   solve_constraints: "/api/v1/solve/constraints",
   solve_schedule: "/api/v1/solve/schedule",
   analyze_graph: "/api/v1/analyze/graph",
   analyze_risk: "/api/v1/analyze/risk",
   score_convergence: "/api/v1/score/convergence",
+  score_calibration: "/api/v1/score/calibration",
   predict_forecast: "/api/v1/predict/forecast",
+  predict_bayesian: "/api/v1/predict/bayesian",
+  predict_ensemble: "/api/v1/predict/ensemble",
   detect_anomaly: "/api/v1/detect/anomaly",
   plan_pathfind: "/api/v1/plan/pathfind",
   simulate_montecarlo: "/api/v1/simulate/montecarlo",
+  simulate_scenario: "/api/v1/simulate/scenario",
 };
 
 // ── Handlers ──────────────────────────────────────────
