@@ -5,7 +5,7 @@
  *   1. /docs route exists and returns 200 (Scalar playground is served)
  *   2. OpenAPI JSON spec reports openapi version "3.1.0"
  *   3. OpenAPI spec info.title is "OraClaw Decision Intelligence API"
- *   4. OpenAPI spec info.version is "2.3.0"
+ *   4. OpenAPI spec info.version is "2.3.1"
  *   5. OpenAPI spec components.securitySchemes includes apiKey scheme
  *   6. OpenAPI spec has tags for algorithm categories
  *
@@ -64,9 +64,9 @@ describe('registerSwagger (Scalar + OpenAPI 3.1)', () => {
     expect(spec.info.title).toBe('OraClaw Decision Intelligence API');
   });
 
-  // Test 4: info.version is "2.3.0"
-  it('has info.version "2.3.0"', () => {
-    expect(spec.info.version).toBe('2.3.0');
+  // Test 4: info.version is "2.3.1"
+  it('has info.version "2.3.1"', () => {
+    expect(spec.info.version).toBe('2.3.1');
   });
 
   // Test 5: securitySchemes includes apiKey scheme
