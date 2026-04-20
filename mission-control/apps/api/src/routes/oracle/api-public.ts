@@ -51,6 +51,55 @@ const ScheduleInputSchema = z.object({
   slots: z.array(TimeSlotSchema).min(1, "At least one time slot is required"),
 });
 
+const BanditArmSchema = z.object({
+  id: z.string().min(1, "arm.id is required (got empty string)"),
+  name: z.string().min(1, "arm.name is required (got empty string)"),
+  pulls: z.number().int().min(0).optional(),
+  totalReward: z.number().optional(),
+});
+
+const BanditInputSchema = z.object({
+  arms: z.array(BanditArmSchema).min(2, "At least 2 arms are required. If you passed bare strings like ['A','B'], wrap each as {id, name}."),
+  algorithm: z.enum(["ucb1", "thompson", "epsilon-greedy"]).optional(),
+  config: z.object({
+    explorationConstant: z.number().positive().optional(),
+    rewardDecay: z.number().min(0).max(1).optional(),
+  }).optional(),
+});
+
+const ContextualBanditHistorySchema = z.object({
+  armId: z.string().min(1),
+  reward: z.number(),
+  context: z.array(z.number()).min(1),
+});
+
+const ContextualBanditInputSchema = z.object({
+  arms: z.array(BanditArmSchema).min(2, "At least 2 arms are required. Each must be {id: string, name: string}."),
+  context: z.array(z.number()).min(1, "context must be a numeric feature vector with at least one dimension"),
+  history: z.array(ContextualBanditHistorySchema).optional(),
+  alpha: z.number().positive().optional(),
+}).superRefine((val, ctx) => {
+  if (val.history) {
+    const mismatch = val.history.find((h) => h.context.length !== val.context.length);
+    if (mismatch) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["history"],
+        message: `history[].context length must match top-level context length (${val.context.length})`,
+      });
+    }
+    const armIds = new Set(val.arms.map((a) => a.id));
+    const unknownArm = val.history.find((h) => !armIds.has(h.armId));
+    if (unknownArm) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["history"],
+        message: `history[].armId "${unknownArm.armId}" is not in arms[]`,
+      });
+    }
+  }
+});
+
 const ConvergenceSourceSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -238,11 +287,15 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 1. Multi-Armed Bandit ──────────────────────────
 
   fastify.post("/api/v1/optimize/bandit", async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body as {
-      arms: Array<{ id: string; name: string; pulls?: number; totalReward?: number }>;
-      algorithm?: "ucb1" | "thompson" | "epsilon-greedy";
-      config?: { explorationConstant?: number; rewardDecay?: number };
-    };
+    const parsed = BanditInputSchema.safeParse(request.body);
+    if (!parsed.success) {
+      reply.status(400);
+      return {
+        error: "Invalid bandit input",
+        details: parsed.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })),
+      };
+    }
+    const body = parsed.data;
 
     const bandit = createBandit(body.config);
     for (const arm of body.arms) {
@@ -274,12 +327,15 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   // ── 2. Contextual Bandit (LinUCB) ─────────────────
 
   fastify.post("/api/v1/optimize/contextual-bandit", async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body as {
-      arms: Array<{ id: string; name: string }>;
-      context: number[];
-      history?: Array<{ armId: string; reward: number; context: number[] }>;
-      alpha?: number;
-    };
+    const parsed = ContextualBanditInputSchema.safeParse(request.body);
+    if (!parsed.success) {
+      reply.status(400);
+      return {
+        error: "Invalid contextual-bandit input",
+        details: parsed.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })),
+      };
+    }
+    const body = parsed.data;
 
     const bandit = createContextualBandit({
       dimensions: body.context.length,
