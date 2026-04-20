@@ -1,6 +1,6 @@
 {
   "name": "@oraclaw/mcp-server",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "mcpName": "io.github.Whatsonyourmind/oraclaw",
   "description": "OraClaw Decision Intelligence — 17 MCP tools for AI agents (6 premium API-key tools + 11 free). Full input/output schemas + MCP behavior annotations on every tool. Optimization (bandit/CMA-ES/genetic/LP-MIP), simulation (Monte Carlo/scenarios), prediction (ARIMA/Holt-Winters/Bayesian/ensemble), scoring (convergence/calibration), graph analytics, anomaly detection, pathfinding, scheduling.",
   "type": "module",

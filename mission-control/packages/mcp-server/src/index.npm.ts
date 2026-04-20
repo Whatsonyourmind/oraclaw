@@ -1221,7 +1221,47 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
-// ── Start ─────────────────────────────────────────────
+// ── CLI flags ─────────────────────────────────────────
+//
+// `--print-tools` dumps the tool registry (inputSchema + outputSchema +
+// annotations) to stdout as JSON and exits. This lets directory crawlers
+// (Glama, Smithery inspectors) enumerate the tool surface WITHOUT booting
+// the stdio transport or needing any environment variables — fixing the
+// "tools: []" issue on server-list pages that run the binary env-less.
+//
+// `--version` / `--help` are stubs for discoverability.
+
+if (process.argv.includes("--print-tools")) {
+  process.stdout.write(JSON.stringify({ tools: TOOLS }, null, 2) + "\n");
+  process.exit(0);
+}
+
+if (process.argv.includes("--version")) {
+  process.stdout.write("1.4.1\n");
+  process.exit(0);
+}
+
+if (process.argv.includes("--help") || process.argv.includes("-h")) {
+  process.stdout.write([
+    "OraClaw MCP Server — 17 decision intelligence tools for AI agents",
+    "",
+    "Usage:",
+    "  oraclaw-mcp                  Start stdio MCP server (normal use)",
+    "  oraclaw-mcp --print-tools    Print all tool schemas as JSON and exit",
+    "  oraclaw-mcp --version        Print version and exit",
+    "  oraclaw-mcp --help           Print this help and exit",
+    "",
+    "Environment:",
+    "  ORACLAW_API_KEY              Required for 6 premium tools (free tier otherwise)",
+    "  ORACLAW_API_URL              Override API base (default oraclaw-api.onrender.com)",
+    "",
+    "Docs: https://github.com/Whatsonyourmind/oraclaw",
+    "",
+  ].join("\n"));
+  process.exit(0);
+}
+
+// ── Start stdio transport ─────────────────────────────
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
