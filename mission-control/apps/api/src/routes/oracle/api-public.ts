@@ -201,7 +201,7 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
   fastify.get("/api/v1/health", async () => ({
     status: "ok",
     algorithms: 20,
-    version: "2.3.0",
+    version: "2.3.1",
     endpoints: [
       "/api/v1/optimize/bandit",
       "/api/v1/optimize/contextual-bandit",

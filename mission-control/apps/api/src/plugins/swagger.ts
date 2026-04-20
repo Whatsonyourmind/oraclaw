@@ -18,7 +18,7 @@ export async function registerSwagger(fastify: FastifyInstance): Promise<void> {
           'AI decision intelligence platform built on the OODA loop framework ' +
           '(Observe, Orient, Decide, Act). Provides 19 production-grade ML algorithms ' +
           'with <25ms response times for optimization, simulation, prediction, and planning.',
-        version: '2.3.0',
+        version: '2.3.1',
         contact: {
           name: 'OraClaw',
           url: 'https://github.com/Whatsonyourmind/oracle',
