@@ -1,15 +1,15 @@
 # OraClaw
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-1%2C077_passing-brightgreen)](mission-control)
-[![MCP](https://img.shields.io/badge/MCP-12_tools-green)](https://modelcontextprotocol.io)
-[![Algorithms](https://img.shields.io/badge/algorithms-19-orange)](web/lib/algorithms.ts)
+[![Tests](https://img.shields.io/badge/tests-1%2C246_passing-brightgreen)](mission-control)
+[![MCP](https://img.shields.io/badge/MCP-17_tools-green)](https://modelcontextprotocol.io)
+[![Algorithms](https://img.shields.io/badge/algorithms-21-orange)](web/lib/algorithms.ts)
 [![Latency](https://img.shields.io/badge/latency-%3C25ms-blue)](mission-control/scripts/benchmark-all.ts)
 [![npm](https://img.shields.io/badge/npm-%40oraclaw-blue)](https://www.npmjs.com/org/oraclaw)
 [![API Status](https://img.shields.io/badge/API-live-brightgreen)](https://oraclaw-api.onrender.com)
 [![Implementations](https://img.shields.io/badge/field_implementations-12-brightgreen)](CHANGELOG.md)
 
-**MCP Optimization Tools for AI Agents** -- 12 tools, 19 algorithms, sub-25ms. Zero LLM cost.
+**MCP Optimization Tools for AI Agents** -- 17 tools, 21 algorithms, sub-25ms. Zero LLM cost.
 
 Your AI agent can't do math. OraClaw gives it deterministic optimization, simulation, forecasting, and risk analysis through the Model Context Protocol. Every tool returns structured JSON, runs in under 25ms, and costs nothing to compute.
 
@@ -119,24 +119,36 @@ LLMs generate plausible text, not optimal solutions. Ask GPT to pick the best A/
 
 ---
 
-## MCP Tool Catalog (12 tools)
+## MCP Tool Catalog (17 tools)
+
+**Free tier (11 tools, no API key — 25 calls/day per IP):**
 
 | Tool | What It Does | Latency |
 |------|-------------|---------|
-| `optimize_bandit` | A/B test selection via UCB1, Thompson Sampling, Epsilon-Greedy | 0.01ms |
-| `optimize_contextual` | Context-aware personalized selection via LinUCB | 0.05ms |
-| `optimize_cmaes` | Black-box continuous optimization (CMA-ES) | 12ms |
-| `solve_constraints` | LP/MIP/QP optimization via HiGHS solver | 2ms |
+| `optimize_bandit` | UCB1 / Thompson / Epsilon-Greedy arm selection | 0.01ms |
+| `optimize_contextual` | Context-aware LinUCB bandit | 0.05ms |
+| `optimize_evolve` | Genetic algorithm for discrete + multi-objective problems | <10ms |
 | `solve_schedule` | Energy-matched task scheduling | 3ms |
-| `analyze_decision_graph` | PageRank, Louvain communities, bottleneck detection | 0.5ms |
-| `analyze_portfolio_risk` | VaR and CVaR (Expected Shortfall) | <2ms |
-| `score_convergence` | Multi-source agreement scoring | 0.04ms |
-| `score_calibration` | Brier score and log score for prediction quality | 0.02ms |
-| `predict_forecast` | ARIMA and Holt-Winters time series forecasting | 0.08ms |
-| `detect_anomaly` | Z-Score and IQR anomaly detection | 0.01ms |
-| `plan_pathfind` | A* pathfinding with k-shortest paths | 0.1ms |
+| `score_convergence` | Multi-source probability consensus (Hellinger) | 0.04ms |
+| `score_calibration` | Brier + log score for forecaster accuracy | 0.02ms |
+| `predict_bayesian` | Beta posterior update from weighted evidence | 0.05ms |
+| `predict_ensemble` | Multi-model consensus + uncertainty decomposition | 0.1ms |
+| `plan_pathfind` | A* + Yen's k-shortest paths | 0.1ms |
+| `simulate_montecarlo` | Single-factor Monte Carlo (6 distributions) | <2ms |
+| `simulate_scenario` | What-if comparison + sensitivity ranking | <5ms |
 
-14 of 17 REST endpoints respond in under 1ms. All under 25ms.
+**Premium tier (6 tools, requires `ORACLAW_API_KEY`):**
+
+| Tool | What It Does | Latency |
+|------|-------------|---------|
+| `optimize_cmaes` | CMA-ES continuous black-box optimization | 12ms |
+| `solve_constraints` | LP / MIP / QP solver via HiGHS (provably optimal) | 2ms |
+| `analyze_graph` | PageRank, Louvain communities, bottleneck detection | 0.5ms |
+| `analyze_risk` | VaR and CVaR (Expected Shortfall) | <2ms |
+| `predict_forecast` | ARIMA + Holt-Winters time series forecasting | 0.08ms |
+| `detect_anomaly` | Z-Score + IQR anomaly detection | 0.01ms |
+
+14 of 18 REST endpoints respond in under 1ms. All under 25ms.
 
 ---
 

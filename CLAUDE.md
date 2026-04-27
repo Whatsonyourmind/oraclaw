@@ -115,12 +115,12 @@ POST /api/oracle/scenarios/create
 
 ## Key Stats
 
-- **Tests**: 945 passing (24 files)
-- **API**: 18 public endpoints (v2.3.0)
-- **Algorithms**: 18 files, 19 algorithms (2 SOTA + 1 Near-SOTA + 2 Unique IP + 11 Prod-grade + 2 Classic)
+- **Tests**: 1,246 passing (43 files)
+- **API**: 18 public endpoints (v2.3.1)
+- **Algorithms**: 20 files, 21 algorithms (2 SOTA + 1 Near-SOTA + 2 Unique IP + 11 Prod-grade + 2 Classic + Thompson Sampling + HRP portfolio)
 - **ClawHub Skills**: 14 published-ready for OpenClaw/MoltBot agents
 - **SDK Packages**: 14 thin API clients (zero code leaked)
-- **MCP Server**: 12 tools for AI agents (x402 machine payments)
+- **MCP Server**: 17 tools for AI agents — 11 free + 6 premium (x402 machine payments)
 - **Wallet**: Base USDC wallet (0x077E...Cdde)
 - **Performance**: All algorithms <25ms, 14/18 under 1ms, accuracy verified (CMA-ES 6e-14 on Rosenbrock)
 - **PRD**: 35/35 stories complete
