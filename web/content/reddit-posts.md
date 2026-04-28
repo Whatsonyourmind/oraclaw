@@ -75,7 +75,7 @@ GitHub (MIT): https://github.com/Whatsonyourmind/oracle
 
 I built OraClaw because I kept seeing the same pattern: developers asking LLMs to "think about" optimization problems that have exact algorithmic solutions.
 
-**What it is:** 17 REST endpoints covering 19 algorithms. Fastify 5, TypeScript, zero external service dependencies. All computation happens on the server in pure TS (except HiGHS which is WASM).
+**What it is:** 17 REST endpoints covering 21 algorithms. Fastify 5, TypeScript, zero external service dependencies. All computation happens on the server in pure TS (except HiGHS which is WASM).
 
 **The interesting endpoints:**
 
@@ -107,7 +107,7 @@ Also ships as an MCP server (12 tools for AI agents) and 14 npm packages (`@orac
 
 ## r/SideProject
 
-**Title:** I built an API that gives AI agents real math instead of "reasoning" -- 19 algorithms, 0.01ms latency, free tier, live now
+**Title:** I built an API that gives AI agents real math instead of "reasoning" -- 21 algorithms, 0.01ms latency, free tier, live now
 
 **Body:**
 
@@ -118,7 +118,7 @@ Also ships as an MCP server (12 tools for AI agents) and 14 npm packages (`@orac
 **The journey:**
 - Started as a personal decision-making app (OODA loop framework)
 - Added algorithms one by one as I needed them for actual problems
-- Hit 19 algorithms, 1,072 tests, realized this should be an API
+- Hit 21 algorithms, 1,072 tests, realized this should be an API
 - Integrated HiGHS (industrial LP/MIP solver) via WASM -- that was a fun challenge
 - Added MCP server support so AI agents (Claude, ChatGPT) can call the algorithms natively
 - Built 14 npm SDK packages for direct integration
@@ -143,7 +143,7 @@ Would love feedback on the API design -- especially from anyone building AI agen
 
 **Body:**
 
-I built OraClaw, a decision intelligence API with 19 algorithms (bandits, LP solver, Monte Carlo, risk models, graph analysis). The performance story turned out to be the most interesting part.
+I built OraClaw, a decision intelligence API with 21 algorithms (bandits, LP solver, Monte Carlo, risk models, graph analysis). The performance story turned out to be the most interesting part.
 
 **Latency breakdown:**
 - 14/17 endpoints respond in under 1ms
@@ -180,7 +180,7 @@ Free tier, no signup, 25 calls/day. GitHub: https://github.com/Whatsonyourmind/o
 
 Sharing a project that pushed what I thought was possible with Node.js performance.
 
-**OraClaw** is a decision intelligence API -- 19 algorithms (multi-armed bandits, LP/MIP solver, Monte Carlo simulation, graph analysis, risk models) running as a Fastify 5 server. Everything is TypeScript, no Python, no external compute services.
+**OraClaw** is a decision intelligence API -- 21 algorithms (multi-armed bandits, LP/MIP solver, Monte Carlo simulation, graph analysis, risk models) running as a Fastify 5 server. Everything is TypeScript, no Python, no external compute services.
 
 **The stack:**
 - Fastify 5.8.4 (strict TypeScript)

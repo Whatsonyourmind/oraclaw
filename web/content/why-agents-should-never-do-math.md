@@ -107,7 +107,7 @@ The fix is not "better prompts." The fix is separation of concerns.
 
 When your agent encounters an optimization problem, it should not attempt to solve it through token generation. It should call a deterministic algorithm, get the mathematically correct answer, and then use its language capabilities to interpret and communicate the result.
 
-This is exactly what the Model Context Protocol enables. Add OraClaw as an MCP server and your agent gains access to 19 algorithms -- bandits, solvers, simulators, forecasters, risk models -- without spending a single token on computation.
+This is exactly what the Model Context Protocol enables. Add OraClaw as an MCP server and your agent gains access to 21 algorithms -- bandits, solvers, simulators, forecasters, risk models -- without spending a single token on computation.
 
 ```json
 {
@@ -136,7 +136,7 @@ Or search the ClawHub skill registry:
 clawhub search oraclaw
 ```
 
-19 algorithms. Sub-25ms. Deterministic. Auditable. Stop making your agents think about math. Give them a calculator.
+21 algorithms. Sub-25ms. Deterministic. Auditable. Stop making your agents think about math. Give them a calculator.
 
 ---
 
