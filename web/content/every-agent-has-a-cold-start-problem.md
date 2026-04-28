@@ -77,4 +77,4 @@ Stop burning your exploration budget on random walks. Give your agent the math.
 
 ---
 
-*OraClaw is the math layer for AI agents. 19 algorithms, deterministic results. [GitHub](https://github.com/Whatsonyourmind/oraclaw) | [ClawHub](https://oraclaw.com/clawhub)*
+*OraClaw is the math layer for AI agents. 21 algorithms, deterministic results. [GitHub](https://github.com/Whatsonyourmind/oraclaw) | [ClawHub](https://oraclaw.com/clawhub)*

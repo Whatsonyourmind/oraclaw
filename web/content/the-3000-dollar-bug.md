@@ -67,4 +67,4 @@ Correct variant selection. Sub-millisecond. Auditable. No chain-of-thought requi
 
 ---
 
-*OraClaw is the math layer for AI agents. 19 algorithms, deterministic results. [GitHub](https://github.com/Whatsonyourmind/oraclaw) | [ClawHub](https://oraclaw.com/clawhub)*
+*OraClaw is the math layer for AI agents. 21 algorithms, deterministic results. [GitHub](https://github.com/Whatsonyourmind/oraclaw) | [ClawHub](https://oraclaw.com/clawhub)*
