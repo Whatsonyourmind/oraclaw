@@ -1,7 +1,9 @@
 ---
 title: 5 Decisions Your Agent Makes Daily That Should Never Touch an LLM
-date: 2026-04-04
-excerpt: Five categories of decisions that agents routinely solve with LLM reasoning -- and the exact, deterministic alternatives that are faster, cheaper, and actually correct.
+published: false
+description: Five categories of decisions that agents routinely solve with LLM reasoning -- and the exact, deterministic alternatives that are faster, cheaper, and actually correct.
+tags: ai, mcp, agents, algorithms
+canonical_url: 
 ---
 
 # 5 Decisions Your Agent Makes Daily That Should Never Touch an LLM
@@ -16,7 +18,7 @@ Here are five decisions your agent is probably making with token generation righ
 
 **The cost:** 800-2,000 tokens per decision. 1-3 seconds latency. The reasoning sounds thoughtful but has no mathematical guarantee of optimality. Over thousands of sequential decisions, the cumulative regret -- the gap between what the agent chose and what it should have chosen -- compounds silently.
 
-**The right tool:** This is a bandit problem. Algorithms exist that provably minimize cumulative regret over any sequence of decisions. They run in under 1ms. They cost nothing. They have been mathematically proven optimal since 2002.
+**The right tool:** This is a bandit problem. Algorithms exist that provably minimize cumulative regret over any sequence of decisions. They run in under 1ms. They cost nothing. They have been mathematically proven optimal since 2002. OraClaw exposes UCB1, Thompson Sampling, and epsilon-greedy as a single MCP tool call — your agent picks the strategy, not the answer.
 
 **The difference:** An agent using LLM reasoning to select variants finds the best option in ~2,000 trials. The same agent using a proper bandit algorithm finds it in ~200. That is 10x less wasted spend during exploration, and the answer is guaranteed correct by proof, not by the persuasiveness of a chain-of-thought.
 
@@ -26,7 +28,7 @@ Here are five decisions your agent is probably making with token generation righ
 
 **The cost:** 500-1,500 tokens. The LLM will usually say "yes, that seems high" -- but it cannot tell you *how* anomalous, whether it is a statistical outlier or just noise, or what the false positive rate of its judgment is. It has no principled threshold. It is guessing with good vocabulary.
 
-**The right tool:** Statistical anomaly detection. Z-scores, IQR fencing, Grubbs' test, DBSCAN -- depending on the distribution and context. These methods give you an exact probability that the observation is an outlier, with a known and controllable false positive rate.
+**The right tool:** Statistical anomaly detection. Z-scores, IQR fencing, Grubbs' test, DBSCAN -- depending on the distribution and context. These methods give you an exact probability that the observation is an outlier, with a known and controllable false positive rate. OraClaw bundles Z-score and IQR detectors that return a calibrated p-value in 0.01ms — exactly the kind of decision rule that should never touch an LLM.
 
 **The difference:** LLM-based anomaly detection has no measurable false positive rate. You cannot tune it. You cannot audit it. Statistical detection gives you a p-value you can set a policy around. "Alert if p < 0.01" is a policy. "Alert if the LLM thinks it is weird" is not.
 
@@ -46,7 +48,7 @@ Here are five decisions your agent is probably making with token generation righ
 
 **The cost:** 3,000-8,000 tokens. High latency. The schedule will satisfy some constraints and violate others in ways that are hard to detect by reading the output. The agent cannot tell you if the schedule is optimal, feasible, or the best possible given the constraints -- because it is not solving the problem, it is narrating an approximate answer.
 
-**The right tool:** Constraint optimization. Linear programming, mixed-integer programming, or constraint propagation depending on the problem structure. These solvers guarantee feasibility (every constraint satisfied) and optimality (no better solution exists). They handle hundreds of tasks and dozens of constraints in milliseconds.
+**The right tool:** Constraint optimization. Linear programming, mixed-integer programming, or constraint propagation depending on the problem structure. These solvers guarantee feasibility (every constraint satisfied) and optimality (no better solution exists). They handle hundreds of tasks and dozens of constraints in milliseconds. OraClaw wraps HiGHS — the same WASM solver used in commercial OR — behind a single MCP call, so the agent describes the problem and the math returns the schedule.
 
 **The difference:** An LLM-generated schedule for 20 tasks might take 8 seconds and violate 2 constraints you do not notice until execution. A solver produces the provably optimal schedule in 3ms, satisfying every constraint, and can tell you exactly which constraints are binding (the bottlenecks) and by how much relaxing them would improve the objective.
 
@@ -69,6 +71,21 @@ Intelligence is understanding context, interpreting ambiguity, generating creati
 Every token your agent spends on computation is a token wasted -- and a result you cannot trust.
 
 These five problems are solved. Stop re-solving them with prompts.
+
+## Try OraClaw
+
+OraClaw is an MCP server that gives Claude deterministic decision tools — bandits, anomaly detectors, forecasters, optimizers, and risk metrics — covering all five categories above with calibrated probabilities, monotonic constraints, and audit trails. Install in Claude Code:
+
+```
+claude mcp add oraclaw -- npx @oraclaw/mcp-server
+```
+
+17 tools, MIT licensed. Repo: github.com/Whatsonyourmind/oraclaw
+
+## Get Started
+
+- GitHub: [github.com/Whatsonyourmind/oraclaw](https://github.com/Whatsonyourmind/oraclaw)
+- More posts: [dev.to/lukastan](https://dev.to/lukastan)
 
 ---
 

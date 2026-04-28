@@ -1,7 +1,9 @@
 ---
 title: Your Agent's Confidence Score Is Lying to You
-date: 2026-04-03
-excerpt: When your LLM says "90% confident," it is right about 60% of the time. If you use uncalibrated confidence for human-in-the-loop routing, you are auto-approving decisions that should be reviewed.
+published: false
+description: When your LLM says "90% confident," it is right about 60% of the time. If you use uncalibrated confidence for human-in-the-loop routing, you are auto-approving decisions that should be reviewed.
+tags: ai, mcp, machinelearning, productivity
+canonical_url: 
 ---
 
 # Your Agent's Confidence Score Is Lying to You
@@ -20,7 +22,7 @@ At the high end, when the model says "99% confident," actual accuracy might be 7
 
 At the low end, when the model says "40% confident," actual accuracy might be 55%. These get routed to human review -- wasting expensive human attention on decisions the system is actually handling reasonably well.
 
-The calibration gap means your HITL system is simultaneously too trusting at the top and too cautious at the bottom. The worst of both worlds.
+The calibration gap means your HITL system is simultaneously too trusting at the top and too cautious at the bottom. The worst of both worlds. This is why OraClaw treats calibration as a tool call, not a prompt instruction — the model cannot self-correct an internal scale it never had.
 
 ## What This Looks Like in Production
 
@@ -60,7 +62,7 @@ A perfectly calibrated model produces a diagonal line -- when it says 70%, it is
 
 A typical LLM produces a curve that sits well below the diagonal in the high-confidence region. The model says 90%; reality says 62%. The model says 80%; reality says 58%. In the low-confidence region, the curve often sits above the diagonal -- the model says 30%, but reality says 45%.
 
-The area between the diagonal and the actual curve is the calibration gap. It is measurable. And once you measure it, you can correct for it.
+The area between the diagonal and the actual curve is the calibration gap. It is measurable. And once you measure it, you can correct for it. OraClaw exposes the calibration curve as a deterministic tool — you pass in raw confidences and outcomes, you get back the corrected mapping plus a Brier score so you can track drift.
 
 ## Calibration Is Measurable and Fixable
 
@@ -70,7 +72,7 @@ Calibration scoring takes a model's raw confidence outputs and maps them to thei
 
 This is not a new idea. Weather forecasting has used calibration for decades -- the reason "70% chance of rain" actually means something useful is because forecasters rigorously calibrate their probability estimates against observed outcomes. The same discipline applied to LLM confidence transforms unreliable self-assessments into actionable decision signals.
 
-The fix:
+The fix is to put the calibrator next to the agent, not inside it.
 
 ```bash
 clawhub install oraclaw-calibrate
@@ -79,6 +81,21 @@ clawhub install oraclaw-calibrate
 Measure your agent's calibration gap. Correct for it. Route decisions to humans based on *actual* accuracy, not the model's feelings about its accuracy.
 
 Your HITL threshold deserves math it can trust.
+
+## Try OraClaw
+
+OraClaw is an MCP server that gives Claude deterministic credit-and-decision tools — calibrated probability, monotonic constraints, audit trails. Plug it in once and every confidence score the agent emits gets corrected against actual accuracy before the HITL router sees it. Install in Claude Code:
+
+```
+claude mcp add oraclaw -- npx @oraclaw/mcp-server
+```
+
+17 tools, MIT licensed. Repo: github.com/Whatsonyourmind/oraclaw
+
+## Get Started
+
+- GitHub: [github.com/Whatsonyourmind/oraclaw](https://github.com/Whatsonyourmind/oraclaw)
+- More posts: [dev.to/lukastan](https://dev.to/lukastan)
 
 ---
 

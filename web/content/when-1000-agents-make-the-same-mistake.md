@@ -1,7 +1,9 @@
 ---
 title: What Happens When 1,000 Agents Make the Same Mistake Simultaneously
-date: 2026-04-05
-excerpt: A fleet of trading agents all using the same LLM for risk assessment. Market drops 3%. Every agent independently concludes "this is fine." Market drops 8%. Cascade. The system-level risk was invisible because each agent looked rational individually.
+published: false
+description: A fleet of agents sharing one foundation model do not give you 1,000 independent opinions — they give you one opinion at 1,000x scale, and the correlated risk is invisible until it cascades.
+tags: ai, mcp, agents, risk
+canonical_url: 
 ---
 
 # What Happens When 1,000 Agents Make the Same Mistake Simultaneously
@@ -38,11 +40,11 @@ When GPT-4 thinks a 3% drop is fine, it is not one agent's opinion. It is the op
 
 **1. Behavior correlation spikes.** In normal markets, 1,000 agents with different contexts and positions behave differently. In stress scenarios, their behavior converges because the underlying LLM's response to stress follows the same pattern. If you are not measuring inter-agent behavior correlation in real time, you will not see the convergence until it is too late.
 
-The fix is not better prompts. It is statistical monitoring that flags when the fleet's decisions become suspiciously aligned. When 950 out of 1,000 agents agree on the same action in a volatile market, that agreement itself is the risk signal -- regardless of whether the action looks correct individually.
+The fix is not better prompts. It is statistical monitoring that flags when the fleet's decisions become suspiciously aligned. When 950 out of 1,000 agents agree on the same action in a volatile market, that agreement itself is the risk signal -- regardless of whether the action looks correct individually. This is exactly the kind of deterministic guardrail OraClaw is built for: the agreement-correlation score is a number, not a narrative, and it does not share the foundation model's blind spots.
 
 **2. Tail risk blindness.** LLMs trained on historical data learn the distribution of normal outcomes. They are systematically bad at reasoning about tail events -- the 1-in-100 scenarios where the most damage occurs. Ask any LLM what happens if the S&P drops 15% in a week, and you get a historically-informed narrative. You do not get a quantitative assessment of portfolio impact under correlated stress with proper fat-tail modeling.
 
-Risk metrics designed for tail events exist. They simulate thousands of extreme scenarios, account for correlation structures that only appear during crises, and produce numbers -- not narratives -- for worst-case exposure. These metrics should sit between the agent and any risk decision, as a hard mathematical guardrail that the LLM cannot override.
+Risk metrics designed for tail events exist. They simulate thousands of extreme scenarios, account for correlation structures that only appear during crises, and produce numbers -- not narratives -- for worst-case exposure. These metrics should sit between the agent and any risk decision, as a hard mathematical guardrail that the LLM cannot override. OraClaw runs 5,000-path Monte Carlo and returns VaR + CVaR + worst-case scenario in under 5ms — math the agent calls but cannot rewrite.
 
 **3. Ensemble agreement is not ensemble accuracy.** Many multi-agent systems use agreement as a confidence signal: "If 4 out of 5 agents agree, the decision is high-confidence." This is valid when the agents are genuinely independent. It is dangerous when they share a common foundation model.
 
@@ -58,7 +60,7 @@ Multi-agent systems need three things that LLMs cannot provide:
 
 **Calibrated ensemble scoring.** Measuring whether multi-agent agreement actually predicts accuracy, with correction factors for shared-model bias. Turning "4 out of 5 agree" into a real probability that the decision is correct.
 
-None of these require intelligence. They require math -- the kind that runs in milliseconds, produces auditable numbers, and does not share the blind spots of the system it is protecting.
+None of these require intelligence. They require math -- the kind that runs in milliseconds, produces auditable numbers, and does not share the blind spots of the system it is protecting. OraClaw's convergence-scoring tool does exactly this: Hellinger-distance over signal distributions, not vibe-checks over agent prose.
 
 ## The Stakes
 
@@ -67,6 +69,21 @@ Single-agent failures are costly. Multi-agent correlated failures are catastroph
 Your agents need a math layer between them and catastrophic decisions. Not a smarter prompt. Not a better model. A statistical guardrail that measures what the agents cannot see about themselves.
 
 The math exists. The question is whether it will be deployed before or after the first correlated cascade.
+
+## Try OraClaw
+
+OraClaw is an MCP server that gives Claude deterministic risk-and-correlation tools — calibrated probability, monotonic constraints, audit trails, ensemble scoring. The math layer your fleet needs before the first cascade, not after. Install in Claude Code:
+
+```
+claude mcp add oraclaw -- npx @oraclaw/mcp-server
+```
+
+17 tools, MIT licensed. Repo: github.com/Whatsonyourmind/oraclaw
+
+## Get Started
+
+- GitHub: [github.com/Whatsonyourmind/oraclaw](https://github.com/Whatsonyourmind/oraclaw)
+- More posts: [dev.to/lukastan](https://dev.to/lukastan)
 
 ---
 
