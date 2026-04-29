@@ -7,19 +7,19 @@
     "source": "github",
     "subfolder": "mission-control/packages/mcp-server"
   },
-  "version": "1.4.0",
+  "version": "1.4.1",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@oraclaw/mcp-server",
-      "version": "1.4.0",
+      "version": "1.4.1",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
           "name": "ORACLAW_API_KEY",
-          "description": "Optional API key for premium tools (forecasting, anomaly detection, LP solver, graph analytics). Free tier (6 tools) works without it.",
+          "description": "Optional API key for premium tools (CMA-ES, LP/MIP solver, graph analytics, risk VaR/CVaR, forecasting, anomaly detection). Free tier (11 tools) works without it.",
           "isRequired": false,
           "isSecret": true
         }
