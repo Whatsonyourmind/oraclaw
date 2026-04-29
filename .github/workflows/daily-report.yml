@@ -186,10 +186,16 @@ jobs:
           # ── Create Issue ──
           gh api repos/Whatsonyourmind/oraclaw/labels -f name="daily-report" -f color="0e8a16" -f description="Automated daily product report" 2>/dev/null || true
 
-          gh issue create \
+          ISSUE_URL=$(gh issue create \
             --repo Whatsonyourmind/oraclaw \
             --title "Daily Report -- ${DATE}" \
             --body-file "$REPORT" \
-            --label "daily-report"
+            --label "daily-report")
 
-          echo "Daily report issue created successfully"
+          ISSUE_NUM=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
+          if [ -n "$ISSUE_NUM" ]; then
+            gh issue close "$ISSUE_NUM" --repo Whatsonyourmind/oraclaw --reason "not planned"
+            echo "Daily report #${ISSUE_NUM} created and auto-closed (kept in archive, not in open issues tab)"
+          else
+            echo "Daily report created but issue number not parsed: ${ISSUE_URL}"
+          fi
