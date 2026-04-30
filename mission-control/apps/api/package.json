@@ -38,6 +38,7 @@
     "graphology-communities-louvain": "^2.0.2",
     "graphology-metrics": "^2.4.0",
     "graphology-shortest-path": "^2.1.0",
+    "graphology-types": "^0.24.7",
     "highs": "^1.8.0",
     "jstat": "^1.9.6",
     "node-record-lpcm16": "^1.0.1",
