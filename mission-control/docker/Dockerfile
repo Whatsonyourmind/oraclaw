@@ -46,8 +46,8 @@ COPY . .
 # Build the application
 RUN npm run build --workspace=@mission-control/api
 
-# Prune dev dependencies
-RUN npm prune --production --workspace=@mission-control/api
+# Prune dev dependencies (--legacy-peer-deps: same reason as line 26)
+RUN npm prune --production --workspace=@mission-control/api --legacy-peer-deps
 
 # -----------------------------------------------------------------------------
 # Stage 3: Production Runner
