@@ -23,7 +23,11 @@ COPY packages/client-sdk/package*.json ./packages/client-sdk/
 COPY packages/mcp-server/package*.json ./packages/mcp-server/
 
 # Install dependencies (npm install over npm ci for npm 10/11 lockfile compat)
-RUN npm install --include=dev
+# --legacy-peer-deps: required after the security-overrides commit (2067599) bumped
+# 14 transitive packages (lodash 4.17.24, uuid 14.0.0, etc.) past peer-dep declarations
+# of upstream Expo/RN/build tooling. Without this flag, npm 7+ strict peer-dep
+# enforcement aborts with eresolve. Falls back to npm 6 warn-and-install behavior.
+RUN npm install --include=dev --legacy-peer-deps
 
 # -----------------------------------------------------------------------------
 # Stage 2: Builder
