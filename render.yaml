@@ -5,7 +5,7 @@ services:
     region: frankfurt
     plan: free
     rootDir: mission-control
-    buildCommand: npm install && npx tsc --project apps/api/tsconfig.json
+    buildCommand: npm install --legacy-peer-deps && npx tsc --project apps/api/tsconfig.json
     startCommand: node apps/api/dist/server.js
     envVars:
       - key: NODE_ENV
@@ -35,7 +35,7 @@ services:
     region: frankfurt
     plan: free
     rootDir: web
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --legacy-peer-deps && npm run build
     startCommand: node .next/standalone/server.js
     envVars:
       - key: NODE_ENV
