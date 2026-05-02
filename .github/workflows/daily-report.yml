@@ -44,14 +44,21 @@ jobs:
           REPORT="/tmp/report-body.md"
 
           # ── OraClaw API Health ──
-          ORACLAW_HEALTH=$(curl -s --max-time 15 "https://oraclaw-api.onrender.com/health" 2>/dev/null || echo "UNREACHABLE")
-          if echo "$ORACLAW_HEALTH" | grep -q '"ok"'; then
+          # /health returns 500 (known prod bug 2026-05-02); /api/v1/health is the
+          # actual healthcheck endpoint and returns 429 when free-tier rate limit is
+          # exhausted (which still means the service is up). Treat 429 as "rate-limited
+          # but live" (don't fail the report).
+          ORACLAW_HTTP=$(curl -s -o /tmp/oraclaw-health.json -w "%{http_code}" --max-time 15 "https://oraclaw-api.onrender.com/api/v1/health" 2>/dev/null || echo "000")
+          ORACLAW_HEALTH=$(cat /tmp/oraclaw-health.json 2>/dev/null || echo "")
+          if [ "$ORACLAW_HTTP" = "200" ]; then
             MODE=$(echo "$ORACLAW_HEALTH" | grep -o '"mode":"[^"]*"' | cut -d'"' -f4)
             API_STATUS="healthy (mode: ${MODE:-unknown})"
-          elif echo "$ORACLAW_HEALTH" | grep -q "UNREACHABLE"; then
-            API_STATUS="UNREACHABLE (Render may be sleeping)"
+          elif [ "$ORACLAW_HTTP" = "429" ]; then
+            API_STATUS="live, free-tier rate limit hit (HTTP 429)"
+          elif [ "$ORACLAW_HTTP" = "000" ]; then
+            API_STATUS="UNREACHABLE (timeout, Render may be sleeping)"
           else
-            API_STATUS="unexpected response"
+            API_STATUS="unexpected response (HTTP ${ORACLAW_HTTP})"
           fi
 
           # ── npm Downloads (all 15 packages) ──
