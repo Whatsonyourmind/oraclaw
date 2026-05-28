@@ -417,7 +417,60 @@ const SCENARIOS: Scenario[] = [
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const API_BASE = "https://oraclaw-api.onrender.com";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL || "https://oraclaw-api.onrender.com";
+
+// ─── solve() Demand Probe ─────────────────────────────────────────────────────
+// The 20 problem classes the future natural-language router will dispatch to.
+// Used for hint-chips and the purely client-side keyword teaser (no API/LLM cost).
+
+interface ProblemClass {
+  id: string;
+  label: string;
+  keywords: string[];
+}
+
+const PROBLEM_CLASSES: ProblemClass[] = [
+  { id: "multi_armed_bandit", label: "Multi-Armed Bandit", keywords: ["a/b", "ab test", "variant", "explore", "exploit", "which option", "landing page", "best arm"] },
+  { id: "contextual_bandit", label: "Contextual Bandit", keywords: ["personalize", "context", "feature", "per user", "segment", "tailor"] },
+  { id: "thompson_sampling", label: "Thompson Sampling", keywords: ["thompson", "bayesian bandit", "posterior sampling", "conversion rate"] },
+  { id: "calibration", label: "Calibration", keywords: ["calibrat", "brier", "log score", "how accurate", "forecast accuracy", "reliability"] },
+  { id: "wilson_ci", label: "Wilson CI", keywords: ["confidence interval", "wilson", "proportion", "rate uncertainty", "margin of error"] },
+  { id: "beta_bernoulli", label: "Beta-Bernoulli", keywords: ["success rate", "click rate", "conversion", "binary outcome", "yes/no", "prior"] },
+  { id: "monte_carlo", label: "Monte Carlo", keywords: ["monte carlo", "simulate", "simulation", "probability of", "what are the odds", "uncertainty", "distribution"] },
+  { id: "lp_mip", label: "LP / MIP", keywords: ["allocate", "schedule", "assign", "constraint", "maximize", "minimize", "budget", "capacity", "resource", "optimize"] },
+  { id: "anomaly_detection", label: "Anomaly Detection", keywords: ["anomaly", "outlier", "spike", "unusual", "fraud", "detect", "abnormal"] },
+  { id: "time_series_forecast", label: "Time-Series Forecast", keywords: ["forecast", "predict next", "trend", "seasonal", "future value", "time series", "projection"] },
+  { id: "kalman_filter", label: "Kalman Filter", keywords: ["kalman", "track", "noisy sensor", "smoothing", "state estimate", "filter"] },
+  { id: "pagerank", label: "PageRank", keywords: ["pagerank", "rank nodes", "importance", "influence", "centrality", "network rank"] },
+  { id: "community_detection", label: "Community Detection", keywords: ["community", "cluster", "group", "segment graph", "louvain", "modularity"] },
+  { id: "shortest_path", label: "Shortest Path", keywords: ["shortest path", "route", "fastest way", "navigate", "critical path", "fewest steps"] },
+  { id: "hrp_portfolio", label: "HRP Portfolio", keywords: ["portfolio", "allocate assets", "diversif", "weights", "risk parity", "rebalance"] },
+  { id: "ensemble_convergence", label: "Ensemble Convergence", keywords: ["ensemble", "combine models", "consensus", "agreement", "aggregate predictions", "multiple sources"] },
+  { id: "causal_entropy_balancing", label: "Causal Entropy Balancing", keywords: ["causal", "treatment effect", "confound", "balance", "counterfactual", "impact of"] },
+  { id: "simulated_annealing", label: "Simulated Annealing", keywords: ["annealing", "global optimum", "rearrange", "layout", "tour", "combinatorial"] },
+  { id: "genetic_algorithm", label: "Genetic Algorithm", keywords: ["genetic", "evolve", "evolution", "many variables", "tune parameters", "search space"] },
+  { id: "q_learning", label: "Q-Learning", keywords: ["q-learning", "reinforcement", "reward", "policy", "agent learns", "sequential decision"] },
+];
+
+// Pure client-side guess — no network, no LLM, just keyword overlap scoring.
+function guessProblemClass(prompt: string): ProblemClass | null {
+  const text = prompt.toLowerCase();
+  if (text.trim().length < 4) return null;
+  let best: ProblemClass | null = null;
+  let bestScore = 0;
+  for (const pc of PROBLEM_CLASSES) {
+    let score = 0;
+    for (const kw of pc.keywords) {
+      if (text.includes(kw)) score += kw.includes(" ") ? 2 : 1;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = pc;
+    }
+  }
+  return bestScore > 0 ? best : null;
+}
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
@@ -1024,6 +1077,9 @@ export default function DemoPage() {
         </section>
       )}
 
+      {/* ── solve() Demand Probe ── */}
+      <SolveProbe />
+
       {/* ── Bottom CTA ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center">
@@ -1062,6 +1118,175 @@ export default function DemoPage() {
 }
 
 // ─── Sub-Components ─────────────────────────────────────────────────────────
+
+function SolveProbe() {
+  const [prompt, setPrompt] = useState("");
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "submitting" | "done" | "error">(
+    "idle"
+  );
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Pure client-side teaser — recomputed on each keystroke, zero network/LLM cost.
+  const guess = guessProblemClass(prompt);
+
+  const submit = useCallback(async () => {
+    const trimmed = prompt.trim();
+    if (!trimmed || status === "submitting") return;
+    if (trimmed.length > 2000) {
+      setStatus("error");
+      setErrorMsg("Please keep it under 2000 characters.");
+      return;
+    }
+    setStatus("submitting");
+    setErrorMsg(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/intent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: trimmed,
+          email: email.trim() || undefined,
+          source: "demo-page",
+        }),
+      });
+      if (res.ok) {
+        setStatus("done");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setStatus("error");
+        setErrorMsg(
+          (data as { error?: string }).error ||
+            "Something went wrong. Please try again."
+        );
+      }
+    } catch {
+      setStatus("error");
+      setErrorMsg("Network error. Please try again.");
+    }
+  }, [prompt, email, status]);
+
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+      <div className="p-6 rounded-xl border border-claw-500/30 bg-gradient-to-b from-claw-500/5 to-gray-900/30">
+        <div className="flex items-start gap-3 mb-2">
+          <span className="text-2xl">{"\u{1F9ED}"}</span>
+          <div>
+            <h2 className="text-lg font-mono font-bold text-white mb-1">
+              Describe your own optimization or decision problem
+            </h2>
+            <p className="text-gray-400 text-sm font-mono leading-relaxed">
+              Tell us the problem in plain English. solve() will route it to the
+              right algorithm &mdash; no LLM tokens, no guessing. Routing is in
+              private beta; join the waitlist.
+            </p>
+          </div>
+        </div>
+
+        {status === "done" ? (
+          <div className="mt-4 p-5 rounded-lg border border-claw-500/30 bg-claw-500/5 animate-fadeIn">
+            <div className="flex items-center gap-2 text-claw-400 font-mono font-bold mb-1">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Routing is in private beta &mdash; you&apos;re on the waitlist.
+            </div>
+            <p className="text-gray-400 text-sm font-mono">
+              We&apos;ll email you when solve() ships.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-4 space-y-4">
+            {/* Hint chips seeded from the 20 problem classes */}
+            <div>
+              <div className="text-xs font-mono text-gray-600 mb-2">
+                Not sure how to phrase it? Tap a problem type:
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {PROBLEM_CLASSES.map((pc) => (
+                  <button
+                    key={pc.id}
+                    type="button"
+                    onClick={() =>
+                      setPrompt((p) =>
+                        p.trim().length === 0
+                          ? `I need help with ${pc.label.toLowerCase()}: `
+                          : p
+                      )
+                    }
+                    className="px-2.5 py-1 rounded-full text-xs font-mono border border-gray-700 text-gray-400 hover:border-claw-500/50 hover:text-claw-400 transition-colors"
+                  >
+                    {pc.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Prompt textarea */}
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              maxLength={2000}
+              rows={4}
+              placeholder="e.g. I have a $50k marketing budget across 6 channels and want to maximize signups under a cost-per-acquisition cap..."
+              className="w-full px-4 py-3 rounded-lg bg-gray-950/60 border border-gray-800 text-gray-200 text-sm font-mono placeholder-gray-600 focus:outline-none focus:border-claw-500/50 resize-y"
+            />
+
+            {/* Client-side teaser (no API/LLM call) */}
+            {guess && (
+              <div className="text-xs font-mono text-gray-500 animate-fadeIn">
+                Looks like a{" "}
+                <span className="text-claw-400 font-bold">{guess.label}</span>{" "}
+                problem.{" "}
+                <span className="text-gray-600">
+                  solve() would route this to the{" "}
+                  <code className="text-claw-500/80">{guess.id}</code> engine.
+                </span>
+              </div>
+            )}
+
+            {/* Optional email + submit */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com (optional, for the waitlist)"
+                className="flex-1 px-4 py-2.5 rounded-lg bg-gray-950/60 border border-gray-800 text-gray-200 text-sm font-mono placeholder-gray-600 focus:outline-none focus:border-claw-500/50"
+              />
+              <button
+                type="button"
+                onClick={submit}
+                disabled={status === "submitting" || prompt.trim().length === 0}
+                className={`px-6 py-2.5 font-mono font-bold text-sm rounded-lg transition-all ${
+                  status === "submitting" || prompt.trim().length === 0
+                    ? "bg-gray-800 text-gray-500 cursor-not-allowed"
+                    : "bg-claw-500 text-black hover:bg-claw-400 active:scale-95"
+                }`}
+              >
+                {status === "submitting" ? "Sending..." : "Join the waitlist"}
+              </button>
+            </div>
+
+            {status === "error" && errorMsg && (
+              <div className="text-xs font-mono text-red-400">{errorMsg}</div>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
 
 function StatCard({
   value,
