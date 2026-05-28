@@ -39,3 +39,5 @@ mcp-publisher.tar.gz
 .planning/
 mission-control/scripts/outreach-*
 mission-control/scripts/automated-gtm.*
+BILLING_STATUS.md
+HEALTH_REPORT.md
