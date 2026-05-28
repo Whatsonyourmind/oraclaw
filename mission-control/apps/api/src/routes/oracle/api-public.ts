@@ -26,6 +26,7 @@ import { detectAnomaliesZScore, detectAnomaliesIQR } from "../../services/oracle
 import { optimizeCMAES, type CMAESConfig } from "../../services/oracle/algorithms/cmaes";
 import { portfolioVaR } from "../../services/oracle/algorithms/correlationMatrix";
 import { createUsageTracker } from "../../services/usageTracker";
+import { db } from "../../services/database/client";
 
 // ── Zod Schemas ──────────────────────────────────────────
 
@@ -282,6 +283,36 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
     }));
     tools.sort((a, b) => b.calls - a.calls);
     return { tools, totalCalls: tools.reduce((s, t) => s + t.calls, 0), since: "server-boot" };
+  });
+
+  // ── solve() Demand Probe (anonymous intent capture) ──
+  //
+  // Validates demand for natural-language optimization routing BEFORE the
+  // router is built. Always logs to stdout (retrievable from Render logs)
+  // and best-effort persists to solve_intents if a DB is connected. No
+  // auth, no API key — inherits the free-tier IP rate-limit + analytics hooks.
+
+  fastify.post("/api/v1/intent", async (request: FastifyRequest, reply: FastifyReply) => {
+    const body = request.body as { prompt?: unknown; email?: unknown; source?: unknown };
+    const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
+    if (!prompt) return reply.status(400).send({ error: "prompt required (non-empty string)" });
+    if (prompt.length > 2000) return reply.status(400).send({ error: "prompt too long (max 2000 chars)" });
+    const email = typeof body.email === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.email.trim())
+      ? body.email.trim() : undefined;
+    const source = typeof body.source === "string" ? body.source.slice(0, 80) : undefined;
+    const ts = Date.now();
+
+    fastify.log.info({ intent: { prompt, email, source, ts } }, "solve-intent");
+
+    // Fire-and-forget persist — guarded so a missing table never errors the request.
+    if (db.isConnected()) {
+      db.query(
+        `INSERT INTO solve_intents (prompt, email, source, created_at) VALUES ($1, $2, $3, to_timestamp($4 / 1000.0))`,
+        [prompt, email ?? null, source ?? null, ts],
+      ).catch((err) => fastify.log.warn({ err }, "solve_intents insert failed (non-fatal)"));
+    }
+
+    return { status: "received", message: "You're on the solve() beta waitlist." };
   });
 
   // ── 1. Multi-Armed Bandit ──────────────────────────
