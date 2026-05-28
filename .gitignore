@@ -34,3 +34,8 @@ GROWTH_PLAN.md
 mcp-publisher.exe
 mcp-publisher.tar.gz
 *.mcpregistry_*_token
+
+# Internal — moved to private repo
+.planning/
+mission-control/scripts/outreach-*
+mission-control/scripts/automated-gtm.*
