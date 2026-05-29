@@ -1278,6 +1278,12 @@ function SolveProbe() {
               </button>
             </div>
 
+            {/* GDPR / consent notice */}
+            <p className="text-xs font-mono text-gray-600">
+              We store your email only to notify you about the solve() beta. No
+              marketing, no third parties. Leave it blank to stay anonymous.
+            </p>
+
             {status === "error" && errorMsg && (
               <div className="text-xs font-mono text-red-400">{errorMsg}</div>
             )}
