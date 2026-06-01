@@ -157,6 +157,54 @@ const ForecastInputSchema = z.object({
   }
 });
 
+// ── solve() Intent Classifier ──────────────────────────
+//
+// Pure keyword-overlap guess of which algorithm class a free-text prompt maps
+// to. Mirrors the client-side teaser in web/app/demo/page.tsx so the captured
+// `guessed_class` column reflects the same routing the user was shown. Zero
+// network, zero LLM cost — just substring scoring.
+
+const INTENT_PROBLEM_CLASSES: ReadonlyArray<{ id: string; keywords: readonly string[] }> = [
+  { id: "multi_armed_bandit", keywords: ["a/b", "ab test", "variant", "explore", "exploit", "which option", "landing page", "best arm"] },
+  { id: "contextual_bandit", keywords: ["personalize", "context", "feature", "per user", "segment", "tailor"] },
+  { id: "thompson_sampling", keywords: ["thompson", "bayesian bandit", "posterior sampling", "conversion rate"] },
+  { id: "calibration", keywords: ["calibrat", "brier", "log score", "how accurate", "forecast accuracy", "reliability"] },
+  { id: "wilson_ci", keywords: ["confidence interval", "wilson", "proportion", "rate uncertainty", "margin of error"] },
+  { id: "beta_bernoulli", keywords: ["success rate", "click rate", "conversion", "binary outcome", "yes/no", "prior"] },
+  { id: "monte_carlo", keywords: ["monte carlo", "simulate", "simulation", "probability of", "what are the odds", "uncertainty", "distribution"] },
+  { id: "lp_mip", keywords: ["allocate", "schedule", "assign", "constraint", "maximize", "minimize", "budget", "capacity", "resource", "optimize"] },
+  { id: "anomaly_detection", keywords: ["anomaly", "outlier", "spike", "unusual", "fraud", "detect", "abnormal"] },
+  { id: "time_series_forecast", keywords: ["forecast", "predict next", "trend", "seasonal", "future value", "time series", "projection"] },
+  { id: "kalman_filter", keywords: ["kalman", "track", "noisy sensor", "smoothing", "state estimate", "filter"] },
+  { id: "pagerank", keywords: ["pagerank", "rank nodes", "importance", "influence", "centrality", "network rank"] },
+  { id: "community_detection", keywords: ["community", "cluster", "group", "segment graph", "louvain", "modularity"] },
+  { id: "shortest_path", keywords: ["shortest path", "route", "fastest way", "navigate", "critical path", "fewest steps"] },
+  { id: "hrp_portfolio", keywords: ["portfolio", "allocate assets", "diversif", "weights", "risk parity", "rebalance"] },
+  { id: "ensemble_convergence", keywords: ["ensemble", "combine models", "consensus", "agreement", "aggregate predictions", "multiple sources"] },
+  { id: "causal_entropy_balancing", keywords: ["causal", "treatment effect", "confound", "balance", "counterfactual", "impact of"] },
+  { id: "simulated_annealing", keywords: ["annealing", "global optimum", "rearrange", "layout", "tour", "combinatorial"] },
+  { id: "genetic_algorithm", keywords: ["genetic", "evolve", "evolution", "many variables", "tune parameters", "search space"] },
+  { id: "q_learning", keywords: ["q-learning", "reinforcement", "reward", "policy", "agent learns", "sequential decision"] },
+];
+
+export function guessIntentClass(prompt: string): string | null {
+  const text = prompt.toLowerCase();
+  if (text.trim().length < 4) return null;
+  let bestId: string | null = null;
+  let bestScore = 0;
+  for (const pc of INTENT_PROBLEM_CLASSES) {
+    let score = 0;
+    for (const kw of pc.keywords) {
+      if (text.includes(kw)) score += kw.includes(" ") ? 2 : 1;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestId = pc.id;
+    }
+  }
+  return bestScore > 0 ? bestId : null;
+}
+
 // ── Route Registration ─────────────────────────────────
 
 export default async function publicApiRoutes(fastify: FastifyInstance) {
@@ -297,18 +345,26 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
     const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
     if (!prompt) return reply.status(400).send({ error: "prompt required (non-empty string)" });
     if (prompt.length > 2000) return reply.status(400).send({ error: "prompt too long (max 2000 chars)" });
-    const email = typeof body.email === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.email.trim())
-      ? body.email.trim() : undefined;
+    // Email is optional. If omitted/empty, no email is stored. If a non-empty
+    // value is supplied it must be a valid address — otherwise reject (400)
+    // rather than silently dropping it.
+    const rawEmail = typeof body.email === "string" ? body.email.trim() : "";
+    const emailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(rawEmail);
+    if (rawEmail && !emailValid) {
+      return reply.status(400).send({ error: "invalid email" });
+    }
+    const email = emailValid ? rawEmail : undefined;
     const source = typeof body.source === "string" ? body.source.slice(0, 80) : undefined;
+    const guessedClass = guessIntentClass(prompt);
     const ts = Date.now();
 
-    fastify.log.info({ intent: { prompt, email, source, ts } }, "solve-intent");
+    fastify.log.info({ intent: { prompt, email, source, guessedClass, ts } }, "solve-intent");
 
     // Fire-and-forget persist — guarded so a missing table never errors the request.
     if (db.isConnected()) {
       db.query(
-        `INSERT INTO solve_intents (prompt, email, source, created_at) VALUES ($1, $2, $3, to_timestamp($4 / 1000.0))`,
-        [prompt, email ?? null, source ?? null, ts],
+        `INSERT INTO solve_intents (prompt, email, source, guessed_class, created_at) VALUES ($1, $2, $3, $4, to_timestamp($5 / 1000.0))`,
+        [prompt, email ?? null, source ?? null, guessedClass ?? null, ts],
       ).catch((err) => fastify.log.warn({ err }, "solve_intents insert failed (non-fatal)"));
     }
 

@@ -4477,3 +4477,27 @@ WHERE status = 'pending';
 CREATE INDEX IF NOT EXISTS idx_oracle_execution_plans_active
 ON oracle_execution_plans(user_id, created_at DESC)
 WHERE status = 'active';
+
+-- ============================================================================
+-- SOLVE INTENTS TABLE (solve() demand probe — POST /api/v1/intent)
+-- ============================================================================
+-- Anonymous, best-effort intent capture from the /demo demand probe. Used to
+-- validate demand for natural-language optimization routing before the router
+-- is built. See migrations/003_solve_intents.sql.
+
+CREATE TABLE IF NOT EXISTS solve_intents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  prompt TEXT NOT NULL,
+  email TEXT,
+  source TEXT,
+  guessed_class TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_solve_intents_created_at ON solve_intents(created_at);
+CREATE INDEX IF NOT EXISTS idx_solve_intents_guessed_class ON solve_intents(guessed_class);
+CREATE INDEX IF NOT EXISTS idx_solve_intents_email ON solve_intents(email) WHERE email IS NOT NULL;
+
+-- Anonymous server-only capture table: enable RLS with no permissive policy so
+-- only the service role (which bypasses RLS) can read/write it.
+ALTER TABLE solve_intents ENABLE ROW LEVEL SECURITY;
