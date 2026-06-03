@@ -42,8 +42,9 @@ describe('MonteCarloService', () => {
         1000
       );
 
-      // p50 should be close to mean
-      expect(result.percentiles.p50).toBeCloseTo(mean, 0);
+      // p50 should be close to mean. Use a sampling-error-aware bound rather than
+      // toBeCloseTo(mean, 0) (tolerance 0.5 ≈ 2.5 median-SEs here → flaky ~1% of runs).
+      expect(Math.abs(result.percentiles.p50 - mean)).toBeLessThan(1.5);
       // Distance from p50 to p25 should be similar to p75 to p50
       const lowerDist = result.percentiles.p50 - result.percentiles.p25;
       const upperDist = result.percentiles.p75 - result.percentiles.p50;
