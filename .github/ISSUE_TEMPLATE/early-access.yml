@@ -1,0 +1,32 @@
+name: "🚀 Early Access / Commercial Inquiry"
+description: "Using OraClaw in production, or want managed hosting, premium tools, or priority support? Tell me about it."
+title: "[Early Access] "
+labels: ["early-access"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest. This helps me prioritize features and, where relevant, discuss managed/commercial options. No obligation — and feel free to leave contact blank to keep it in-thread.
+  - type: textarea
+    id: usecase
+    attributes:
+      label: What are you building?
+      description: The agent, app, or workflow you'd use OraClaw in.
+      placeholder: "e.g. a research agent that needs Monte Carlo + portfolio optimization tools"
+    validations:
+      required: true
+  - type: textarea
+    id: needs
+    attributes:
+      label: What do you need?
+      description: Specific tools/algorithms, capabilities, scale, SLAs, or support.
+  - type: input
+    id: scale
+    attributes:
+      label: Scale / timeline
+      description: Rough volume (calls per month) and when you'd want this.
+  - type: input
+    id: contact
+    attributes:
+      label: Best way to reach you (optional)
+      description: "Email or handle if you'd like a direct reply. Note: issues are public — leave blank to keep it in-thread."

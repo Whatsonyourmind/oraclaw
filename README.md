@@ -13,6 +13,11 @@ Your AI agent can't do math. OraClaw gives it deterministic optimization, simula
 
 ---
 
+> **🚀 Using OraClaw in production — or want managed hosting, premium tools, or priority support?**
+> [**Tell me about your use case →**](https://github.com/Whatsonyourmind/oraclaw/issues/new?template=early-access.yml) — I read every one.
+
+---
+
 ## Where the algorithms have been used
 
 OraClaw's algorithms have informed implementations in several open-source projects -- through contributed routing specs, algorithm guidance, and shared math -- spanning AI agent orchestration, time-series tracking, vector search, and optimization.
