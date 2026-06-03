@@ -85,7 +85,6 @@ claude mcp add oraclaw -- npx @oraclaw/mcp-server
 ## Get Started
 
 - GitHub: [github.com/Whatsonyourmind/oraclaw](https://github.com/Whatsonyourmind/oraclaw)
-- More posts: [dev.to/lukastan](https://dev.to/lukastan)
 
 ---
 

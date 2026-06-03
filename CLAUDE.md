@@ -115,7 +115,7 @@ POST /api/oracle/scenarios/create
 
 ## Key Stats
 
-- **Tests**: 1,246 passing (43 files)
+- **Tests**: full suite via `npm run test` (43 test files)
 - **API**: 18 public endpoints (v2.3.1)
 - **Algorithms**: 20 files, 21 algorithms (2 SOTA + 1 Near-SOTA + 2 Unique IP + 11 Prod-grade + 2 Classic + Thompson Sampling + HRP portfolio)
 - **ClawHub Skills**: 14 published-ready for OpenClaw/MoltBot agents

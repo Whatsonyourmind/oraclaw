@@ -1,7 +1,7 @@
 # OraClaw Launch PRD — Sequential Execution Plan
 
 **Date**: March 26, 2026
-**Owner**: Luka Stanisljevic
+**Owner**: OraClaw maintainer (@Whatsonyourmind)
 **Status**: IN PROGRESS — blocked on browser auth
 
 ---
