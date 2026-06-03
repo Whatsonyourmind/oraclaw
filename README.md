@@ -1,13 +1,11 @@
 # OraClaw
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-1%2C246_passing-brightgreen)](mission-control)
 [![MCP](https://img.shields.io/badge/MCP-17_tools-green)](https://modelcontextprotocol.io)
 [![Algorithms](https://img.shields.io/badge/algorithms-21-orange)](web/lib/algorithms.ts)
 [![Latency](https://img.shields.io/badge/latency-%3C25ms-blue)](mission-control/scripts/benchmark-all.ts)
 [![npm](https://img.shields.io/badge/npm-%40oraclaw-blue)](https://www.npmjs.com/org/oraclaw)
 [![API Status](https://img.shields.io/badge/API-live-brightgreen)](https://oraclaw-api.onrender.com)
-[![Implementations](https://img.shields.io/badge/field_implementations-12-brightgreen)](CHANGELOG.md)
 
 **MCP Optimization Tools for AI Agents** -- 17 tools, 21 algorithms, sub-25ms. Zero LLM cost.
 
@@ -15,25 +13,23 @@ Your AI agent can't do math. OraClaw gives it deterministic optimization, simula
 
 ---
 
-## Validation
+## Where the algorithms have been used
 
-OraClaw's math has been independently implemented in **12 open-source projects** across AI agent orchestration, time-series tracking, vector search, MIP optimization, and production ML systems -- all within the first 8 days after public launch.
+OraClaw's algorithms have informed implementations in several open-source projects -- through contributed routing specs, algorithm guidance, and shared math -- spanning AI agent orchestration, time-series tracking, vector search, and optimization.
 
-**Selected field implementations** (see [`CHANGELOG.md`](CHANGELOG.md) for the full list):
+**Selected contributions** (see [`CHANGELOG.md`](CHANGELOG.md) for the full list):
 
-- [`chernistry/bernstein`](https://github.com/chernistry/bernstein) -- 84⭐ agent orchestration framework. LinUCB contextual router with α=0.3, shadow-evaluation path, interpretable decision reasons. Shipped in `codex/issue-367-linucb-router` 1h40m after the spec correction.
-- [`stxkxs/nanohype`](https://github.com/nanohype/nanohype) -- contextual bandit routing, pluggable strategy registry (hash / sliding-TTL / semantic), cost anomaly detection, LinUCB on roadmap. *"Your input shaped a lot of what actually shipped."*
-- [`rfivesix/hypertrack`](https://github.com/rfivesix/hypertrack) -- Bayesian/Kalman-style adaptive calorie estimator with phase-aware kcal/kg ramp. Shipped in 0.8.0-beta. *"At this point I think the mathematical model is in a very strong place."*
+- [`chernistry/bernstein`](https://github.com/chernistry/bernstein) -- agent orchestration framework. LinUCB contextual router (α=0.3) with shadow-evaluation path and interpretable decision reasons, shipped in `codex/issue-367-linucb-router` after a contributed spec correction.
+- [`stxkxs/nanohype`](https://github.com/nanohype/nanohype) -- contextual bandit routing, pluggable strategy registry (hash / sliding-TTL / semantic), cost anomaly detection. *"Your input shaped a lot of what actually shipped."*
+- [`rfivesix/hypertrack`](https://github.com/rfivesix/hypertrack) -- Bayesian/Kalman-style adaptive estimator with phase-aware ramp. Shipped in 0.8.0-beta.
 - [`AlanHuang99/pyrollmatch`](https://github.com/AlanHuang99/pyrollmatch) -- entropy balancing (Hainmueller 2012) with moment constraints + `max_weight` cap. Shipped in v0.1.3.
 - [`stffns/vstash`](https://github.com/stffns/vstash) -- IDF-sigmoid relevance weighting. Shipped in v0.17.0.
 
 **Marketplace distribution:**
 
-- ✓ [`punkpeye/awesome-mcp-servers`](https://github.com/punkpeye/awesome-mcp-servers) (84K⭐) -- merged
+- ✓ [`punkpeye/awesome-mcp-servers`](https://github.com/punkpeye/awesome-mcp-servers) -- merged
 - ✓ [`TensorBlock/awesome-mcp-servers`](https://github.com/TensorBlock/awesome-mcp-servers) -- merged
-- ✓ MCP Registry, Glama (AAA rating), PulseMCP, Smithery, toolsdk-ai -- listed
-
-**Maintainer relationships** (warm technical correspondence): Qdrant, Milvus, NetworkX, Apache DataFusion, DuckDB, pymc-labs.
+- ✓ MCP Registry, Glama (Quality A), PulseMCP, Smithery, toolsdk-ai -- listed
 
 ---
 
@@ -219,7 +215,7 @@ We'd love to hear what you're working on. Share your use case, ask questions, or
 - **Dashboard:** https://web-olive-one-89.vercel.app
 - **npm:** https://www.npmjs.com/org/oraclaw
 - **Demo:** https://web-olive-one-89.vercel.app/demo
-- **GitHub:** https://github.com/Whatsonyourmind/oracle
+- **GitHub:** https://github.com/Whatsonyourmind/oraclaw
 
 ---
 
