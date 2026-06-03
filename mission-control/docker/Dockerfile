@@ -36,9 +36,10 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy dependencies from deps stage
+# Copy dependencies from deps stage.
+# npm workspaces hoist all deps to the root node_modules, so there is no
+# per-workspace apps/api/node_modules to copy (copying it would fail the build).
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
 
 # Copy source code
 COPY . .
@@ -66,9 +67,9 @@ RUN addgroup --system --gid 1001 oracle \
 
 WORKDIR /app
 
-# Copy production files
+# Copy production files. Pruned prod deps live in the hoisted root node_modules.
 COPY --from=builder --chown=oracle:oracle /app/apps/api/dist ./dist
-COPY --from=builder --chown=oracle:oracle /app/apps/api/node_modules ./node_modules
+COPY --from=builder --chown=oracle:oracle /app/node_modules ./node_modules
 COPY --from=builder --chown=oracle:oracle /app/apps/api/package.json ./
 
 # Create necessary directories
