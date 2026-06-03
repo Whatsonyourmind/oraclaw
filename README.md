@@ -18,6 +18,19 @@ Your AI agent can't do math. OraClaw gives it deterministic optimization, simula
 
 ---
 
+## What this solves
+
+LLMs generate plausible text, not mathematically optimal answers. OraClaw gives an AI agent a set of deterministic numerical tools it can call instead of guessing — each returns structured JSON from a real algorithm, with no token spend on reasoning. Concretely:
+
+- **Your agent needs to pick the next variant to try** (A/B test arm, ad/email copy, recommendation) and balance exploration against exploitation — without hand-rolling a bandit or letting the model eyeball it. Call `optimize_bandit` (or `optimize_contextual` when the best choice depends on per-call features).
+- **Your agent needs a provably optimal allocation or schedule under hard constraints** (budget split, integer counts, capacity caps) — without the model hallucinating constraints. Call `solve_constraints` (LP/MIP/QP via HiGHS) or `solve_schedule` for task-to-slot fitting.
+- **Your agent needs to quantify uncertainty** around an outcome — project a value under an uncertain input, or measure VaR/CVaR on a weighted multi-asset book with auditable assumptions — without a Monte Carlo loop in the prompt. Call `simulate_montecarlo`, `simulate_scenario`, or `analyze_risk`.
+- **Your agent needs a point forecast or an outlier flag** on a time series (demand, KPIs, sensor/metric streams) — without inventing trend math. Call `predict_forecast` (ARIMA / Holt-Winters) or `detect_anomaly` (Z-score / IQR).
+- **Your agent needs to fuse or score probability signals** — combine model outputs, measure how much independent sources agree, or check whether past predictions were well-calibrated. Call `predict_ensemble`, `score_convergence`, or `score_calibration`.
+- **Your agent needs to reason over a graph** — rank influential nodes, cluster a dependency/knowledge graph, find a critical path, or route between two nodes. Call `analyze_graph` or `plan_pathfind`.
+
+---
+
 ## Where the algorithms have been used
 
 OraClaw's algorithms have informed implementations in several open-source projects -- through contributed routing specs, algorithm guidance, and shared math -- spanning AI agent orchestration, time-series tracking, vector search, and optimization.

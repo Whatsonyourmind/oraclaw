@@ -76,11 +76,11 @@ const TOOLS = [
   {
     name: "optimize_bandit",
     description:
-      "Pick the best option from a set of variants (Multi-Armed Bandit: UCB1, Thompson sampling, or ε-greedy). " +
-      "Use this when you have N options with observed reward history and need to choose the next one with optimal " +
-      "explore/exploit tradeoff (A/B test arm selection, ad/email variant routing, recommendation ranking). " +
-      "For context-dependent selection (different best option per user/situation), use optimize_contextual instead. " +
-      "For continuous parameter tuning, use optimize_cmaes. Returns the selected arm + score breakdown in <1ms.",
+      "Select the next option to try from 2+ variants that each have observed pull/reward history, balancing exploitation " +
+      "against exploration (UCB1, Thompson sampling, or epsilon-greedy). Use when you must pick one arm now from A/B test " +
+      "variants, ad/email/copy options, or ranked recommendations and have past trial counts. Returns the chosen arm plus " +
+      "exploitation score, exploration bonus, and a regret estimate. For per-call context features use optimize_contextual; " +
+      "for continuous parameters use optimize_cmaes.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -136,11 +136,10 @@ const TOOLS = [
   {
     name: "optimize_contextual",
     description:
-      "Pick the best option given a situational context vector (LinUCB contextual bandit). " +
-      "Use when the best option depends on features that vary per call (user demographics, time of day, " +
-      "weather, market regime). Pass observed history so the model can learn per-context preferences. " +
-      "If you have no per-call context features, use optimize_bandit instead. Returns selected arm with " +
-      "expected reward + confidence width.",
+      "Select the best option given a numeric context/feature vector, using a LinUCB contextual bandit that learns " +
+      "per-context preferences from optional history. Use when the best choice changes with situational features that " +
+      "vary call-to-call (user/segment attributes, time of day, current regime). Returns the chosen arm with its LinUCB " +
+      "expected reward and confidence width. If you have no per-call features, use optimize_bandit.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -199,11 +198,11 @@ const TOOLS = [
   {
     name: "optimize_cmaes",
     description:
-      "[Premium] Continuous black-box optimization via CMA-ES (Covariance Matrix Adaptation Evolution Strategy). " +
-      "Use for tuning N continuous parameters when the objective is non-convex, noisy, or has no gradient — " +
-      "hyperparameter search, simulator calibration, control policy tuning. 10-100x fewer evaluations than grid search. " +
-      "For discrete combinatorial problems, use optimize_evolve. For LP/MIP problems with linear constraints, use solve_constraints. " +
-      "Stochastic init means re-runs with the same input may differ slightly. Requires ORACLAW_API_KEY.",
+      "[Premium] Optimize N continuous parameters against a weighted-sum objective using CMA-ES, suited to " +
+      "non-convex/noisy/gradient-free landscapes. Use for hyperparameter search, simulator calibration, or control-policy " +
+      "tuning where you supply per-dimension objective weights. Returns the best parameter vector, its objective value, " +
+      "iteration/evaluation counts, and a converged flag; stochastic init means repeated runs may differ. Use optimize_evolve " +
+      "for discrete spaces and solve_constraints for linear/MIP constraints. Requires ORACLAW_API_KEY.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -243,11 +242,11 @@ const TOOLS = [
   {
     name: "solve_constraints",
     description:
-      "[Premium] Solve linear / mixed-integer / quadratic programs (HiGHS solver). " +
-      "Use when the objective and constraints are linear (or quadratic) and you need a provably optimal solution: " +
-      "budget allocation across line items, supply chain optimization, capacity planning with integer counts, " +
-      "portfolio construction with hard caps. For continuous black-box objectives, use optimize_cmaes. " +
-      "For task→slot scheduling, use solve_schedule. Returns variable assignments + objective value. Requires ORACLAW_API_KEY.",
+      "[Premium] Solve a linear / mixed-integer / quadratic program with the HiGHS solver and return a provably optimal " +
+      "assignment. Use when your objective and constraints are linear (or quadratic) over named continuous/integer/binary " +
+      "variables: budget allocation, supply or capacity planning with integer counts, allocation with hard caps. Returns " +
+      "solver status (optimal/infeasible/unbounded), the objective value, and the solved value per variable. Use " +
+      "optimize_cmaes for black-box objectives and solve_schedule for task-to-slot assignment. Requires ORACLAW_API_KEY.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -311,10 +310,10 @@ const TOOLS = [
   {
     name: "solve_schedule",
     description:
-      "Assign tasks to time slots maximizing productivity, matching task energy requirements with slot energy levels. " +
-      "Use specifically for task→slot assignment with energy matching (deep-work scheduling, shift planning, " +
-      "exercise scheduling). For general resource allocation with arbitrary linear constraints, use solve_constraints. " +
-      "For sequence/route problems, use plan_pathfind. Deterministic.",
+      "Assign tasks to time slots to maximize total score by matching each task's energy requirement to a slot's energy " +
+      "level (and respecting duration). Use for deep-work blocking, shift or session planning, or any task-to-slot fit " +
+      "where high-energy work should land in high-energy slots. Returns the assignments, any unassigned task IDs, and a " +
+      "total score. For arbitrary linear constraints use solve_constraints; for routing use plan_pathfind.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -378,10 +377,11 @@ const TOOLS = [
   {
     name: "analyze_graph",
     description:
-      "[Premium] Compute structural properties of a directed graph: PageRank centrality, Louvain community detection, " +
-      "shortest critical path between two nodes, and bottleneck identification. Use to surface influential nodes, " +
-      "community clusters, or chokepoints in dependency graphs, knowledge graphs, supply chains, social networks. " +
-      "For pathfinding alone (single source→goal route), use plan_pathfind — it's faster and free. Requires ORACLAW_API_KEY.",
+      "[Premium] Compute structural metrics of a directed weighted graph: PageRank centrality, Louvain community clusters, " +
+      "an optional critical path between two given nodes, and bottleneck nodes. Use to find the most influential nodes, " +
+      "cluster a dependency/knowledge graph, or locate chokepoints in supply or process networks. Returns per-node PageRank " +
+      "and community index, cluster summaries, the critical path with its weight, and bottlenecks. For a single " +
+      "source-to-goal route, use plan_pathfind (free). Requires ORACLAW_API_KEY.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -452,11 +452,11 @@ const TOOLS = [
   {
     name: "analyze_risk",
     description:
-      "[Premium] Compute portfolio Value-at-Risk (VaR) and Conditional VaR (Expected Shortfall) from historical " +
-      "asset return series, accounting for cross-asset correlation. Use for portfolio risk attribution, " +
-      "regulatory capital sizing, drawdown scenario analysis. Returns are matrix [asset][time] of period returns. " +
-      "For simulating outcomes from a parametric distribution rather than historical data, use simulate_montecarlo. " +
-      "Requires ORACLAW_API_KEY.",
+      "[Premium] Compute portfolio Value-at-Risk and Conditional VaR (Expected Shortfall) from a historical [asset][time] " +
+      "return matrix and portfolio weights, accounting for cross-asset correlation. Use to size downside risk on a weighted " +
+      "multi-asset book, attribute risk, or run drawdown scenarios with auditable inputs. Returns VaR and CVaR (loss as a " +
+      "positive number) at the requested confidence, plus expected return, volatility, and the horizon used. To sample " +
+      "outcomes from a parametric distribution instead, use simulate_montecarlo. Requires ORACLAW_API_KEY.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -502,10 +502,11 @@ const TOOLS = [
   {
     name: "score_convergence",
     description:
-      "Score how much multiple independent sources agree on a probability estimate, weighting by recency, volume, and confidence. " +
-      "Use to fuse signals from polling, prediction markets, model ensembles, or any source emitting a 0..1 probability. " +
-      "Returns an aggregate convergence score, the consensus probability, and per-pair disagreement so you can see which " +
-      "sources are outliers. Free tier. For comparing pre-binned distributions, prefer this over simulate_montecarlo.",
+      "Score how strongly multiple independent sources agree on a single event's probability, using Hellinger-distance " +
+      "agreement plus penalties for dispersion/uncertainty and a freshness weight (recency, source volume, and confidence). " +
+      "Use to fuse 0..1 estimates from polls, prediction markets, or model outputs into one number. Returns a 0..1 " +
+      "convergence score, the volume-weighted consensus probability, source count, and component breakdown. To combine " +
+      "N point predictions instead, use predict_ensemble.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -568,11 +569,11 @@ const TOOLS = [
   {
     name: "predict_forecast",
     description:
-      "[Premium] Project future values from a univariate time series using ARIMA or Holt-Winters (additive seasonal). " +
-      "Use for short-to-medium horizon point forecasts with confidence bands: demand planning, KPI projection, " +
-      "capacity forecasting. ARIMA suits non-seasonal trend data; Holt-Winters handles repeating seasonality (set seasonLength). " +
-      "Needs at least ~20 observations for stable fit. For point-anomaly flags rather than projection, use detect_anomaly. " +
-      "Requires ORACLAW_API_KEY.",
+      "[Premium] Forecast the next N values of one evenly-spaced numeric time series using ARIMA (non-seasonal trend) or " +
+      "Holt-Winters (additive seasonal, set seasonLength). Use for short-to-medium horizon point forecasts of demand, KPIs, " +
+      "or capacity. Returns the point forecast array plus lower/upper confidence bands and the fitted model description. " +
+      "ARIMA requires at least 20 observations; Holt-Winters needs at least 2 x seasonLength. To flag outliers instead of " +
+      "projecting, use detect_anomaly. Requires ORACLAW_API_KEY.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -619,10 +620,11 @@ const TOOLS = [
   {
     name: "detect_anomaly",
     description:
-      "[Premium] Flag outlier points in a numeric series using Z-score (parametric, assumes ~normal) or IQR (robust to skew). " +
-      "Use for monitoring metrics, fraud signals, sensor noise, quality control. Z-score is faster and tighter on near-normal " +
-      "data; IQR is the right default when the distribution has heavy tails or known outliers. Returns indices + values + " +
-      "the underlying statistics. For projecting a series forward, use predict_forecast. Requires ORACLAW_API_KEY.",
+      "[Premium] Flag outlier points in a numeric series using a Z-score test (parametric, assumes near-normal) or IQR test " +
+      "(robust to skew/heavy tails). Use for metric monitoring, fraud/abuse signals, sensor noise, or quality control. " +
+      "Returns each anomaly's index, value, and score, plus the underlying statistics (mean/stdDev/threshold for Z-score; " +
+      "q1/q3/IQR/bounds for IQR) and an anomaly count. To project a series forward instead, use predict_forecast. " +
+      "Requires ORACLAW_API_KEY.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -667,10 +669,11 @@ const TOOLS = [
   {
     name: "plan_pathfind",
     description:
-      "Find the shortest (or k-shortest) path between two nodes in a weighted graph using A* + Yen's algorithm. " +
-      "Use for routing, dependency resolution, project critical-path discovery, or 'how do I get from X to Y' questions on graphs. " +
-      "Set kPaths>1 to also return alternatives. For full graph structure analysis (centrality, communities), use analyze_graph. " +
-      "For task-to-time-slot assignment, use solve_schedule. Free.",
+      "Find the shortest path (or k-shortest paths) between a start and end node in a weighted directed graph using A* with " +
+      "selectable heuristic (zero=Dijkstra, time, cost, risk, weighted) and Yen's algorithm for alternatives. Use for " +
+      "routing, dependency resolution, or 'how do I get from X to Y' over a graph; set kPaths>1 for alternatives. Returns " +
+      "the path node IDs, total cost, a time/cost/risk breakdown, nodes explored, and a found flag. For centrality/communities " +
+      "use analyze_graph; for task-to-slot assignment use solve_schedule.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -748,11 +751,11 @@ const TOOLS = [
   {
     name: "simulate_montecarlo",
     description:
-      "Sample N draws from a parametric distribution and return summary statistics + percentiles + histogram. " +
-      "Use to quantify uncertainty around a single random factor: project NPV with uncertain growth rate, " +
-      "estimate latency tail percentiles, size insurance reserves. Supports normal/lognormal/uniform/triangular/beta/exponential. " +
-      "For multi-asset portfolio risk with correlations, use analyze_risk. Each call re-samples (non-idempotent). " +
-      "Capped at 2000 iterations on the free tier.",
+      "Draw N samples from one parametric distribution (normal, lognormal, uniform, triangular, beta, or exponential) and " +
+      "summarize the resulting spread. Use to quantify uncertainty around a single random factor: an NPV under an uncertain " +
+      "growth rate, a latency tail, or a reserve estimate. Returns the mean, standard deviation, p5/p25/p50/p75/p95 " +
+      "percentiles, a histogram, and the iteration count; each call re-samples (non-deterministic) and is capped at 2000 " +
+      "iterations. For correlated multi-asset risk, use analyze_risk.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -810,10 +813,11 @@ const TOOLS = [
   {
     name: "score_calibration",
     description:
-      "Score how well-calibrated a set of probability predictions are against observed binary outcomes using Brier score " +
-      "and log score. Use to evaluate forecaster accuracy, model calibration, prediction-market fairness. Lower Brier/log " +
-      "score = better. predictions[i] is the probability assigned to event i; outcomes[i] is 1 if it happened, 0 otherwise. " +
-      "For comparing multiple forecasters' agreement, use score_convergence instead. Free.",
+      "Measure how well a set of probability predictions matched observed binary outcomes, returning the Brier score and log " +
+      "score (lower is better). Use to evaluate a forecaster's or model's calibration: predictions[i] is the probability " +
+      "assigned to event i and outcomes[i] is 1 if it occurred, else 0 (arrays must be equal length). Returns brier_score, " +
+      "log_score, the number of predictions, and the mean predicted vs mean observed rate. To measure agreement across " +
+      "multiple sources instead, use score_convergence.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -855,11 +859,11 @@ const TOOLS = [
   {
     name: "predict_bayesian",
     description:
-      "Update a prior probability with weighted evidence using a Beta-Bayesian posterior. " +
-      "Use for incremental belief revision: starting from a baseline probability, fold in new signals (each with a value " +
-      "in [0,1] and a weight) and get an updated posterior plus calibration score. Suited to fraud-risk scoring, A/B test " +
-      "stopping decisions, diagnostic probability stacking. For combining N independent model predictions, use predict_ensemble. " +
-      "For full distribution sampling, use simulate_montecarlo. Free.",
+      "Update a prior probability with weighted evidence signals using a Beta posterior (the prior seeds Beta(prior*10, " +
+      "(1-prior)*10)). Use for incremental belief revision: start from a baseline probability and fold in signals, each a " +
+      "value in [0,1] with a weight, to get a revised posterior. Returns the updated posterior, the prior, per-factor " +
+      "contributions, posterior mean and variance, and a sharpness/calibration score. To combine N independent point " +
+      "predictions use predict_ensemble; to sample a full distribution use simulate_montecarlo.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -921,10 +925,12 @@ const TOOLS = [
   {
     name: "predict_ensemble",
     description:
-      "Combine N model predictions into a single consensus value using weighted voting, stacking, or Bayesian model averaging. " +
-      "Returns the consensus, decomposed uncertainty (epistemic vs aleatoric), agreement score, weight share per model, and " +
-      "Shannon entropy of the weight distribution. Use to fuse outputs from heterogeneous predictors (statistical + ML + " +
-      "human forecasters). For fusing source-agreement on a probability of one event, use score_convergence. Free.",
+      "Combine 2+ model point predictions into one consensus using weighted voting, stacking, or Bayesian model averaging, " +
+      "weighting each model by its confidence or supplied historicalAccuracy. Use to fuse heterogeneous predictors " +
+      "(statistical, ML, and human forecasters) into a single number with an uncertainty estimate. Returns the consensus " +
+      "value and confidence, per-model weight share, Shannon entropy of the weights, a cross-model agreement score, " +
+      "epistemic/aleatoric/total uncertainty with a confidence interval, and per-model contributions. To score agreement " +
+      "on a single event probability instead, use score_convergence.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -994,10 +1000,12 @@ const TOOLS = [
   {
     name: "optimize_evolve",
     description:
-      "Genetic algorithm for combinatorial / discrete optimization with optional Pareto frontier for multi-objective problems. " +
-      "Use when the search space is discrete or mixed (binary feature selection, integer allocation, permutation problems like TSP), " +
-      "or when you want to explore multiple non-dominated solutions. For continuous black-box parameters, use optimize_cmaes — " +
-      "it converges faster on smooth objectives. Stochastic: same input gives different best chromosome each run. Free.",
+      "Run a genetic algorithm over a fixed-length gene vector (binary, integer, real, or permutation bounds) against a " +
+      "weighted-sum fitness, with an optional Pareto frontier for multi-objective runs. Use for discrete or mixed search " +
+      "spaces (feature selection, integer allocation, permutation/TSP-style problems) or when you want several non-dominated " +
+      "solutions. Returns the best chromosome and fitness, the Pareto frontier when applicable, the convergence generation, " +
+      "total generations, and recent fitness history; results vary run to run (stochastic). For smooth continuous objectives, " +
+      "use optimize_cmaes.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -1069,11 +1077,11 @@ const TOOLS = [
   {
     name: "simulate_scenario",
     description:
-      "Compare named what-if scenarios against a base case, returning per-scenario outcome delta plus a sensitivity ranking " +
-      "showing which input variables move the outcome most across scenarios. Use for budget sensitivity analysis, deal " +
-      "what-ifs, capacity planning under multiple demand assumptions. The default outcome metric is the sum of input variables — " +
-      "supply scenarios that vary individual drivers to isolate their impact. For random sampling from a distribution, use " +
-      "simulate_montecarlo. Free.",
+      "Compare named what-if scenarios against a base case where the outcome metric is the sum of the input variables, and " +
+      "rank which variables swing the outcome most. Use for budget sensitivity, deal/forecast what-ifs, or capacity planning " +
+      "across demand assumptions: define a base case of variable=value, then scenarios that override a subset. Returns the " +
+      "base outcome, each scenario's outcome with absolute and percent delta and per-variable changes, plus a sensitivity " +
+      "ranking by total absolute swing. For random sampling from a distribution, use simulate_montecarlo.",
     inputSchema: {
       type: "object" as const,
       properties: {
