@@ -538,7 +538,9 @@ export class QueryOptimizer {
         let query;
         switch (operation) {
           case 'insert':
-            query = this.supabase.from(table).insert(chunk);
+            // chunk is generic dynamic row data; supabase-js generics reject
+            // T[] here, so cast (consistent with the dynamic casts below).
+            query = this.supabase.from(table).insert(chunk as any);
             break;
           case 'update':
             // For updates, need to handle each row individually or use upsert
@@ -562,7 +564,7 @@ export class QueryOptimizer {
             }
             continue;
           case 'upsert':
-            query = this.supabase.from(table).upsert(chunk, {
+            query = this.supabase.from(table).upsert(chunk as any, {
               onConflict: conflictColumns?.join(','),
             });
             break;
