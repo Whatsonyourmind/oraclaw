@@ -156,5 +156,5 @@ checkBalance().then(() => {
   console.log("   1. Fund with testnet USDC: https://faucet.circle.com/");
   console.log("   2. Set RECEIVING_WALLET_ADDRESS in xpay.sh dashboard");
   console.log("   3. Or send USDC on Base to:", account.address);
-  console.log("   4. To offramp: Send to your Coinbase (maintainer@example.com) Base address");
+  console.log("   4. To offramp: Send to your Coinbase Base address");
 });

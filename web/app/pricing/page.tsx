@@ -118,7 +118,9 @@ export default function PricingPage() {
                 </Link>
               ) : tier.key === "enterprise" ? (
                 <a
-                  href="mailto:maintainer@example.com?subject=OraClaw%20Enterprise%20Inquiry"
+                  href="https://github.com/Whatsonyourmind/oraclaw/issues/new?template=early-access.yml"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block w-full text-center px-4 py-2.5 border border-gray-700 text-gray-300 font-mono text-sm font-semibold rounded-lg hover:border-claw-500/50 hover:text-claw-400 transition-colors"
                 >
                   {tier.cta}

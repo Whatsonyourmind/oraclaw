@@ -5,7 +5,7 @@
 [![Algorithms](https://img.shields.io/badge/algorithms-21-orange)](web/lib/algorithms.ts)
 [![Latency](https://img.shields.io/badge/latency-%3C25ms-blue)](mission-control/scripts/benchmark-all.ts)
 [![npm](https://img.shields.io/badge/npm-%40oraclaw-blue)](https://www.npmjs.com/org/oraclaw)
-[![API Status](https://img.shields.io/badge/API-live-brightgreen)](https://oraclaw-api.onrender.com)
+[![API Status](https://img.shields.io/badge/API-live-brightgreen)](https://oraclaw-api.onrender.com/api/v1/health)
 
 **MCP Optimization Tools for AI Agents** -- 17 tools, 21 algorithms, sub-25ms. Zero LLM cost.
 
@@ -34,7 +34,7 @@ OraClaw's algorithms have informed implementations in several open-source projec
 
 - ✓ [`punkpeye/awesome-mcp-servers`](https://github.com/punkpeye/awesome-mcp-servers) -- merged
 - ✓ [`TensorBlock/awesome-mcp-servers`](https://github.com/TensorBlock/awesome-mcp-servers) -- merged
-- ✓ MCP Registry, Glama (Quality A), PulseMCP, Smithery, toolsdk-ai -- listed
+- ✓ MCP Registry, Glama (Quality A), PulseMCP, toolsdk-ai -- listed
 
 ---
 

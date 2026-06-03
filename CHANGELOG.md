@@ -53,7 +53,7 @@ Plus **1 high-value debug catch** (`KellerJordan/Muon`, Complexity-ML) where our
 | `punkpeye/awesome-mcp-servers` (84K⭐) | ✓ Merged 2026-04-06 | Largest MCP server catalog on GitHub |
 | `TensorBlock/awesome-mcp-servers` | ✓ Merged 2026-04-07 | Second upstream merged |
 | MCP Registry | ✓ Published v1.0.1 | Official registry |
-| Glama | ✓ AAA rating | Auto-scored |
+| Glama | ✓ Listed (Quality A) | Auto-scored |
 | PulseMCP | ✓ Listed | Ranked #2,118 last check, 1.3K visitors/week |
 | Smithery | ✓ Listed at `smithery.ai/servers/lukastan/oraclaw` | — |
 | toolsdk-ai | ✓ Listed | — |
