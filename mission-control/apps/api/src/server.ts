@@ -243,10 +243,19 @@ async function main() {
       const toolName = request.url.split('/').pop()?.split('?')[0] || 'unknown';
       return reply.code(403).type('application/problem+json').send({
         type: 'https://web-olive-one-89.vercel.app/errors/premium-required',
-        title: 'Premium tool — API key required',
+        title: 'Premium tool — API key or x402 payment required',
         status: 403,
-        detail: 'This tool requires an OraClaw API key. Sign up free at POST /api/v1/auth/signup to get instant access.',
+        detail: 'This premium tool needs auth. Two ways in: (1) sign up free for an API key at POST /api/v1/auth/signup, or (2) pay per call as an agent via x402 — send a signed PAYMENT-SIGNATURE header (no signup).',
         signup_url: 'https://oraclaw-api.onrender.com/api/v1/auth/signup',
+        // Machine-payable: lets autonomous agents discover the x402 path from this gate
+        // instead of only learning about API keys. Values mirror /api/v1/pricing.
+        x402: {
+          description: 'Pay per call without an API key: send a signed PAYMENT-SIGNATURE header (x402).',
+          asset: 'USDC',
+          network: 'base-mainnet',
+          price_per_call_usd: 0.001,
+          learn_more: 'https://oraclaw-api.onrender.com/api/v1/pricing',
+        },
         tool: toolName,
         free_tools: FREE_TOOLS,
       });
