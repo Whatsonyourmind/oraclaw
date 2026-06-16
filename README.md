@@ -15,6 +15,8 @@ Your AI agent can't do math. OraClaw gives it deterministic optimization, simula
 
 > **🚀 Using OraClaw in production — or want managed hosting, premium tools, or priority support?**
 > [**Tell me about your use case →**](https://github.com/Whatsonyourmind/oraclaw/issues/new?template=early-access.yml) — I read every one.
+>
+> 💬 **Building something with it?** Star the repo and say hi in [**Discussions**](https://github.com/Whatsonyourmind/oraclaw/discussions) — what you build steers what I ship next.
 
 ---
 
@@ -181,11 +183,13 @@ curl -X POST https://oraclaw-api.onrender.com/api/v1/simulate/montecarlo \
   -H 'Content-Type: application/json' \
   -d '{"simulations": 1000, "distribution": "normal", "params": {"mean": 100, "stddev": 15}}'
 
-# Anomaly detection
-curl -X POST https://oraclaw-api.onrender.com/api/v1/detect/anomaly \
+# Monte Carlo with a non-normal distribution
+curl -X POST https://oraclaw-api.onrender.com/api/v1/simulate/montecarlo \
   -H 'Content-Type: application/json' \
-  -d '{"data": [10, 12, 11, 13, 50, 12, 11, 10], "method": "zscore", "threshold": 2.0}'
+  -d '{"simulations": 1000, "distribution": "triangular", "params": {"min": 80, "mode": 100, "max": 140}}'
 ```
+
+> Premium tools (`detect_anomaly`, `predict_forecast`, `analyze_risk`, `solve_constraints`, `analyze_graph`, `optimize_cmaes`) need an API key or an x402 payment — see **Pricing** below.
 
 ---
 
@@ -195,11 +199,11 @@ curl -X POST https://oraclaw-api.onrender.com/api/v1/detect/anomaly \
 |------|-------|-------|------|
 | **Free** | 25/day | $0 | None |
 | **Pay-per-call** | 1K/day | $0.005/call | API key |
-| **Starter** | 10K/mo | $9/mo | API key |
-| **Growth** | 100K/mo | $49/mo | API key |
-| **Scale** | 1M/mo | $199/mo | API key |
+| **Starter** | 50K/mo | $9/mo | API key |
+| **Growth** | 500K/mo | $49/mo | API key |
+| **Scale** | 5M/mo | $199/mo | API key |
 
-**x402 USDC:** AI agents pay $0.01-$0.15 per call with USDC on Base. No subscription, no API key.
+**x402 (for autonomous agents):** pay **$0.001/call** in USDC on Base — no signup, no API key. Send a signed `PAYMENT-SIGNATURE` header on any premium endpoint; the API verifies, meters, and settles per call. Get a key instead with a one-line `POST /api/v1/auth/signup` ({"email":"you@…"}) — instant, no card.
 
 ---
 
