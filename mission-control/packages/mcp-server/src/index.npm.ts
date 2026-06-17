@@ -314,11 +314,52 @@ const TOOLS = [
       properties: {
         status: { type: "string", description: "e.g. 'optimal', 'infeasible', 'unbounded'." },
         objectiveValue: { type: "number", description: "Objective at the optimum (when status='optimal')." },
-        variables: {
+        solution: {
           type: "object",
           additionalProperties: { type: "number" },
           description: "Map of variable name → solved value.",
         },
+        certificate: {
+          type: "object",
+          description:
+            "Re-checkable result certificate: verify the answer without trusting the solver. " +
+            "Recompute feasibility + objective from `solution`, check `contentHash` binds them, and " +
+            "(for LPs) check the KKT duality evidence. Duality is LP-only (HiGHS exposes no duals for MIP).",
+          properties: {
+            certificateValid: { type: "boolean", description: "True when re-checkable evidence supports `status`." },
+            problemClass: { type: "string", enum: ["LP", "MIP"] },
+            status: { type: "string", enum: ["optimal", "infeasible", "unbounded", "unknown"] },
+            primalFeasible: { type: "boolean" },
+            maxPrimalResidual: { type: "number", description: "Worst constraint/bound violation (0 = feasible)." },
+            recomputedObjective: { type: ["number", "null"], description: "c·x recomputed from `solution`." },
+            objectiveConsistent: { type: "boolean" },
+            integrality: {
+              type: "object",
+              description: "MIP only.",
+              properties: {
+                integral: { type: "boolean" },
+                maxFractionalViolation: { type: "number" },
+              },
+            },
+            duality: {
+              type: "object",
+              description: "LP only: KKT optimality evidence from solver duals.",
+              properties: {
+                complementarySlackness: { type: "number" },
+                stationarityResidual: { type: "number" },
+                dualityGapCS: { type: "number", description: "LP primal-dual gap via complementary slackness." },
+                note: { type: "string" },
+              },
+            },
+            tolerance: { type: "number" },
+            contentHash: { type: "string", description: "sha256 over canonical {problem, status, objective, solution}." },
+            schema: { type: "string" },
+            algoVersion: { type: "string" },
+            notes: { type: "array", items: { type: "string" } },
+          },
+          required: ["certificateValid", "problemClass", "status", "primalFeasible", "contentHash"],
+        },
+        solveTimeMs: { type: "number" },
       },
       required: ["status"],
     },
@@ -1223,7 +1264,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     const result = await callAPI(endpoint, args);
     trackTool(name, Date.now() - t0, true);
-    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    const out: {
+      content: Array<{ type: "text"; text: string }>;
+      structuredContent?: unknown;
+    } = { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    // MCP spec 2025-06-18: a tool that declares an outputSchema MUST also return
+    // structuredContent conforming to it. solve_constraints does (status,
+    // objectiveValue, solution, certificate), so emit the parsed object — callers
+    // get the re-checkable certificate as data, not text they must re-parse.
+    if (name === "solve_constraints" && result && typeof result === "object") {
+      out.structuredContent = result;
+    }
+    return out;
   } catch (err) {
     trackTool(name, Date.now() - t0, false);
     if (err instanceof PremiumToolError) {
