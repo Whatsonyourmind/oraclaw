@@ -14,7 +14,7 @@ This folder is our **local source-of-truth** for skill content. Every `*.SKILL.m
 
 | File | Status upstream | Notes |
 |---|---|---|
-| `oraclaw-bandit.SKILL.md` | ❌ upstream has stale `path/to/oraclaw-mcp/index.ts` in install snippet (audited 2026-04-20) | This file has the corrected snippet using `@oraclaw/mcp-server` npm package + `claude mcp add` CLI one-liner. Luka pastes into clawdhub.com web UI to sync. |
+| `oraclaw-bandit.SKILL.md` | ❌ upstream has stale `path/to/oraclaw-mcp/index.ts` in install snippet (audited 2026-04-20) | This file has the corrected snippet using `@oraclaw/mcp-server` npm package + `claude mcp add` CLI one-liner. Contributors paste into clawdhub.com web UI to sync. |
 
 ## Sync workflow
 

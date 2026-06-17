@@ -36,8 +36,8 @@ const features = [
 ];
 
 const socialProof = [
-  { metric: "945+", label: "Tests Passing", detail: "24 test suites, zero flaky" },
-  { metric: "19", label: "ML Algorithms", detail: "2 SOTA, 11 prod-grade" },
+  { metric: "1,169", label: "Tests Passing", detail: "45 test files, zero flaky" },
+  { metric: "17", label: "ML Algorithms", detail: "2 SOTA, 11 prod-grade" },
   { metric: "<1ms", label: "Fastest Response", detail: "14/18 algos under 1ms" },
   { metric: "6e-14", label: "CMA-ES Accuracy", detail: "Rosenbrock benchmark" },
   { metric: "14", label: "npm Packages", detail: "Published and ready" },

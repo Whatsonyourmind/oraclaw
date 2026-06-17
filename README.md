@@ -2,12 +2,12 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-17_tools-green)](https://modelcontextprotocol.io)
-[![Algorithms](https://img.shields.io/badge/algorithms-21-orange)](web/lib/algorithms.ts)
+[![Algorithms](https://img.shields.io/badge/algorithms-17-orange)](web/lib/algorithms.ts)
 [![Latency](https://img.shields.io/badge/latency-%3C25ms-blue)](mission-control/scripts/benchmark-all.ts)
 [![npm](https://img.shields.io/badge/npm-%40oraclaw-blue)](https://www.npmjs.com/org/oraclaw)
 [![API Status](https://img.shields.io/badge/API-live-brightgreen)](https://oraclaw-api.onrender.com/api/v1/health)
 
-**MCP Optimization Tools for AI Agents** -- 17 tools, 21 algorithms, sub-25ms. Zero LLM cost.
+**MCP Optimization Tools for AI Agents** -- 17 tools, 17 algorithms, sub-25ms. Zero LLM cost.
 
 Your AI agent can't do math. OraClaw gives it deterministic optimization, simulation, forecasting, and risk analysis through the Model Context Protocol. Every tool returns structured JSON, runs in under 25ms, and costs nothing to compute.
 
