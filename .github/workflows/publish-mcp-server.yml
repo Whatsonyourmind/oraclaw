@@ -1,0 +1,60 @@
+name: publish-mcp-server
+
+# Manual, one-click publish of @oraclaw/mcp-server to npm.
+#
+# ONE-TIME OWNER SETUP (required before the real publish works):
+#   1. Create an npm "Automation" access token at
+#      https://www.npmjs.com/settings/<user>/tokens (Automation tokens bypass 2FA/OTP).
+#   2. Add it as a repository secret named NPM_TOKEN
+#      (GitHub -> Settings -> Secrets and variables -> Actions -> New repository secret).
+#
+# Then: Actions -> publish-mcp-server -> Run workflow.
+#   - Leave dry_run = true first to verify the tarball without publishing.
+#   - Re-run with dry_run = false to actually publish the version in package.json.
+#
+# Version is read from mission-control/packages/mcp-server/package.json — bump it
+# (and server.json) in a commit before running, or npm will reject a duplicate version.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run only (build + pack, no publish)"
+        type: boolean
+        default: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # enables npm provenance
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      # Install at the workspace root so the hoisted toolchain (typescript/tsc,
+      # used by the package's prepublishOnly build) is available.
+      - name: Install workspace deps
+        working-directory: mission-control
+        run: npm install --legacy-peer-deps
+
+      - name: Build package
+        working-directory: mission-control/packages/mcp-server
+        run: npm run build
+
+      - name: Publish (dry run)
+        if: ${{ inputs.dry_run }}
+        working-directory: mission-control/packages/mcp-server
+        run: npm publish --provenance --access public --dry-run
+
+      - name: Publish to npm
+        if: ${{ !inputs.dry_run }}
+        working-directory: mission-control/packages/mcp-server
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public
