@@ -223,9 +223,9 @@ console.log(result.selected); // { id: "C", name: "Option C" }`}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { tier: "Free", price: "$0", calls: "25/day", highlight: true },
-            { tier: "Starter", price: "$99/mo", calls: "50K/mo", highlight: false },
-            { tier: "Growth", price: "$499/mo", calls: "500K/mo", highlight: false },
-            { tier: "Scale", price: "$2,499/mo", calls: "5M/mo", highlight: false },
+            { tier: "Starter", price: "$9/mo", calls: "50K/mo", highlight: false },
+            { tier: "Growth", price: "$49/mo", calls: "500K/mo", highlight: false },
+            { tier: "Scale", price: "$199/mo", calls: "5M/mo", highlight: false },
           ].map((t) => (
             <div
               key={t.tier}
