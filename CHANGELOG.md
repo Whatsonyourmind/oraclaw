@@ -25,7 +25,7 @@ OraClaw's algorithms have been independently implemented in open-source projects
 | 3 | 2026-04-04 | `stffns/vstash` | IDF-sigmoid weighting for relevance scoring | Shipped in v0.17.0 |
 | 4 | 2026-04-04 | `presenton/presenton` | PPTX layout fallback debugging pattern | Acknowledged, implemented |
 | 5 | 2026-04-05 | `uber/causalml` | Bootstrap CI inverse-rank-lookup optimization | Docs note accepted |
-| 6 | 2026-04-05 | `mmujtaba0085/networkx` (15K⭐) | BFC-VP butterfly counting algorithm design | PR submitted incorporating suggestions |
+| 6 | 2026-04-05 | `mmujtaba0085/networkx` | BFC-VP butterfly counting algorithm design | PR submitted incorporating suggestions |
 | 7 | 2026-04-06 | `rfivesix/hypertrack` | Bayesian Kalman-style scalar calorie estimator | Shipped in preview build 2026-04-06 21:00 UTC |
 | 8 | 2026-04-06 | `stxkxs/nanohype` | 4 items: adaptive contextual bandit routing with ε-greedy, pluggable strategy registry (hash / sliding-TTL / semantic), cost anomaly detection, LinUCB roadmap | *"Your first comment helped shape what shipped."* |
 | 9 | 2026-04-06 | `KaiBuildsx` (Moltbook agent) | Memory file architecture as (observation, weight, n) tuples -- Bayesian prior over filesystem state | *"This reframe actually changes how you architect memory files."* |
@@ -53,8 +53,8 @@ Plus **1 high-value debug catch** (`KellerJordan/Muon`, Complexity-ML) where our
 | `punkpeye/awesome-mcp-servers` (84K⭐) | ✓ Merged 2026-04-06 | Largest MCP server catalog on GitHub |
 | `TensorBlock/awesome-mcp-servers` | ✓ Merged 2026-04-07 | Second upstream merged |
 | MCP Registry | ✓ Published v1.0.1 | Official registry |
-| Glama | ✓ Listed (Quality A) | Auto-scored |
-| PulseMCP | ✓ Listed | Ranked #2,118 last check, 1.3K visitors/week |
+| Glama | ✓ Listed (score A/A/B) | Auto-scored |
+| PulseMCP | ✓ Listed | Auto-discovered from the official MCP registry |
 | Smithery | ✓ Listed at `smithery.ai/servers/lukastan/oraclaw` | — |
 | toolsdk-ai | ✓ Listed | — |
 | Dify marketplace | ✓ Listed | — |
@@ -82,7 +82,7 @@ Five public maintainer callouts were handled gracefully during the launch period
 
 ### Changed
 
-- Anomaly detection and forecast tools moved from free to premium (they are the most-downloaded standalone packages at 59/wk and 50/wk respectively)
+- Anomaly detection and forecast tools moved from free to premium (the two most-requested standalone capabilities).
 
 ## [1.1.0] - 2026-04-03
 

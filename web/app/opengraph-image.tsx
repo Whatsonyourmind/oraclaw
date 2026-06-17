@@ -61,7 +61,7 @@ export default async function OGImage() {
           {[
             { value: "19", label: "Algorithms" },
             { value: "<25ms", label: "Latency" },
-            { value: "12", label: "MCP Tools" },
+            { value: "17", label: "MCP Tools" },
             { value: "14", label: "npm Packages" },
           ].map((stat) => (
             <div

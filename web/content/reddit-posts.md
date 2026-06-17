@@ -99,7 +99,7 @@ curl -X POST https://oraclaw-api.onrender.com/api/v1/optimize/bandit \
 
 No signup, no API key, 25 free calls/day.
 
-Also ships as an MCP server (12 tools for AI agents) and 14 npm packages (`@oraclaw/bandit`, `@oraclaw/solver`, etc.).
+Also ships as an MCP server (17 tools for AI agents) and 14 npm packages (`@oraclaw/bandit`, `@oraclaw/solver`, etc.).
 
 1,072 tests. MIT license. Full source on GitHub: https://github.com/Whatsonyourmind/oracle
 
@@ -158,7 +158,7 @@ I built OraClaw, a decision intelligence API with 21 algorithms (bandits, LP sol
 
 3. **Zero allocation in hot paths.** The bandit and Bayesian endpoints reuse pre-allocated arrays. When your computation takes 0.01ms, a single unnecessary allocation shows up in the benchmark.
 
-4. **MCP server** for AI agents -- 12 tools that Claude/ChatGPT can call natively. This was the most fun integration to build. If you're not familiar with MCP (Model Context Protocol), it lets AI agents call external tools as if they were native capabilities.
+4. **MCP server** for AI agents -- 17 tools that Claude/ChatGPT can call natively. This was the most fun integration to build. If you're not familiar with MCP (Model Context Protocol), it lets AI agents call external tools as if they were native capabilities.
 
 **Try it:**
 
@@ -206,7 +206,7 @@ Sharing a project that pushed what I thought was possible with Node.js performan
 
 2. Fastify's schema-based serialization is a real advantage when your computation takes microseconds. Express's JSON.stringify overhead would dominate the response time at this scale.
 
-3. The MCP server (Model Context Protocol) lets AI agents call these algorithms as native tools. 12 tools exposed. It's basically a JSON-RPC interface that Claude and ChatGPT understand natively.
+3. The MCP server (Model Context Protocol) lets AI agents call these algorithms as native tools. 17 tools exposed. It's basically a JSON-RPC interface that Claude and ChatGPT understand natively.
 
 4. Also published as 14 thin SDK packages (`@oraclaw/bandit`, `@oraclaw/solver`, etc.) -- each is just an API client, zero algorithm code leaked into client packages.
 

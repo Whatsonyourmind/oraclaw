@@ -5,7 +5,7 @@ const stats = [
   { value: "19", label: "Algorithms" },
   { value: "<25ms", label: "Avg Latency" },
   { value: "1,072", label: "Tests Passing" },
-  { value: "15", label: "npm Packages" },
+  { value: "14", label: "npm Packages" },
 ];
 
 const features = [
@@ -22,15 +22,15 @@ const features = [
     icon: "wallet",
   },
   {
-    title: "15 SDK Packages on npm",
+    title: "14 SDK Packages on npm",
     description:
-      "Install @oraclaw/bandit, @oraclaw/solver, @oraclaw/simulate, and 12 more. Each SDK is a thin TypeScript client with full type safety.",
+      "Install @oraclaw/bandit, @oraclaw/solver, @oraclaw/simulate, and 11 more. Each SDK is a thin TypeScript client with full type safety.",
     icon: "package",
   },
   {
     title: "MCP Server for AI Agents",
     description:
-      "@oraclaw/mcp-server exposes 12 tools for Claude, GPT, and other AI agents to call decision algorithms directly via the Model Context Protocol.",
+      "@oraclaw/mcp-server exposes 17 tools for Claude, GPT, and other AI agents to call decision algorithms directly via the Model Context Protocol.",
     icon: "bot",
   },
 ];
@@ -40,8 +40,8 @@ const socialProof = [
   { metric: "19", label: "ML Algorithms", detail: "2 SOTA, 11 prod-grade" },
   { metric: "<1ms", label: "Fastest Response", detail: "14/18 algos under 1ms" },
   { metric: "6e-14", label: "CMA-ES Accuracy", detail: "Rosenbrock benchmark" },
-  { metric: "15", label: "npm Packages", detail: "Published and ready" },
-  { metric: "12", label: "MCP Tools", detail: "For AI agent integration" },
+  { metric: "14", label: "npm Packages", detail: "Published and ready" },
+  { metric: "17", label: "MCP Tools", detail: "For AI agent integration" },
 ];
 
 function CheckIcon() {

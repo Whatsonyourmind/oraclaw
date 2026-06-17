@@ -22,7 +22,7 @@ Shields.io URLs (dynamic, hosted by shields.io):
     https://img.shields.io/badge/latency-%3C25ms-blue?style=for-the-badge
 
   MCP Tools:
-    https://img.shields.io/badge/MCP-12%20tools-green?style=flat-square
+    https://img.shields.io/badge/MCP-17%20tools-green?style=flat-square
 
   Tests Passing:
     https://img.shields.io/badge/tests-1%2C072%20passing-brightgreen?style=flat-square

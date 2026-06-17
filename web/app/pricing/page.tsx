@@ -39,8 +39,6 @@ function XIcon() {
 }
 
 export default function PricingPage() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://oraclaw-api.onrender.com";
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Header */}
@@ -127,7 +125,7 @@ export default function PricingPage() {
                 </a>
               ) : (
                 <a
-                  href={`${API_URL}/api/billing/checkout?tier=${tier.key}`}
+                  href={`/api/checkout?tier=${tier.key}`}
                   className={`block w-full text-center px-4 py-2.5 font-mono text-sm font-semibold rounded-lg transition-colors ${
                     tier.highlighted
                       ? "bg-claw-500 text-black hover:bg-claw-400"
@@ -171,7 +169,7 @@ export default function PricingPage() {
             </div>
             <div className="px-4 py-2 rounded border border-gray-700 bg-gray-900/50">
               <span className="text-gray-500">Cost:</span>{" "}
-              <span className="text-ooda-orient">$0.01/call</span>
+              <span className="text-ooda-orient">$0.001/call</span>
             </div>
             <div className="px-4 py-2 rounded border border-gray-700 bg-gray-900/50">
               <span className="text-gray-500">Wallet:</span>{" "}
@@ -302,7 +300,7 @@ export default function PricingPage() {
             },
             {
               q: "What are x402 USDC payments?",
-              a: "x402 is a machine payment protocol. AI agents can pay $0.01 per API call using USDC on Base L2. No subscription needed -- include the payment header and the call is authorized instantly.",
+              a: "x402 is a machine payment protocol. AI agents can pay $0.001 per API call using USDC on Base L2. No subscription needed -- include the payment header and the call is authorized instantly.",
             },
             {
               q: "What is pay-per-call billing?",

@@ -7,7 +7,7 @@ startCommand:
       ORACLAW_API_KEY:
         type: string
         title: OraClaw API Key
-        description: Optional. Required only for premium tools (forecasting, anomaly detection, LP solver, graph analytics). Free tier (6 tools) works without a key. Get one at https://oraclaw-api.onrender.com.
+        description: Optional. Required only for premium tools (forecasting, anomaly detection, LP solver, graph analytics). Free tier (11 tools) works without a key. Get one at https://oraclaw-api.onrender.com.
   exampleConfig: {}
   commandFunction: |-
     (config) => ({

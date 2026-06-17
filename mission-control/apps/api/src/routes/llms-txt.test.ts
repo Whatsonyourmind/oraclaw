@@ -110,6 +110,6 @@ describe('GET /llms.txt', () => {
     expect(response.headers['content-type']).toContain('application/json');
     const data = JSON.parse(response.body);
     expect(data.name).toBe('oraclaw');
-    expect(data.tools).toHaveLength(12);
+    expect(data.tools).toHaveLength(17);
   });
 });

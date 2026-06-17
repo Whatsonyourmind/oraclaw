@@ -34,10 +34,11 @@ import publicApiRoutes from "./routes/oracle/api-public";
 // Batch endpoint (DX-04)
 import batchRoute from "./routes/oracle/api-batch";
 
-// Billing routes (subscribe + portal + webhook)
+// Billing routes (subscribe + portal + webhook + self-serve checkout)
 import { subscribeRoutes } from "./routes/billing/subscribe";
 import { portalRoutes } from "./routes/billing/portal";
 import { webhookRoutes } from "./routes/billing/webhook";
+import { checkoutRoutes } from "./routes/billing/checkout";
 
 // Auth routes (self-service signup)
 import { signupRoutes } from "./routes/auth/signup";
@@ -374,10 +375,11 @@ async function main() {
   // Auth routes (self-service signup)
   await app.register(signupRoutes, { prefix: "/api/v1/auth" });
 
-  // Billing routes (subscribe + portal + webhook)
+  // Billing routes (subscribe + portal + webhook + self-serve checkout)
   await app.register(subscribeRoutes, { prefix: "/api/v1/billing" });
   await app.register(portalRoutes, { prefix: "/api/v1/billing" });
   await app.register(webhookRoutes, { prefix: "/api/v1/billing" });
+  await app.register(checkoutRoutes, { prefix: "/api/v1/billing" });
 
   // AI discovery (llms.txt)
   await app.register(llmsTxtRoute);

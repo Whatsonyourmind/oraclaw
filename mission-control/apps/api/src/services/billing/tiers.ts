@@ -89,13 +89,15 @@ export const PREMIUM_ENDPOINTS = new Set([
   '/api/v1/analyze/graph',        // PageRank/Louvain — unique as MCP
   '/api/v1/optimize/cmaes',       // CMA-ES continuous optimization
   '/api/v1/analyze/risk',         // VaR/CVaR portfolio risk
-  '/api/v1/detect/anomaly',       // Most popular standalone (59/wk) — conversion trigger
-  '/api/v1/predict/forecast',     // Second most popular (50/wk) — universal demand
+  '/api/v1/detect/anomaly',       // Most popular standalone — conversion trigger
+  '/api/v1/predict/forecast',     // Second most popular — universal demand
 ]);
 
 export const FREE_TOOLS = [
-  'optimize_bandit', 'optimize_contextual', 'solve_schedule',
-  'score_convergence', 'plan_pathfind', 'simulate_montecarlo',
+  'optimize_bandit', 'optimize_contextual', 'optimize_evolve',
+  'solve_schedule', 'score_convergence', 'score_calibration',
+  'predict_bayesian', 'predict_ensemble', 'plan_pathfind',
+  'simulate_montecarlo', 'simulate_scenario',
 ];
 
 export const PREMIUM_TOOLS = [

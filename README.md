@@ -49,7 +49,7 @@ OraClaw's algorithms have informed implementations in several open-source projec
 
 - ✓ [`punkpeye/awesome-mcp-servers`](https://github.com/punkpeye/awesome-mcp-servers) -- merged
 - ✓ [`TensorBlock/awesome-mcp-servers`](https://github.com/TensorBlock/awesome-mcp-servers) -- merged
-- ✓ MCP Registry, Glama (Quality A), PulseMCP, toolsdk-ai -- listed
+- ✓ MCP Registry, Glama (score A/A/B), PulseMCP, toolsdk-ai -- listed
 
 ---
 

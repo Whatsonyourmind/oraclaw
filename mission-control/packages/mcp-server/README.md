@@ -1,6 +1,6 @@
 # OraClaw MCP Server
 
-**17 decision-intelligence tools your AI agent can call. Sub-25ms. 6 free without a key.**
+**17 decision-intelligence tools your AI agent can call. Sub-25ms. 11 free without a key.**
 
 ```json
 {

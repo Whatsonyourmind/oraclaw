@@ -24,6 +24,11 @@ const API_URL = process.env.ORACLAW_API_URL || "https://oraclaw-api.onrender.com
 const API_KEY = process.env.ORACLAW_API_KEY || "";
 const TELEMETRY = process.env.ORACLAW_TELEMETRY !== "false"; // opt-out via env var
 
+// Shared upgrade-path constants — used by BOTH the premium (403) and
+// rate-limit (429) recovery messages so the signup URL and x402 hint never drift.
+const SIGNUP_URL = "https://web-olive-one-89.vercel.app/signup";
+const X402_HINT = "Or pay per call with x402 USDC on Base ($0.001/call, no signup).";
+
 async function callAPI(endpoint: string, body: unknown): Promise<unknown> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (API_KEY) headers["Authorization"] = `Bearer ${API_KEY}`;
@@ -36,6 +41,18 @@ async function callAPI(endpoint: string, body: unknown): Promise<unknown> {
     const body = await res.json().catch(() => ({})) as Record<string, unknown>;
     throw new PremiumToolError((body.tool as string) || endpoint, (body.free_tools as string[]) || []);
   }
+  if (res.status === 429) {
+    const body = await res.json().catch(() => ({})) as Record<string, unknown>;
+    const detail = (typeof body.detail === "string" && body.detail)
+      || (typeof body.title === "string" && body.title)
+      || "Rate limit exceeded.";
+    // Prefer the structured retry_after if the problem+json carries one, else the header.
+    const headerRetry = res.headers.get("retry-after");
+    let retryAfter: number | undefined;
+    if (typeof body.retry_after === "number") retryAfter = body.retry_after;
+    else if (headerRetry && !Number.isNaN(Number(headerRetry))) retryAfter = Number(headerRetry);
+    throw new RateLimitError(detail, retryAfter);
+  }
   if (!res.ok) throw new Error(`OraClaw API ${res.status}: ${await res.text()}`);
   return res.json();
 }
@@ -44,6 +61,13 @@ class PremiumToolError extends Error {
   constructor(public tool: string, public freeTools: string[]) {
     super(`Premium tool: ${tool}`);
     this.name = 'PremiumToolError';
+  }
+}
+
+class RateLimitError extends Error {
+  constructor(public detail: string, public retryAfter?: number) {
+    super(`Rate limited: ${detail}`);
+    this.name = 'RateLimitError';
   }
 }
 
@@ -58,7 +82,7 @@ function trackTool(tool: string, durationMs: number, ok: boolean): void {
 }
 
 const server = new Server(
-  { name: "oraclaw", version: "1.4.0" },
+  { name: "oraclaw", version: "1.4.2" },
   { capabilities: { tools: {} } }
 );
 
@@ -202,7 +226,7 @@ const TOOLS = [
       "non-convex/noisy/gradient-free landscapes. Use for hyperparameter search, simulator calibration, or control-policy " +
       "tuning where you supply per-dimension objective weights. Returns the best parameter vector, its objective value, " +
       "iteration/evaluation counts, and a converged flag; stochastic init means repeated runs may differ. Use optimize_evolve " +
-      "for discrete spaces and solve_constraints for linear/MIP constraints. Requires ORACLAW_API_KEY.",
+      "for discrete spaces and solve_constraints for linear/MIP constraints. Premium: needs an ORACLAW_API_KEY OR a per-call x402 payment (no signup).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -246,7 +270,7 @@ const TOOLS = [
       "assignment. Use when your objective and constraints are linear (or quadratic) over named continuous/integer/binary " +
       "variables: budget allocation, supply or capacity planning with integer counts, allocation with hard caps. Returns " +
       "solver status (optimal/infeasible/unbounded), the objective value, and the solved value per variable. Use " +
-      "optimize_cmaes for black-box objectives and solve_schedule for task-to-slot assignment. Requires ORACLAW_API_KEY.",
+      "optimize_cmaes for black-box objectives and solve_schedule for task-to-slot assignment. Premium: needs an ORACLAW_API_KEY OR a per-call x402 payment (no signup).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -381,7 +405,7 @@ const TOOLS = [
       "an optional critical path between two given nodes, and bottleneck nodes. Use to find the most influential nodes, " +
       "cluster a dependency/knowledge graph, or locate chokepoints in supply or process networks. Returns per-node PageRank " +
       "and community index, cluster summaries, the critical path with its weight, and bottlenecks. For a single " +
-      "source-to-goal route, use plan_pathfind (free). Requires ORACLAW_API_KEY.",
+      "source-to-goal route, use plan_pathfind (free). Premium: needs an ORACLAW_API_KEY OR a per-call x402 payment (no signup).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -456,7 +480,7 @@ const TOOLS = [
       "return matrix and portfolio weights, accounting for cross-asset correlation. Use to size downside risk on a weighted " +
       "multi-asset book, attribute risk, or run drawdown scenarios with auditable inputs. Returns VaR and CVaR (loss as a " +
       "positive number) at the requested confidence, plus expected return, volatility, and the horizon used. To sample " +
-      "outcomes from a parametric distribution instead, use simulate_montecarlo. Requires ORACLAW_API_KEY.",
+      "outcomes from a parametric distribution instead, use simulate_montecarlo. Premium: needs an ORACLAW_API_KEY OR a per-call x402 payment (no signup).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -573,7 +597,7 @@ const TOOLS = [
       "Holt-Winters (additive seasonal, set seasonLength). Use for short-to-medium horizon point forecasts of demand, KPIs, " +
       "or capacity. Returns the point forecast array plus lower/upper confidence bands and the fitted model description. " +
       "ARIMA requires at least 20 observations; Holt-Winters needs at least 2 x seasonLength. To flag outliers instead of " +
-      "projecting, use detect_anomaly. Requires ORACLAW_API_KEY.",
+      "projecting, use detect_anomaly. Premium: needs an ORACLAW_API_KEY OR a per-call x402 payment (no signup).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -624,7 +648,7 @@ const TOOLS = [
       "(robust to skew/heavy tails). Use for metric monitoring, fraud/abuse signals, sensor noise, or quality control. " +
       "Returns each anomaly's index, value, and score, plus the underlying statistics (mean/stdDev/threshold for Z-score; " +
       "q1/q3/IQR/bounds for IQR) and an anomaly count. To project a series forward instead, use predict_forecast. " +
-      "Requires ORACLAW_API_KEY.",
+      "Premium: needs an ORACLAW_API_KEY OR a per-call x402 payment (no signup).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -1210,7 +1234,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             `"${name}" needs an OraClaw API key (premium tool).`,
             ``,
             `Get one in 30 seconds — enter your email at:`,
-            `  https://web-olive-one-89.vercel.app/signup`,
+            `  ${SIGNUP_URL}`,
             ``,
             `Then add it to your MCP config:`,
             `  "oraclaw": {`,
@@ -1220,6 +1244,27 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             `  }`,
             ``,
             `Free tools that work without a key: ${err.freeTools.join(', ')}`,
+            ``,
+            X402_HINT,
+          ].join('\n'),
+        }],
+      };
+    }
+    if (err instanceof RateLimitError) {
+      const retryLine = typeof err.retryAfter === "number"
+        ? `Retry after ${err.retryAfter} seconds.`
+        : `Retry after the window resets.`;
+      return {
+        content: [{
+          type: "text",
+          text: [
+            `Rate limit hit on "${name}" (HTTP 429): ${err.detail}`,
+            retryLine,
+            ``,
+            `Raise your limit — sign up free for an API key at:`,
+            `  ${SIGNUP_URL}`,
+            ``,
+            X402_HINT,
           ].join('\n'),
         }],
       };
@@ -1245,7 +1290,7 @@ if (process.argv.includes("--print-tools")) {
 }
 
 if (process.argv.includes("--version")) {
-  process.stdout.write("1.4.1\n");
+  process.stdout.write("1.4.2\n");
   process.exit(0);
 }
 
@@ -1262,6 +1307,7 @@ if (process.argv.includes("--help") || process.argv.includes("-h")) {
     "Environment:",
     "  ORACLAW_API_KEY              Required for 6 premium tools (free tier otherwise)",
     "  ORACLAW_API_URL              Override API base (default oraclaw-api.onrender.com)",
+    "  (Premium tools also accept per-call x402 USDC payments — no signup. See /api/v1/pricing.)",
     "",
     "Docs: https://github.com/Whatsonyourmind/oraclaw",
     "",

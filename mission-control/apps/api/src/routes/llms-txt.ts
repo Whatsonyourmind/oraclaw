@@ -12,16 +12,21 @@ import type { FastifyInstance } from 'fastify';
 
 const LLMS_TXT_CONTENT = `# OraClaw
 
-> Decision intelligence API — 12 MCP tools, all under 25ms. No LLM cost, pure math.
+> Decision intelligence API — 17 MCP tools, all under 25ms. No LLM cost, pure math.
 
 ## Free Tools (no API key needed, 25 calls/day)
 
 - POST /api/v1/optimize/bandit -- Multi-Armed Bandit (UCB1/Thompson/epsilon-Greedy)
 - POST /api/v1/optimize/contextual-bandit -- Contextual Bandit (LinUCB)
+- POST /api/v1/optimize/evolve -- Genetic algorithm / evolutionary optimization
 - POST /api/v1/simulate/montecarlo -- Monte Carlo simulation
+- POST /api/v1/simulate/scenario -- Scenario planning simulation
 - POST /api/v1/solve/schedule -- Task scheduling with energy matching
 - POST /api/v1/plan/pathfind -- A* pathfinding with k-shortest paths
 - POST /api/v1/score/convergence -- Multi-source agreement scoring
+- POST /api/v1/score/calibration -- Probability calibration scoring
+- POST /api/v1/predict/bayesian -- Bayesian inference / belief updating
+- POST /api/v1/predict/ensemble -- Ensemble model prediction
 
 ## Premium Tools (free API key signup required)
 
@@ -34,8 +39,8 @@ const LLMS_TXT_CONTENT = `# OraClaw
 
 ## Authentication
 
-- **Free tier**: No API key. 25 calls/day, 6 free tools only.
-- **Signup**: POST /api/v1/auth/signup with {"email":"you@example.com"} -- instant API key, all 12 tools.
+- **Free tier**: No API key. 25 calls/day, 11 free tools.
+- **Signup**: POST /api/v1/auth/signup with {"email":"you@example.com"} -- instant API key, all 17 tools.
 - **Paid tiers**: $0.005/call (pay-per-call), $9-199/mo (subscriptions).
 - **Machine payments**: x402 USDC on Base ($0.001/call, all tools).
 
@@ -53,7 +58,7 @@ const LLMS_TXT_CONTENT = `# OraClaw
 const SERVER_CARD = {
   name: "oraclaw",
   version: "1.1.1",
-  description: "Decision intelligence for AI agents — 6 free + 6 premium MCP tools. Bandits, Monte Carlo, scheduling free. LP solver, graph analytics, anomaly detection, forecasting require API key.",
+  description: "Decision intelligence for AI agents — 11 free + 6 premium MCP tools. Bandits, Monte Carlo, scheduling free. LP solver, graph analytics, anomaly detection, forecasting require API key.",
   vendor: "Whatsonyourmind",
   homepage: "https://github.com/Whatsonyourmind/oraclaw",
   tools: [
@@ -63,6 +68,11 @@ const SERVER_CARD = {
     { name: "solve_schedule", description: "Task scheduling with energy matching", tier: "free" },
     { name: "plan_pathfind", description: "A* pathfinding with k-shortest paths", tier: "free" },
     { name: "score_convergence", description: "Multi-source agreement scoring", tier: "free" },
+    { name: "optimize_evolve", description: "Genetic algorithm / evolutionary optimization", tier: "free" },
+    { name: "score_calibration", description: "Probability calibration scoring", tier: "free" },
+    { name: "predict_bayesian", description: "Bayesian inference / belief updating", tier: "free" },
+    { name: "predict_ensemble", description: "Ensemble model prediction", tier: "free" },
+    { name: "simulate_scenario", description: "Scenario planning simulation", tier: "free" },
     { name: "detect_anomaly", description: "Z-score/IQR anomaly detection", tier: "premium" },
     { name: "predict_forecast", description: "ARIMA/Holt-Winters forecasting", tier: "premium" },
     { name: "solve_constraints", description: "LP/MIP/QP optimization (HiGHS)", tier: "premium" },

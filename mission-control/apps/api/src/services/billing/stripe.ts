@@ -141,7 +141,7 @@ export class StripeService {
    * Create a checkout session for new subscription
    */
   async createCheckoutSession(params: {
-    customerId: string;
+    customerId?: string;
     priceId: string;
     successUrl: string;
     cancelUrl: string;
@@ -150,7 +150,6 @@ export class StripeService {
     metadata?: Record<string, string>;
   }): Promise<SubscriptionCheckout> {
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      customer: params.customerId,
       mode: 'subscription',
       line_items: [
         {
@@ -165,6 +164,15 @@ export class StripeService {
       },
       metadata: params.metadata,
     };
+
+    // Attach an existing customer when we have one (authenticated upgrade flow).
+    // For the anonymous self-serve path, let Stripe Checkout collect the email
+    // and create the customer itself.
+    if (params.customerId) {
+      sessionParams.customer = params.customerId;
+    } else {
+      sessionParams.customer_creation = 'always';
+    }
 
     if (params.trialPeriodDays) {
       sessionParams.subscription_data!.trial_period_days = params.trialPeriodDays;
