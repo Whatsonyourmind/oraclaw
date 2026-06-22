@@ -24,7 +24,7 @@ import { AStarPathfinder, Heuristics, type GraphNode, type GraphEdge } from "../
 import { forecast, holtWinters } from "../../services/oracle/algorithms/timeSeries";
 import { detectAnomaliesZScore, detectAnomaliesIQR } from "../../services/oracle/algorithms/anomalyDetector";
 import { optimizeCMAES, type CMAESConfig } from "../../services/oracle/algorithms/cmaes";
-import { portfolioVaR } from "../../services/oracle/algorithms/correlationMatrix";
+import { portfolioVaR, buildRiskCertificate } from "../../services/oracle/algorithms/correlationMatrix";
 import { createUsageTracker } from "../../services/usageTracker";
 import { db } from "../../services/database/client";
 
@@ -1090,12 +1090,18 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
       returns: number[][];
       confidence?: number;
       horizonDays?: number;
+      ciLevel?: number;
+      realizedExceedances?: number[];
     };
 
     const confidence = body.confidence ?? 0.95;
     const horizonDays = body.horizonDays ?? 1;
 
     const result = portfolioVaR(body.weights, body.returns, confidence, horizonDays);
+    const certificate = buildRiskCertificate(body.weights, body.returns, confidence, horizonDays, result, {
+      ...(typeof body.ciLevel === "number" ? { ciLevel: body.ciLevel } : {}),
+      ...(Array.isArray(body.realizedExceedances) ? { realizedExceedances: body.realizedExceedances } : {}),
+    });
 
     return {
       var: result.var,
@@ -1105,6 +1111,8 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
       confidence,
       horizonDays,
       assets: body.weights.length,
+      // Re-checkable estimation-error certificate (delta-method VaR/ES SE + hash).
+      certificate,
     };
   });
 

@@ -11,6 +11,7 @@
 
 // @ts-expect-error — jstat has no type declarations
 import jStat from "jstat";
+import { createHash } from "node:crypto";
 
 // ── Types ────────────────────────────────────────────────
 
@@ -291,4 +292,264 @@ export function portfolioVaR(
     expectedReturn: muH,
     volatility: sigmaH,
   };
+}
+
+// ── Estimation-error certificate ─────────────────────────
+//
+// analyze_risk reports a parametric (delta-normal) VaR/ES point estimate from a
+// finite return window. That point estimate carries SAMPLING ERROR: muP and
+// sigmaP are estimated from T observations. This certificate quantifies that
+// error with closed-form delta-method standard errors (no bootstrap — the
+// estimator is parametric) and a re-checkable content hash. It is NOT new
+// statistics (Jorion delta-method; Var(s) for normal samples; Kupiec 1995) and
+// makes NO claim of beating any library — the contribution is binding a
+// recomputable estimator-error CI + an ES-distinctness flag into an MCP tool.
+//
+// Scope: SE is valid under the iid-normal assumption only (invalid under heavy
+// tails / autocorrelation). effectiveSampleSupport is the ESTIMATION WINDOW T,
+// NOT a tail subset.
+
+export const RISK_CERTIFICATE_SCHEMA = "oraclaw.risk.certificate/v1";
+const RISK_ALGO_VERSION = "correlationMatrix/delta-normal@1";
+const RISK_ABS_TOL = 1e-9;
+const RISK_REL_TOL = 1e-9;
+
+export interface RiskCertificate {
+  schema: string;
+  algoVersion: string;
+  method: "delta-normal";
+  confidence: number; // VaR/ES tail confidence (e.g. 0.95)
+  horizonDays: number;
+  ciLevel: number; // two-sided CI level for the estimation-error intervals
+  /** T — the estimation window length (NOT a tail subset). */
+  effectiveSampleSupport: number;
+  varValue: number;
+  esValue: number;
+  expectedReturn: number;
+  volatility: number;
+  /** Delta-method standard error of the VaR point estimate. */
+  seVaR: number;
+  /** Delta-method standard error of the ES point estimate. */
+  seES: number;
+  varCI: [number, number];
+  esCI: [number, number];
+  /** ES − VaR. */
+  esGap: number;
+  seEsGap: number;
+  /**
+   * True iff the ES−VaR gap exceeds the ES estimate's own ciLevel CI half-width
+   * (ciLevel·SE(ES)) — i.e. the ES estimate is precise enough at this window to
+   * separate it from VaR. False on short windows where the mean-estimation term
+   * in SE(ES) swamps the gap (flips ~T>70 at 95%). NOT a test of H0: ES=VaR (the
+   * gap is a deterministic positive multiple of sigmaP under the normal model).
+   */
+  esStatisticallyDistinctFromVaR: boolean;
+  /** Optional Kupiec unconditional-coverage backtest (only when exceedances given). */
+  kupiec?: {
+    observations: number;
+    exceedances: number;
+    expectedRate: number;
+    lrUC: number;
+    pValue: number;
+    rejectAt5pct: boolean;
+  };
+  contentHash: string;
+  certificateValid: boolean;
+  notes: string[];
+}
+
+function riskCanonicalize(value: unknown): unknown {
+  if (typeof value === "number") return Number.isFinite(value) ? value.toFixed(12) : String(value);
+  if (Array.isArray(value)) return value.map(riskCanonicalize);
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const k of Object.keys(value as Record<string, unknown>).sort()) {
+      out[k] = riskCanonicalize((value as Record<string, unknown>)[k]);
+    }
+    return out;
+  }
+  return value;
+}
+
+function riskContentHash(payload: unknown): string {
+  return createHash("sha256").update(JSON.stringify(riskCanonicalize(payload))).digest("hex");
+}
+
+function kupiecLR(observations: number, exceedances: number, expectedRate: number): { lrUC: number; pValue: number; rejectAt5pct: boolean } {
+  const n = observations;
+  const x = exceedances;
+  const p = expectedRate;
+  if (n <= 0 || p <= 0 || p >= 1 || x < 0 || x > n) {
+    return { lrUC: NaN, pValue: NaN, rejectAt5pct: false };
+  }
+  const piHat = x / n;
+  const lnL0 = (n - x) * Math.log(1 - p) + x * Math.log(p);
+  // π̂ at a boundary makes the unrestricted log-lik a limit (0·ln0 → 0).
+  const term0 = piHat <= 0 ? 0 : (n - x) * Math.log(1 - piHat);
+  const term1 = piHat >= 1 ? 0 : x * Math.log(piHat);
+  const lnL1 = term0 + term1;
+  const lrUC = -2 * (lnL0 - lnL1);
+  const pValue = 1 - (jStat.chisquare.cdf(lrUC, 1) as number);
+  return { lrUC, pValue, rejectAt5pct: pValue < 0.05 };
+}
+
+/**
+ * Build the estimation-error certificate for a delta-normal VaR/ES result.
+ * Pure function of (weights, returns, confidence, horizonDays) → deterministic
+ * and re-checkable. `result` is the matching `portfolioVaR` output.
+ */
+export function buildRiskCertificate(
+  weights: number[],
+  returns: number[][],
+  confidence: number,
+  horizonDays: number,
+  result: PortfolioVaRResult,
+  opts: { ciLevel?: number; realizedExceedances?: number[] } = {},
+): RiskCertificate {
+  const ciLevel = opts.ciLevel ?? 0.95;
+  const T = returns[0]?.length ?? 0;
+  const h = horizonDays;
+
+  // Recover the daily portfolio moments from the horizon-scaled result.
+  const sigmaP = h > 0 ? result.volatility / Math.sqrt(h) : 0;
+
+  const z = jStat.normal.inv(confidence, 0, 1) as number;
+  const phiZ = jStat.normal.pdf(z, 0, 1) as number;
+  const kES = phiZ / (1 - confidence);
+
+  // Sampling variances under iid-normal: Var(mean)=σ²/T, Var(s)≈σ²/(2(T-1)).
+  const varMu = T > 0 ? (sigmaP * sigmaP) / T : Infinity;
+  const varSigma = T > 1 ? (sigmaP * sigmaP) / (2 * (T - 1)) : Infinity;
+
+  // VaR = -h·muP + √h·z·sigmaP ; ES = -h·muP + √h·kES·sigmaP. Mean and SD
+  // estimators are independent for normal samples → no cross term.
+  const seVaR = Math.sqrt(h * h * varMu + h * z * z * varSigma);
+  const seES = Math.sqrt(h * h * varMu + h * kES * kES * varSigma);
+
+  // ES − VaR = √h·sigmaP·(kES − z): the muP terms cancel, so it depends only on sigmaP.
+  const esGap = result.cvar - result.var;
+  const seEsGap = Math.sqrt(h * (kES - z) * (kES - z) * varSigma);
+
+  const zCI = jStat.normal.inv(0.5 + ciLevel / 2, 0, 1) as number;
+  const varCI: [number, number] = [result.var - zCI * seVaR, result.var + zCI * seVaR];
+  const esCI: [number, number] = [result.cvar - zCI * seES, result.cvar + zCI * seES];
+  // The gap is positive whenever sigmaP>0; the useful question is whether the ES
+  // estimate is precise enough (its CI half-width < the gap) at this window.
+  const esStatisticallyDistinctFromVaR = Number.isFinite(seES) && esGap > zCI * seES;
+
+  const notes: string[] = [];
+  notes.push("Estimation-error SE under the iid-normal assumption — INVALID under heavy tails or autocorrelation.");
+  notes.push("effectiveSampleSupport is the estimation window T, not a tail subset.");
+  if (!esStatisticallyDistinctFromVaR) {
+    notes.push(`ES estimate too imprecise to separate from VaR at this window: gap ${esGap.toExponential(3)} <= ES ${ciLevel}-CI half-width ${(zCI * seES).toExponential(3)} — add observations.`);
+  }
+
+  let kupiec: RiskCertificate["kupiec"];
+  if (opts.realizedExceedances && opts.realizedExceedances.length > 0) {
+    const obs = opts.realizedExceedances.length;
+    const exc = opts.realizedExceedances.reduce((a, b) => a + (b ? 1 : 0), 0);
+    const expectedRate = 1 - confidence;
+    const k = kupiecLR(obs, exc, expectedRate);
+    kupiec = { observations: obs, exceedances: exc, expectedRate, lrUC: k.lrUC, pValue: k.pValue, rejectAt5pct: k.rejectAt5pct };
+    if (k.rejectAt5pct) notes.push("Kupiec POF rejects correct unconditional coverage at 5% — the VaR model is miscalibrated on the supplied exceedances.");
+  }
+
+  const hashPayload = {
+    schema: RISK_CERTIFICATE_SCHEMA,
+    algoVersion: RISK_ALGO_VERSION,
+    method: "delta-normal",
+    confidence,
+    horizonDays,
+    ciLevel,
+    weights,
+    returns,
+    varValue: result.var,
+    esValue: result.cvar,
+    expectedReturn: result.expectedReturn,
+    volatility: result.volatility,
+    seVaR,
+    seES,
+    esGap,
+    seEsGap,
+  };
+  const contentHash = riskContentHash(hashPayload);
+
+  const certificateValid =
+    T >= 2 &&
+    [result.var, result.cvar, seVaR, seES, esGap, seEsGap].every((x) => Number.isFinite(x));
+
+  return {
+    schema: RISK_CERTIFICATE_SCHEMA,
+    algoVersion: RISK_ALGO_VERSION,
+    method: "delta-normal",
+    confidence,
+    horizonDays,
+    ciLevel,
+    effectiveSampleSupport: T,
+    varValue: result.var,
+    esValue: result.cvar,
+    expectedReturn: result.expectedReturn,
+    volatility: result.volatility,
+    seVaR,
+    seES,
+    varCI,
+    esCI,
+    esGap,
+    seEsGap,
+    esStatisticallyDistinctFromVaR,
+    kupiec,
+    contentHash,
+    certificateValid,
+    notes,
+  };
+}
+
+function riskClose(a: number, b: number): boolean {
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return a === b;
+  return Math.abs(a - b) <= Math.max(RISK_ABS_TOL, RISK_REL_TOL * Math.abs(b));
+}
+
+/**
+ * Re-check a (possibly tampered) risk certificate: recompute portfolioVaR + the
+ * delta-method SEs from the supplied inputs and confirm they reproduce the
+ * certified values, plus that the content hash binds the certificate's own
+ * fields. Any tampered statistic fails one or both checks.
+ */
+export function verifyRiskCertificate(
+  certificate: RiskCertificate,
+  weights: number[],
+  returns: number[][],
+): { valid: boolean; reasons: string[] } {
+  const reasons: string[] = [];
+
+  const recomputedHash = riskContentHash({
+    schema: certificate.schema,
+    algoVersion: certificate.algoVersion,
+    method: certificate.method,
+    confidence: certificate.confidence,
+    horizonDays: certificate.horizonDays,
+    ciLevel: certificate.ciLevel,
+    weights,
+    returns,
+    varValue: certificate.varValue,
+    esValue: certificate.esValue,
+    expectedReturn: certificate.expectedReturn,
+    volatility: certificate.volatility,
+    seVaR: certificate.seVaR,
+    seES: certificate.seES,
+    esGap: certificate.esGap,
+    seEsGap: certificate.seEsGap,
+  });
+  if (recomputedHash !== certificate.contentHash) {
+    reasons.push("content hash mismatch (certificate fields or inputs do not match the certified hash)");
+  }
+
+  const re = portfolioVaR(weights, returns, certificate.confidence, certificate.horizonDays);
+  const reCert = buildRiskCertificate(weights, returns, certificate.confidence, certificate.horizonDays, re, { ciLevel: certificate.ciLevel });
+  if (!riskClose(re.var, certificate.varValue)) reasons.push(`VaR mismatch: recomputed ${re.var} vs certified ${certificate.varValue}`);
+  if (!riskClose(re.cvar, certificate.esValue)) reasons.push(`ES mismatch: recomputed ${re.cvar} vs certified ${certificate.esValue}`);
+  if (!riskClose(reCert.seVaR, certificate.seVaR)) reasons.push(`SE(VaR) mismatch: recomputed ${reCert.seVaR} vs certified ${certificate.seVaR}`);
+  if (!riskClose(reCert.seES, certificate.seES)) reasons.push(`SE(ES) mismatch: recomputed ${reCert.seES} vs certified ${certificate.seES}`);
+
+  return { valid: reasons.length === 0, reasons };
 }

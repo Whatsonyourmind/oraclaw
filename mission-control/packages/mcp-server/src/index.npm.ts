@@ -539,6 +539,8 @@ const TOOLS = [
         },
         confidence: { type: "number", minimum: 0, maximum: 1, description: "VaR confidence level (default: 0.95)." },
         horizonDays: { type: "integer", minimum: 1, description: "Horizon in days, scales VaR by sqrt(horizon) (default: 1)." },
+        ciLevel: { type: "number", minimum: 0, maximum: 1, description: "Two-sided confidence level for the estimation-error CIs in the certificate (default: 0.95)." },
+        realizedExceedances: { type: "array", items: { type: "number", enum: [0, 1] }, description: "Optional backtest hit sequence (1 = VaR breach); enables a Kupiec unconditional-coverage test in the certificate." },
       },
       required: ["returns", "weights"],
     },
@@ -552,6 +554,10 @@ const TOOLS = [
         confidence: { type: "number" },
         horizonDays: { type: "integer" },
         assets: { type: "integer" },
+        certificate: {
+          type: "object",
+          description: "Re-checkable estimation-error certificate: delta-method SE/CI for VaR and ES under the iid-normal assumption, esStatisticallyDistinctFromVaR, effectiveSampleSupport (the estimation window T), an optional Kupiec backtest, and a sha256 contentHash binding inputs→outputs. SE is invalid under heavy tails / autocorrelation (stated in the certificate).",
+        },
       },
       required: ["var", "cvar", "expectedReturn", "volatility"],
     },
@@ -1281,7 +1287,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     // MonteCarloCertificate) emit the parsed object so callers get the
     // certificate as data, not text they must re-parse.
     if (
-      (name === "solve_constraints" || name === "simulate_montecarlo") &&
+      (name === "solve_constraints" || name === "simulate_montecarlo" || name === "analyze_risk") &&
       result &&
       typeof result === "object"
     ) {
