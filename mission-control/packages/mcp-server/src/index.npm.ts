@@ -844,6 +844,9 @@ const TOOLS = [
           },
         },
         simulations: { type: "integer", minimum: 1, maximum: 2000, description: "Number of samples (default: 1000, max: 2000 free)." },
+        seed: { type: "integer", description: "Optional integer seed for a reproducible run; recorded in the certificate so anyone can re-derive the same draws." },
+        targetHalfWidth: { type: "number", minimum: 0, description: "Optional ABSOLUTE precision target for the mean's CI half-width; the certificate reports replicationAdequacy = (meanHalfWidth <= this)." },
+        confidenceLevel: { type: "number", minimum: 0, maximum: 1, description: "Two-sided confidence level for the MCSE intervals (default 0.95)." },
       },
       required: ["distribution", "params"],
     },
@@ -863,6 +866,10 @@ const TOOLS = [
         iterations: { type: "integer" },
         executionTimeMs: { type: "number" },
         timedOut: { type: "boolean" },
+        certificate: {
+          type: "object",
+          description: "Re-checkable precision certificate: MCSE of the mean (analytic + batch-means), bootstrap MCSE per percentile, replicationAdequacy vs targetHalfWidth, the resolved seed, and a sha256 contentHash binding inputs→outputs. Re-run the seed for the certified n to reproduce the statistics.",
+        },
       },
       required: ["mean", "stdDev", "percentiles", "iterations"],
     },
@@ -1269,10 +1276,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       structuredContent?: unknown;
     } = { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     // MCP spec 2025-06-18: a tool that declares an outputSchema MUST also return
-    // structuredContent conforming to it. solve_constraints does (status,
-    // objectiveValue, solution, certificate), so emit the parsed object — callers
-    // get the re-checkable certificate as data, not text they must re-parse.
-    if (name === "solve_constraints" && result && typeof result === "object") {
+    // structuredContent conforming to it. The tools that ship a re-checkable
+    // certificate (solve_constraints → SolveCertificate, simulate_montecarlo →
+    // MonteCarloCertificate) emit the parsed object so callers get the
+    // certificate as data, not text they must re-parse.
+    if (
+      (name === "solve_constraints" || name === "simulate_montecarlo") &&
+      result &&
+      typeof result === "object"
+    ) {
       out.structuredContent = result;
     }
     return out;

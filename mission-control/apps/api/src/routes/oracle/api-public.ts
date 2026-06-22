@@ -544,6 +544,9 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
       distribution: DistributionParams["type"];
       params: { mean?: number; stddev?: number; min?: number; max?: number; mode?: number; alpha?: number; beta?: number; lambda?: number };
       iterations?: number;
+      seed?: number;
+      targetHalfWidth?: number;
+      confidenceLevel?: number;
     };
 
     // Map user-friendly params to distribution params array
@@ -577,6 +580,11 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
     const result = await mcService.runSingleFactorSimulation(
       { type: body.distribution, params: distParams },
       iterations,
+      {
+        ...(typeof body.seed === "number" ? { seed: body.seed } : {}),
+        ...(typeof body.targetHalfWidth === "number" ? { targetHalfWidth: body.targetHalfWidth } : {}),
+        ...(typeof body.confidenceLevel === "number" ? { confidenceLevel: body.confidenceLevel } : {}),
+      },
     );
 
     return {
@@ -593,6 +601,8 @@ export default async function publicApiRoutes(fastify: FastifyInstance) {
       iterations: result.iterations,
       executionTimeMs: result.executionTimeMs,
       timedOut: result.timedOut,
+      // Re-checkable Monte Carlo precision certificate (MCSE + seed + content hash).
+      certificate: result.certificate,
     };
   });
 
