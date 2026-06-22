@@ -3,7 +3,7 @@
  *
  * Proves the envelope is in-toto Statement v1 conformant, binds the subject by
  * the certificate's content hash, and carries a witness that re-verifies
- * (the same evidence the standalone an external tool verifier re-runs).
+ * (the same evidence an external verifier re-runs).
  */
 
 import { describe, it, expect } from "vitest";

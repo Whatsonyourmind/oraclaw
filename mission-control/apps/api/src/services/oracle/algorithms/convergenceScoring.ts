@@ -1,4 +1,4 @@
-// Enhanced Convergence Scoring — ported from an internal framework ICM framework
+// Enhanced Convergence Scoring — adapted from an internal convergence-metrics framework
 // Computes multi-source agreement for prediction market forecasts
 // Uses Hellinger distance, entropy-based uncertainty, and sigmoid aggregation
 
@@ -204,7 +204,7 @@ export function computeConvergence(
   const uncertainty = computeUncertainty(sources);
   const freshness = computeFreshness(sources, cfg.freshnessHalfLifeMs);
 
-  // Sigmoid aggregation (from an internal framework ICM framework)
+  // Sigmoid aggregation (from the internal convergence-metrics framework)
   const zRaw = cfg.wA * agreement + cfg.wD * direction + cfg.wU * uncertainty + cfg.wF * freshness;
   const totalWeight = cfg.wA + cfg.wD + cfg.wU + cfg.wF;
   const zNorm = zRaw / totalWeight; // Normalize to [0, 1] range

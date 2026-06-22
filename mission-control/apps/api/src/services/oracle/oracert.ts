@@ -1,7 +1,7 @@
 /**
  * OraCert — one in-toto-conformant, re-derivable-result predicate shared by
- * heterogeneous producers (this server's SolveCertificate and an external tool's
- * BuildManifest).
+ * heterogeneous producers (this server's SolveCertificate and an external
+ * workbook build-manifest).
  *
  * Standard supply-chain predicates (in-toto Statement v1, SLSA Provenance,
  * the test-result predicate) bind their subject by DIGEST ONLY — a verifier
@@ -12,11 +12,12 @@
  * feasibility + the objective + the content hash from the returned solution
  * (exactly what `verifyCertificate` does), with no solver in the loop.
  *
- * This module is the thin TS emitter. The matching LLM-free verifier ships in
- * an external tool (`external-tool.oracert`), which also re-derives the an external tool
- * branch (recompute the workbook SHA-256 + re-run the schedule audit on the
- * bound .xlsx). The content hash is canonicalised identically on both
- * runtimes (sorted keys + `toFixed(12)`), locked by a committed golden vector.
+ * This module is the thin TS emitter. It interoperates with an external
+ * workbook/build-manifest verifier that re-derives results from the same
+ * evidence — recomputing the workbook SHA-256 + re-running the schedule audit
+ * on the bound .xlsx for that branch. The content hash is canonicalised
+ * identically on both runtimes (sorted keys + `toFixed(12)`), locked by a
+ * committed golden vector.
  */
 
 import type {
