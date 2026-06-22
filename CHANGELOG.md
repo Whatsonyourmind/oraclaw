@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-06-22 — Re-checkable result certificates
+
 ### Added
+
+- **Re-checkable result & optimality certificates on every `solve()`** (`solve_constraints`). Each answer ships a certificate a third party can re-check WITHOUT the solver: primal-feasibility + objective recompute + content-hash binding, LP KKT duality, and a Lagrangian **root dual bound** with an honest `optimalityClass` — `proven-optimal` ONLY when the bound meets the incumbent, otherwise `gap-bounded` (brackets the optimum; not a B&B/VIPR proof). A standalone verifier (`certVerifier.ts`, importing neither the solver nor the producer) independently re-derives the bound, including an exact BigInt-rational path; a forged optimality claim is mathematically unsustainable. Also fixed a binary-variable encoding bug (an explicit Bounds row could override the `[0,1]` domain).
+- **Re-checkable precision certificate for `simulate_montecarlo`** — Monte-Carlo standard error (analytic + batch-means + bootstrap), replication-adequacy vs an absolute target, seed, content-hash, and a solver-free re-check, surfaced via `structuredContent`.
+- **Estimation-error certificate for `analyze_risk`** — delta-method VaR/ES standard errors & confidence intervals, an ES-distinct-from-VaR test, an optional Kupiec backtest, content-hash + verify.
+- **OraCert cross-server predicate** — an in-toto Statement v1 envelope (`oracert.dev/redrivable-result/v1`) carrying a method-tagged re-derivation *witness* (vs digest-only SLSA/cosign), re-checkable LLM-free by a standalone verifier.
 
 - **Admin observability endpoint** `/api/v1/admin/usage` -- aggregated telemetry dashboard returning total requests, per-tier breakdown, per-billing-path split, top routes, unique API key count, daily buckets. Gated by `X-Admin-Key` header (returns 503 if `ADMIN_KEY` env var is unset).
 - **Global onResponse hook** that records every `/api/v1/*` request into a persistent in-memory store with optional 60s disk snapshot. Replaces the ephemeral in-memory `mcpCounts` that was lost on every container restart.

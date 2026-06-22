@@ -7,12 +7,12 @@
     "source": "github",
     "subfolder": "mission-control/packages/mcp-server"
   },
-  "version": "1.4.2",
+  "version": "1.5.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@oraclaw/mcp-server",
-      "version": "1.4.2",
+      "version": "1.5.0",
       "transport": {
         "type": "stdio"
       },
