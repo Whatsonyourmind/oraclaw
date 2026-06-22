@@ -80,6 +80,35 @@ export interface SolveCertificate {
     dualityGapCS: number;
     note: string;
   };
+  /**
+   * Re-checkable root dual-bound optimality evidence (LP and MIP).
+   *
+   * A valid bound on the optimum derived from a Lagrangian relaxation of the
+   * constraints at non-negative multipliers (the LP-relaxation root duals).
+   * Soundness rests on weak duality: for ANY non-negative multipliers the
+   * box-minimum of the Lagrangian can never exceed a feasible objective, so the
+   * bound is valid regardless of whether the multipliers are optimal — only the
+   * tightness depends on that. A standalone verifier re-derives the same bound
+   * from `multipliers` with no solver, so a false optimality claim is
+   * impossible (the bound it recomputes is provably ≤ the incumbent).
+   *
+   * Honest scope: this is the ROOT LP relaxation only — NOT a branch-and-bound
+   * (VIPR) proof. `optimalityClass: "gap-bounded"` means the optimum is bracketed
+   * in [incumbent, dualBound]; it does NOT mean the incumbent is suboptimal,
+   * only that root-relaxation evidence alone does not prove it optimal.
+   */
+  optimality?: {
+    optimalityClass: "proven-optimal" | "gap-bounded" | "feasible-no-bound";
+    /** Valid bound on the optimum in the original objective's sense (null = none). */
+    dualBound: number | null;
+    /** |incumbent − dualBound| (0 ⇒ proven optimal at the root). */
+    optimalityGapAbs: number | null;
+    optimalityGapRel: number | null;
+    boundMethod: string;
+    /** Constraint-name → dual the bound is built from; the verifier re-derives from these. */
+    multipliers: Record<string, number>;
+    note: string;
+  };
   /** sha256 over canonical {problem, status, objective, solution}. */
   contentHash: string;
   notes: string[];
@@ -148,6 +177,8 @@ const OBJ_ABS_TOL = 1e-6;
 const OBJ_REL_TOL = 1e-6;
 const DUAL_TOL = 1e-4; // complementary slackness / stationarity (dual precision)
 const INT_TOL = 1e-6; // integrality
+const GAP_ABS_TOL = 1e-6; // proven-optimal gap (absolute)
+const GAP_REL_TOL = 1e-6; // proven-optimal gap (relative)
 const HIGHS_INF = 1e29; // |bound| at/above this is treated as infinite
 
 const isFiniteBound = (x: number): boolean => Number.isFinite(x) && Math.abs(x) < HIGHS_INF;
@@ -155,6 +186,132 @@ const isFiniteBound = (x: number): boolean => Number.isFinite(x) && Math.abs(x) 
 function effectiveBounds(v: OptimizationVariable): [number, number] {
   if (v.type === "binary") return [0, 1];
   return [v.lower ?? 0, v.upper ?? 1e30];
+}
+
+// ── Re-checkable dual bound (Lagrangian relaxation, weak-duality valid) ──
+//
+// For minimisation `min c·x s.t. lᵢ ≤ aᵢ·x ≤ uᵢ, x ∈ [lo,hi]` and ANY
+// non-negative multipliers (μ for the ≥ side, ν for the ≤ side):
+//
+//   L = Σ(μᵢ·lᵢ − νᵢ·uᵢ) + min_{x∈box} g·x,   g_j = c_j + Σ(νᵢ − μᵢ)·a_{ij}
+//
+// is a valid LOWER bound on the optimum: every feasible x makes the dropped
+// penalty terms ≤ 0, so L can never exceed a feasible objective. The box-min is
+// closed form (pick lo_j when g_j>0, hi_j when g_j<0). Returns −∞ when a needed
+// box bound is infinite (no usable bound). The solver's dual sign convention is
+// unknown, so both global signs are evaluated and the max kept — both are valid
+// bounds, so this only ever tightens, never invalidates.
+export function lagrangianBoundMin(
+  cMin: Record<string, number>,
+  variables: OptimizationVariable[],
+  constraints: Constraint[],
+  multipliers: Record<string, number>,
+): number {
+  const known = new Set(variables.map((v) => v.name));
+  // Soundness guard: an unknown referenced variable would be silently unbounded.
+  for (const n of Object.keys(cMin)) if (!known.has(n)) return Number.NEGATIVE_INFINITY;
+  for (const c of constraints) for (const n of Object.keys(c.coefficients)) if (!known.has(n)) return Number.NEGATIVE_INFINITY;
+
+  let best = Number.NEGATIVE_INFINITY;
+  for (const s of [1, -1] as const) {
+    let constTerm = 0;
+    const g: Record<string, number> = {};
+    for (const v of variables) g[v.name] = cMin[v.name] ?? 0;
+    for (const c of constraints) {
+      const w = s * (multipliers[c.name] ?? 0);
+      const loFin = c.lower !== undefined && isFiniteBound(c.lower);
+      const hiFin = c.upper !== undefined && isFiniteBound(c.upper);
+      const mu = loFin ? Math.max(0, w) : 0; // multiplier on the (≥ lower) side
+      const nu = hiFin ? Math.max(0, -w) : 0; // multiplier on the (≤ upper) side
+      if (mu !== 0) constTerm += mu * (c.lower as number);
+      if (nu !== 0) constTerm -= nu * (c.upper as number);
+      const net = nu - mu;
+      if (net !== 0) for (const [n, a] of Object.entries(c.coefficients)) g[n] = (g[n] ?? 0) + net * a;
+    }
+    let boxMin = 0;
+    let finite = true;
+    for (const v of variables) {
+      const gj = g[v.name] ?? 0;
+      const [lo, hi] = effectiveBounds(v);
+      if (gj > 0) {
+        if (isFiniteBound(lo)) boxMin += gj * lo;
+        else { finite = false; break; }
+      } else if (gj < 0) {
+        if (isFiniteBound(hi)) boxMin += gj * hi;
+        else { finite = false; break; }
+      }
+    }
+    if (finite) best = Math.max(best, constTerm + boxMin);
+  }
+  return best;
+}
+
+// Translate a min-space Lagrangian bound into an optimality block on the
+// original objective. The bound brackets the optimum together with the
+// incumbent; "proven-optimal" is claimed ONLY when the gap closes to tolerance.
+function buildOptimality(
+  problem: OptimizationProblem,
+  objectiveValue: number,
+  multipliers: Record<string, number>,
+  incumbentOk: boolean,
+): NonNullable<SolveCertificate["optimality"]> {
+  const cMin: Record<string, number> = {};
+  for (const [n, c] of Object.entries(problem.objective)) cMin[n] = problem.direction === "maximize" ? -c : c;
+
+  let boundMin = lagrangianBoundMin(cMin, problem.variables, problem.constraints, multipliers);
+  const finite = Number.isFinite(boundMin);
+  const zmin = problem.direction === "maximize" ? -objectiveValue : objectiveValue;
+  const tol = Math.max(GAP_ABS_TOL, GAP_REL_TOL * Math.abs(zmin));
+
+  // Soundness gate: optimality may be certified ONLY against a trustworthy
+  // incumbent. If the returned solution failed primal/integrality re-check, or a
+  // VALID lower bound exceeds its objective by more than tol (which proves the
+  // incumbent is not relaxation-feasible), we must NOT certify — otherwise a bad
+  // incumbent could fabricate gap 0 → a false "proven-optimal".
+  const incumbentBeatsBound = finite && boundMin > zmin + tol;
+  if (!incumbentOk || incumbentBeatsBound) {
+    return {
+      optimalityClass: "feasible-no-bound",
+      dualBound: null,
+      optimalityGapAbs: null,
+      optimalityGapRel: null,
+      boundMethod: "root-LP Lagrangian box-min (weak-duality bound; not a B&B/VIPR proof)",
+      multipliers,
+      note: incumbentBeatsBound
+        ? "A valid root bound exceeds the incumbent objective — the incumbent is not relaxation-feasible; optimality NOT certified (see primal feasibility)."
+        : "Incumbent failed the primal-feasibility/integrality re-check; optimality NOT certified.",
+    };
+  }
+
+  // A valid lower bound cannot exceed a feasible incumbent; clamp float overshoot only.
+  if (finite && boundMin > zmin) boundMin = zmin;
+
+  const dualBound = finite ? (problem.direction === "maximize" ? -boundMin : boundMin) : null;
+  const gapAbs = finite ? Math.max(0, zmin - boundMin) : null;
+  const gapRel = gapAbs === null ? null : gapAbs / (Math.abs(zmin) + 1);
+
+  let optimalityClass: NonNullable<SolveCertificate["optimality"]>["optimalityClass"];
+  let note: string;
+  if (!finite) {
+    optimalityClass = "feasible-no-bound";
+    note = "No finite root dual bound (unbounded relaxation direction); optimality not bounded.";
+  } else if ((gapAbs as number) <= tol) {
+    optimalityClass = "proven-optimal";
+    note = "Root dual bound meets the incumbent — optimum proven at the relaxation root.";
+  } else {
+    optimalityClass = "gap-bounded";
+    note = `Optimum bracketed in [incumbent, dualBound]; gap ${(gapAbs as number).toExponential(2)}. Root LP relaxation only — a tighter bound needs branch-and-bound (UNPROVEN, not suboptimal).`;
+  }
+
+  return {
+    optimalityClass,
+    dualBound,
+    optimalityGapAbs: gapAbs,
+    optimalityGapRel: gapRel,
+    boundMethod: "root-LP Lagrangian box-min (weak-duality bound; not a B&B/VIPR proof)",
+    multipliers,
+    note,
+  };
 }
 
 // Deterministic, float-stable canonical hash (sorted keys, fixed precision)
@@ -350,6 +507,7 @@ function buildSolveCertificate(
   solution: Record<string, number>,
   status: OptimizationResult["status"],
   objectiveValue: number,
+  optimality?: SolveCertificate["optimality"],
 ): SolveCertificate {
   const problemClass: "LP" | "MIP" =
     problem.variables.some((v) => v.type === "integer" || v.type === "binary") ? "MIP" : "LP";
@@ -370,7 +528,7 @@ function buildSolveCertificate(
   if (certStatus !== "optimal") {
     if (certStatus === "infeasible" || certStatus === "unbounded") {
       notes.push(
-        `Solver reports '${certStatus}'. This build of HiGHS (WASM) exposes no dual ray, so no Farkas/IIS witness is available — this status is the solver's report and is NOT independently certified here.`,
+        `Solver reports '${certStatus}'. This build of HiGHS (WASM) exposes no dual ray, so no Farkas/IIS witness is available — this status is the solver's report and is NOT independently certified here. (A solver-free exact-rational Farkas witness, recovered via an auxiliary alternative-system solve, is a documented fast-follow.)`,
       );
     } else {
       notes.push("Solver returned no optimal solution; no certificate evidence computed.");
@@ -438,6 +596,7 @@ function buildSolveCertificate(
     worstConstraint: recheck.worstConstraint,
     integrality,
     duality,
+    optimality,
     notes,
   };
 }
@@ -512,12 +671,18 @@ export async function solve(problem: OptimizationProblem): Promise<OptimizationR
       }
     }
 
-    // Bounds
+    // Bounds. NB: in CPLEX LP format an explicit Bounds row OVERRIDES the
+    // Binary section's implied [0,1] domain, so binary vars must be written as
+    // 0 <= v <= 1 (a default 1e30 upper would let a "binary" take value > 1).
     lines.push("Bounds");
     for (const v of problem.variables) {
-      const lo = v.lower ?? 0;
-      const hi = v.upper ?? 1e30;
-      lines.push(`  ${lo} <= ${v.name} <= ${hi}`);
+      if (v.type === "binary") {
+        lines.push(`  0 <= ${v.name} <= 1`);
+      } else {
+        const lo = v.lower ?? 0;
+        const hi = v.upper ?? 1e30;
+        lines.push(`  ${lo} <= ${v.name} <= ${hi}`);
+      }
     }
 
     // Integer / Binary variables
@@ -567,7 +732,43 @@ export async function solve(problem: OptimizationProblem): Promise<OptimizationR
       if (r && typeof r.Dual === "number") dualValues[c.name] = r.Dual;
     });
 
-    const certificate = buildSolveCertificate(problem, raw, solution, status, objectiveValue);
+    // Root dual-bound optimality evidence. LP duals are in hand; for a MIP,
+    // HiGHS exposes none, so re-solve the LP relaxation (integrality dropped) to
+    // obtain root multipliers. The bound is valid for ANY multipliers, so a
+    // failed/empty relaxation degrades gracefully to "feasible-no-bound".
+    let optimality: SolveCertificate["optimality"];
+    if (status === "optimal") {
+      const isMip = problem.variables.some((v) => v.type === "integer" || v.type === "binary");
+      let multipliers: Record<string, number> = {};
+      if (isMip) {
+        const relaxed: OptimizationProblem = {
+          ...problem,
+          variables: problem.variables.map((v) =>
+            v.type === "binary"
+              ? { name: v.name, type: "continuous", lower: v.lower ?? 0, upper: v.upper ?? 1 }
+              : v.type === "integer"
+                ? { ...v, type: "continuous" }
+                : v,
+          ),
+        };
+        try {
+          const rel = await solve(relaxed);
+          if (rel.status === "optimal" && rel.dualValues) multipliers = rel.dualValues;
+        } catch {
+          /* leave empty → feasible-no-bound */
+        }
+      } else {
+        multipliers = dualValues;
+      }
+      // Only certify optimality against an incumbent that passes an independent
+      // primal-feasibility + integrality re-check (defends against any upstream
+      // solver/encoding bug that returns an out-of-domain "solution").
+      const rc = recheckSolve(problem, solution);
+      const incumbentOk = rc.feasible && integralityViolation(problem, solution) <= INT_TOL;
+      optimality = buildOptimality(problem, objectiveValue, multipliers, incumbentOk);
+    }
+
+    const certificate = buildSolveCertificate(problem, raw, solution, status, objectiveValue, optimality);
 
     return {
       status,
