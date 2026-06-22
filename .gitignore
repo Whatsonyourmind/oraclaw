@@ -16,14 +16,13 @@ coverage/
 *.tsbuildinfo
 *.difypkg
 
-# Proprietary algorithm source (private repo: private core repo)
+# Proprietary algorithm source — kept in a separate private repository
 mission-control/apps/api/src/services/oracle/algorithms/*.ts
 mission-control/apps/api/src/routes/oracle/api-public.ts
 mission-control/packages/mcp-server/src/index.ts
 .env.npm-recovery
 
-# Marketing, monetization, planning — private repo only (private core repo)
-# See private repo/ working tree for these files.
+# Marketing, monetization, planning — private repository only
 launch/
 tasks/
 ralph/
@@ -31,13 +30,16 @@ docs/superpowers/
 CHANGELOG-internal.md
 MARKET_ASSESSMENT.md
 GROWTH_PLAN.md
+PRD-LAUNCH.md
+PRD-*.md
 mcp-publisher.exe
 mcp-publisher.tar.gz
 *.mcpregistry_*_token
 
-# Internal — moved to private repo
+# Internal — kept in a private repository
 .planning/
 mission-control/scripts/outreach-*
 mission-control/scripts/automated-gtm.*
 BILLING_STATUS.md
 HEALTH_REPORT.md
+.github/workflows/daily-report.yml

@@ -25,4 +25,4 @@ This folder is our **local source-of-truth** for skill content. Every `*.SKILL.m
 
 ## Why the current bug matters
 
-The stale install snippet blocks every would-be user of the `oraclaw-bandit` skill — `path/to/oraclaw-mcp/index.ts` is a placeholder path that never resolves. Anyone copy-pasting hits a dead install and abandons, which is exactly the top install funnel we're measuring (369 weekly downloads on `@oraclaw/mcp-server`).
+The stale install snippet blocks every would-be user of the `oraclaw-bandit` skill — `path/to/oraclaw-mcp/index.ts` is a placeholder path that never resolves. Anyone copy-pasting hits a dead install and abandons. The install snippet is the first thing a new user runs, so fixing it is high-leverage.
