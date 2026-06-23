@@ -639,8 +639,34 @@ export function verifyCertificate(
 /**
  * Solve a general LP/MIP optimization problem.
  */
+/**
+ * Validate the problem shape before solving so a malformed payload yields a clear,
+ * actionable error instead of a cryptic runtime crash (e.g. "problem.variables.some is
+ * not a function") surfacing as an opaque 500 on a paid endpoint.
+ */
+export function validateProblem(problem: OptimizationProblem): void {
+  if (problem === null || typeof problem !== "object") {
+    throw new Error("Invalid problem: expected an object with objective, variables, constraints.");
+  }
+  if (problem.objective === null || typeof problem.objective !== "object" || Array.isArray(problem.objective)) {
+    throw new Error("Invalid problem.objective: expected an object mapping variable name -> coefficient.");
+  }
+  if (!Array.isArray(problem.variables) || problem.variables.length === 0) {
+    throw new Error("Invalid problem.variables: expected a non-empty array of variable definitions.");
+  }
+  for (const v of problem.variables) {
+    if (v === null || typeof v !== "object" || typeof v.name !== "string") {
+      throw new Error("Invalid problem.variables: each variable needs a string 'name'.");
+    }
+  }
+  if (!Array.isArray(problem.constraints)) {
+    throw new Error("Invalid problem.constraints: expected an array (use [] for an unconstrained problem).");
+  }
+}
+
 export async function solve(problem: OptimizationProblem): Promise<OptimizationResult> {
   const start = Date.now();
+  validateProblem(problem);
 
   try {
     const solver = await getSolver();
