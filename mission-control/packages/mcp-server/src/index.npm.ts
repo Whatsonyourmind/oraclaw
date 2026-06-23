@@ -390,11 +390,17 @@ const TOOLS = [
             properties: {
               id: { type: "string" },
               name: { type: "string" },
-              duration: { type: "number", description: "Required slot duration (minutes)." },
+              durationMinutes: { type: "number", description: "Required duration in minutes." },
               priority: { type: "number", description: "Higher = more important." },
-              energyRequired: { type: "number", minimum: 0, maximum: 1, description: "0..1 energy demand." },
+              energyRequired: {
+                type: "string",
+                enum: ["high", "medium", "low"],
+                description: "Energy demand.",
+              },
+              deadline: { type: "number", description: "Optional. Unix timestamp (ms)." },
+              category: { type: "string", description: "Optional." },
             },
-            required: ["id", "duration"],
+            required: ["id", "name", "durationMinutes", "priority", "energyRequired"],
           },
         },
         slots: {
@@ -404,11 +410,18 @@ const TOOLS = [
             type: "object",
             properties: {
               id: { type: "string" },
-              name: { type: "string" },
-              duration: { type: "number" },
-              energyLevel: { type: "number", minimum: 0, maximum: 1 },
+              startTime: {
+                type: "number",
+                description: "Slot start as a Unix timestamp (number, not a string like '09:00').",
+              },
+              durationMinutes: { type: "number", description: "Slot duration in minutes." },
+              energyLevel: {
+                type: "string",
+                enum: ["high", "medium", "low"],
+                description: "Slot energy level.",
+              },
             },
-            required: ["id", "duration"],
+            required: ["id", "startTime", "durationMinutes", "energyLevel"],
           },
         },
       },
