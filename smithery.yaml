@@ -1,0 +1,36 @@
+# Smithery configuration for OraClaw — https://smithery.ai/docs/build/project-config
+# Deterministic decision-intelligence MCP server. 17 tools (11 free, no key; 6 premium via API key).
+# Published to npm as @oraclaw/mcp-server and to the official MCP Registry as io.github.Whatsonyourmind/oraclaw.
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      oraclawApiKey:
+        type: string
+        title: OraClaw API Key
+        description: >-
+          Optional. Unlocks the 6 premium tools (optimize_cmaes, solve_constraints,
+          analyze_graph, analyze_risk, predict_ensemble, simulate_scenario). The 11
+          free tools (optimize_bandit, optimize_contextual, solve_schedule,
+          predict_forecast, detect_anomaly, score_calibration, score_convergence,
+          predict_bayesian, plan_pathfind, simulate_montecarlo, optimize_evolve) work
+          with no key. Get a key at https://web-olive-one-89.vercel.app
+      oraclawApiUrl:
+        type: string
+        title: API Base URL
+        default: https://oraclaw-api.onrender.com
+        description: Advanced — override the OraClaw API base URL.
+    required: []
+  commandFunction: |-
+    (config) => ({
+      command: 'npx',
+      args: ['-y', '@oraclaw/mcp-server'],
+      env: {
+        ...(config.oraclawApiKey ? { ORACLAW_API_KEY: config.oraclawApiKey } : {}),
+        ...(config.oraclawApiUrl ? { ORACLAW_API_URL: config.oraclawApiUrl } : {})
+      }
+    })
+exampleConfig:
+  oraclawApiKey: ""
+  oraclawApiUrl: https://oraclaw-api.onrender.com
