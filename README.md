@@ -7,7 +7,7 @@
 [![npm](https://img.shields.io/badge/npm-%40oraclaw-blue)](https://www.npmjs.com/org/oraclaw)
 [![API Status](https://img.shields.io/badge/API-live-brightgreen)](https://oraclaw-api.onrender.com/api/v1/health)
 
-**MCP Optimization Tools for AI Agents** -- 17 tools, 17 algorithms, sub-25ms. Zero LLM cost.
+**MCP Optimization Tools for AI Agents** -- 17 tools (11 free, no key), sub-25ms. Zero LLM cost.
 
 Your AI agent can't do math. OraClaw gives it deterministic optimization, simulation, forecasting, and risk analysis through the Model Context Protocol. Every tool returns structured JSON, runs in under 25ms, and costs nothing to compute.
 
