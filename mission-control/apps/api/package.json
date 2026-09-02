@@ -33,7 +33,7 @@
     "arima": "^0.2.8",
     "bayesian-optimizer": "^1.2.0",
     "dotenv": "^16.6.1",
-    "fastify": "^5.8.5",
+    "fastify": "^5.12.1",
     "graphology": "^0.26.0",
     "graphology-communities-louvain": "^2.0.2",
     "graphology-metrics": "^2.4.0",
